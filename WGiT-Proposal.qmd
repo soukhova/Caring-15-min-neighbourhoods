@@ -1,0 +1,62 @@
+---
+title: "Towards caring 15-minute neighbourhoods"
+author:
+  - name: Anastasia Soukhov 
+    email: soukhoa@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+    attributes:
+        corresponding: true
+  - name: Léa Ravensbergen
+    email: ravensbl@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+  - name: Lucía Mejía Dorantes
+    email: lucia.mejia.dorantes@gmail.com
+    affiliations:
+        - name: Consultant
+          city: Karlsruhe, Germany
+  - name: Antonio Páez
+    email: paezha@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+format: 
+  #docx
+  elsevier-pdf:
+    keep-tex: true
+    include-in-header:
+      text: |
+        \usepackage{graphicx}
+        \usepackage{unicode-math}
+        \usepackage{hyperref}
+        \def\tightlist{}
+        \usepackage{setspace}
+        \doublespacing
+        \usepackage{lineno}
+        \linenumbers
+    journal:
+      name: 7th International Conference on Women and Gender in Transportation (WGiT)
+      formatting: preprint
+      model: 3p
+      cite-style: authoryear
+keywords: ["Accessibility", "Mobility of Care", "Gender", "15-Minute City", "Care Complete Neighbourhoods"]
+bibliography: bibliography.bib
+---
+ 
+The 15-Minute City is a normative conceptualisation gaining ground in urban planning: it frames neighbourhoods as responsive to human needs and environmental sensibilities, where most daily necessities can be reached within a 15-minute walk or bike ride [@Allam2022]. As a related tool, accessibility measures (the ease of reaching opportunities) are increasingly important amongst transport planners aiming to foster just and sustainable cities [@vale2023accessibility]. Both the 15-Minute City and accessibility measures are flexible enough to consider all destination types holistically however, gendered examinations have been lacking in the literature. For instance, accessibility analyses have historically focused on employment-centric and discretionary travel, types of travel more frequent for working-age and higher-income men. 
+
+To counter this masculinist bias, this study investigates a way to gender-mainstream the 15-Minute City through a care lens [e.g., @lawWomenTransportNew1999; @uteng2008gendered; @Oestergaard1992; @levy1991towards; @levy2013travel] supported by the Mobility of Care framework (coined by @sanchezdemadariagaMobilityCareIntroducing2013). Mobility of Care emphasizes the importance of travel to unpaid work (care trips) in contrast to the better-studied travel to employment and leisure. While all three trip types (work, care, and leisure) are essential, care trips are often relatively shorter-distance, proximate to residential/work/school, and comprise approximately 30% of adults’ daily trips [@sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory; @mejia2021mobility]; fitting well within the 15-Minute City conceptualisation.
+
+Our study provides an empirical example that maps the 15-Minute City onto the Mobility of Care framework. Specifically, it identifies which areas in Hamilton, Canada are 'caring 15-minute neighbourhoods'. To do so, a database of care destinations is created using secondary data. In this database, care destinations include all places associated with sustaining household tasks needed for the reproduction of life namely: shopping (e.g., groceries), errands (e.g., libraries), health (e.g., dentist), and caring for dependents (e.g., schools). This database is used to estimate the number and mix of care-destinations that can be reached within a 15-minute walk- and cycling- sheds from census centroids. Typologies are generated to illustrate which neighbourhoods can and to what degree facilitate 15-minute access to care.
+
+Results indicate only a few neighbourhoods outside of the downtown core are 'care-complete', i.e., contain a sufficiently high mix of care destinations from all categories and sub-categories. However, some neighbourhoods are almost 'care-complete' and provide 15-minute access to some care categories. Our study frames these neighbourhoods on the continuum of 'caring' and in need of further intervention. The quantitative investigation conducted provides a high-level picture of what neighbourhoods (and their underlying land-use) are connected to transport infrastructure that can support reaching care-destinations. 
+
+Taken together, this study provides a theoretical bridge to connect 15-Minute Cities, accessibility analysis and Mobility of Care framework for the purpose of informing policy choice aimed to encourage just and sustainable mobility. 
+
+# References

@@ -1,0 +1,270 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  authoryear,
+  preprint,
+  3p]{elsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+\usepackage{graphicx}
+\usepackage{unicode-math}
+\usepackage{hyperref}
+\def\tightlist{}
+\usepackage{setspace}
+\doublespacing
+\usepackage{lineno}
+\linenumbers
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\journal{7th International Conference on Women and Gender in Transportation (WGiT)}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage[]{natbib}
+\bibliographystyle{elsarticle-harv}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Towards caring 15-minute neighbourhoods},
+  pdfauthor={Anastasia Soukhov; Léa Ravensbergen; Lucía Mejía Dorantes; Antonio Páez},
+  pdfkeywords={Accessibility, Mobility of Care, Gender, 15-Minute
+City, Care Complete Neighbourhoods},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\setlength{\parindent}{6pt}
+\begin{document}
+
+\begin{frontmatter}
+\title{Towards caring 15-minute neighbourhoods}
+\author[1]{Anastasia Soukhov%
+\corref{cor1}%
+}
+ \ead{soukhoa@mcmaster.ca} 
+\author[1]{Léa Ravensbergen%
+%
+}
+ \ead{ravensbl@mcmaster.ca} 
+\author[2]{Lucía Mejía Dorantes%
+%
+}
+ \ead{lucia.mejia.dorantes@gmail.com} 
+\author[1]{Antonio Páez%
+%
+}
+ \ead{paezha@mcmaster.ca} 
+
+\affiliation[1]{organization={McMaster University, School of Earth,
+Environment \& Society},city={Hamilton, Canada},postcodesep={}}
+\affiliation[2]{organization={Consultant},city={Karlsruhe,
+Germany},postcodesep={}}
+
+\cortext[cor1]{Corresponding author}
+
+
+
+
+        
+
+
+
+
+
+\begin{keyword}
+    Accessibility \sep Mobility of Care \sep Gender \sep 15-Minute
+City \sep 
+    Care Complete Neighbourhoods
+\end{keyword}
+\end{frontmatter}
+    \ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, boxrule=0pt, enhanced, sharp corners, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden]}{\end{tcolorbox}}\fi
+
+The 15-Minute City is a normative conceptualisation gaining ground in
+urban planning: it frames neighbourhoods as responsive to human needs
+and environmental sensibilities, where most daily necessities can be
+reached within a 15-minute walk or bike ride \citep{Allam2022}. As a
+related tool, accessibility measures (the ease of reaching
+opportunities) are increasingly important amongst transport planners
+aiming to foster just and sustainable cities
+\citep{vale2023accessibility}. Both the 15-Minute City and accessibility
+measures are flexible enough to consider all destination types
+holistically however, gendered examinations have been lacking in the
+literature. For instance, accessibility analyses have historically
+focused on employment-centric and discretionary travel, types of travel
+more frequent for working-age and higher-income men.
+
+To counter this masculinist bias, this study investigates a way to
+gender-mainstream the 15-Minute City through a care lens
+\citep[e.g.,][]{lawWomenTransportNew1999, uteng2008gendered, Oestergaard1992, levy1991towards, levy2013travel}
+supported by the Mobility of Care framework (coined by
+\citet{sanchezdemadariagaMobilityCareIntroducing2013}). Mobility of Care
+emphasizes the importance of travel to unpaid work (care trips) in
+contrast to the better-studied travel to employment and leisure. While
+all three trip types (work, care, and leisure) are essential, care trips
+are often relatively shorter-distance, proximate to
+residential/work/school, and comprise approximately 30\% of adults'
+daily trips
+\citep{sanchezdemadariagaMeasuringMobilitiesCare2019, ravensbergen2023exploratory, mejia2021mobility};
+fitting well within the 15-Minute City conceptualisation.
+
+Our study provides an empirical example that maps the 15-Minute City
+onto the Mobility of Care framework. Specifically, it identifies which
+areas in Hamilton, Canada are `caring 15-minute neighbourhoods'. To do
+so, a database of care destinations is created using secondary data. In
+this database, care destinations include all places associated with
+sustaining household tasks needed for the reproduction of life namely:
+shopping (e.g., groceries), errands (e.g., libraries), health (e.g.,
+dentist), and caring for dependents (e.g., schools). This database is
+used to estimate the number and mix of care-destinations that can be
+reached within a 15-minute walk- and cycling- sheds from census
+centroids. Typologies are generated to illustrate which neighbourhoods
+can and to what degree facilitate 15-minute access to care.
+
+Results indicate only a few neighbourhoods outside of the downtown core
+are `care-complete', i.e., contain a sufficiently high mix of care
+destinations from all categories and sub-categories. However, some
+neighbourhoods are almost `care-complete' and provide 15-minute access
+to some care categories. Our study frames these neighbourhoods on the
+continuum of `caring' and in need of further intervention. The
+quantitative investigation conducted provides a high-level picture of
+what neighbourhoods (and their underlying land-use) are connected to
+transport infrastructure that can support reaching care-destinations.
+
+Taken together, this study provides a theoretical bridge to connect
+15-Minute Cities, accessibility analysis and Mobility of Care framework
+for the purpose of informing policy choice aimed to encourage just and
+sustainable mobility.
+
+
+\renewcommand\refname{References}
+  \bibliography{bibliography.bib}
+
+
+\end{document}

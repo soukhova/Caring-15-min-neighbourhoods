@@ -1,0 +1,56 @@
+"0","library(biscale)"
+"0","library(cowplot)"
+"0","library(sf)"
+"2","Linking to GEOS 3.11.2, GDAL 3.7.2, PROJ 9.3.0; sf_use_s2() is TRUE
+"
+"0","library(here)"
+"2","here() starts at C:/Users/user/OneDrive - McMaster University/05. PhD Research/14_15min-care-access-typolo
+"
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(tmap)"
+"2","Registered S3 methods overwritten by 'htmltools':
+  method               from         
+  print.html           tools:rstudio
+  print.shiny.tag      tools:rstudio
+  print.shiny.tag.list tools:rstudio
+"
+"2","Registered S3 method overwritten by 'htmlwidgets':
+  method           from         
+  print.htmlwidget tools:rstudio
+"
+"2","Breaking News: tmap 3.x is retiring. Please test v4, e.g. with
+remotes::install_github('r-tmap/tmap')
+"
+"0","library(mapview)"
+"0","library(tmaptools)"
+"0","library(pander)"
+"0","library(flextable)"
+"0","library(ftExtra)"
+"2","Registered S3 method overwritten by 'ftExtra':
+  method                  from     
+  as_flextable.data.frame flextable
+"
+"2","
+Attaching package: ‘ftExtra’
+
+"
+"2","The following object is masked from ‘package:flextable’:
+
+    separate_header
+
+"
+"0","library(scales)"
