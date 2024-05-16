@@ -48,6 +48,16 @@ format:
 keywords: ["Accessibility", "Mobility of Care", "Gender", "15-Minute City", "Care Complete Neighbourhoods"]
 bibliography: bibliography.bib
 ---
+
+```{r }
+#| label: set-up-copy-bibliography
+#| include: false
+
+# WARNING: DO NOT MODIFY THE BIBLIOGRAPHY ON THIS FOLDER, WORK WITH THE ONE IN FOLDER ./bibliography/
+file.copy(glue::glue(here::here(), "/bibliography/bibliography.bib"), 
+          getwd(),
+          overwrite = TRUE)
+```
  
 The 15-Minute City is a normative conceptualisation gaining ground in urban planning: it frames neighbourhoods as responsive to human needs and environmental sensibilities, where most daily necessities can be reached within a 15-minute walk or bike ride [@Allam2022]. As a related tool, accessibility measures (the ease of reaching opportunities) are increasingly important amongst transport planners aiming to foster just and sustainable cities [@vale2023accessibility]. Both the 15-Minute City and accessibility measures are flexible enough to consider all destination types holistically however, gendered examinations have been lacking in the literature. For instance, accessibility analyses have historically focused on employment-centric and discretionary travel, types of travel more frequent for working-age and higher-income men. 
 

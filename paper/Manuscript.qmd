@@ -48,15 +48,29 @@ format:
 keywords: ["Accessibility", "Mobility of Care", "Gender", "15-Minute City", "Care Complete Neighbourhoods"]
 bibliography: bibliography.bib
 ---
-```{r setup, include=FALSE}
+```{r}
+#| label: setup-knitr-options
+#| include: false
+
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE,
                       cache=FALSE)
+
+```
+```{r }
+#| label: set-up-copy-bibliography
+#| include: false
+
+# WARNING: DO NOT MODIFY THE BIBLIOGRAPHY ON THIS FOLDER, WORK WITH THE ONE IN FOLDER ./bibliography/
+file.copy(glue::glue(here::here(), "/bibliography/bibliography.bib"), 
+          getwd(),
+          overwrite = TRUE)
 ```
 
 ```{r}
-#function for creating comments
+#| label: function for creating comments
+
 word_comment <- function(comment, highlight = "") {
   if (isTRUE(knitr:::pandoc_to() == "docx")) {
     paste0('[', comment, ']{.comment-start id="0" author="Anastasia"',
@@ -68,20 +82,21 @@ word_comment <- function(comment, highlight = "") {
 ```{r library-setup}
 library(biscale)
 library(cowplot)
-library(sf)
-library(here)
 library(dplyr)
-library(tmap)
-library(mapview)
-library(tmaptools)
-library(pander)
 library(flextable)
 library(ftExtra)
+library(glue)
+library(here)
+library(mapview)
+library(pander)
 library(scales)
+library(sf)
+library(tmap)
+library(tmaptools)
 ```
 
 ```{r}
-load("data/care_dest.rda")
+load(glue::glue(here::here(), "/data/care_dest.rda"))
 ```
 
 ```{r reformat care-dest specific categories}
@@ -216,7 +231,7 @@ In Canada, women have become more educated and have an achieved an increased par
 ```{r plot-figure1, out.width=600, out.height=600}
 #| label: fig-Fig1
 #| fig-cap: "The number of residential parcels per DA in 2020 (top) and the rate of population per dwelling per DA (middle) and prevalence of Low-income cut-offs after-tax (LICO-AT) per DA (bottom) retrieved from the 2021 Canadian Census. All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/pop_descriptive_plots.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/pop_descriptive_plots.tiff"))
 ```
 
 ## Estimated travel times
@@ -264,7 +279,7 @@ flextable(dat) %>%
 ```{r plot-figure2, out.width=600, out.height=600}
 #| label: fig-Fig2
 #| fig-cap: "The locations of care destinations in Hamilton separated by the author-generated categories of: dependent-, errand-, grocery- and health- centric care categories. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/care_categories_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/care_categories_plot.tiff"))
 ```
 
 For the purpose of this analysis and in absence of city-wide household preferences for care destinations, all locations are re-weighted to make each of the four categories conceptually equivalent i.e., each location within each category $c$ is `r word_comment("Thoughts on this", "weighted to equal")` $W_j^c = \frac{1}{C} \frac{\sum_{c} O_j^c}{O_j^c}$ where $C$ is the total number of categories and $O_j^c$ is a location at destination $j$ within a category $c$.  The total sum of locations is preserved after weighting such that $\sum_{c} \sum_{j} O_j^c = \sum_{c} \sum_{j} W_j^c * O_j^c$. Conceptually, this simplistic re-weight makes destinations in categories with fewer locations more important and destinations in categories with more locations less important. The underlying assumption is the status-quo of locations per category is sufficient, e.g., many daycares (smaller capacities) and few hospitals (larger capacities) sufficiently serves  the populations' care needs. Re-weighting in this way ensures that populations who are near _assumed_ smaller capacity destinations such as daycares are not assigned a disproportionately high accessibility score and vice versa for populations near destinations with larger service capacities like hospitals. In absence of empirical data for amenity weight calibration, this methodological assumption is a limitation. 
@@ -319,26 +334,26 @@ $$
 ```{r plot-figure3, out.width=600, out.height=600}
 #| label: fig-Fig3
 #| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_copp_weighted_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_weighted_plot.tiff"))
 ```
 
 ```{r plot-figure4, out.width=600, out.height=600}
 #| label: fig-Fig4
 #| fig-cap: "The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_entropy_copp_weighted_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_weighted_plot.tiff"))
 ```
 
 ```{r plot-figure5, out.width=600, out.height=600}
 #| label: fig-Fig5
 #| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA - fig3) and the diversity measure (fig 4). Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_bivariate_entropy_copp_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_bivariate_entropy_copp_plot.tiff"))
 ```
 
 BONUS! Per capita spatial availability. This is not discussed in the methods. The spatial availability calculation assumes population is 'population density' and weighted opportunity count. With this map we can start thinking about per capita availability of opportunities. 
 ```{r plot-figure6, out.width=600, out.height=600}
 #| label: fig-Fig6
 #| fig-cap: "Per capita spatial availability of care opportunities. Uses weighted care opportunities, population density as competition, and 15 minute binary cut-off. Aggregates parcel level spatial availability at the DA level (by summation) and divides by the DA population. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_vvi_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_vvi_plot.tiff"))
 ```
 
 `r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")`
@@ -356,12 +371,12 @@ knitr::include_graphics("data/all_cats_vvi_plot.tiff")
 ```{r plot-figure7, out.width=600, out.height=600}
 #| label: fig-Fig7
 #| fig-cap: "UNWEIGHTED -- The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_copp_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_plot.tiff"))
 ```
 
 
 ```{r plot-figure8, out.width=600, out.height=600}
 #| label: fig-Fig8
 #| fig-cap: "UNWEIGHTED -- The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics("data/all_cats_entropy_copp_plot.tiff")
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_plot.tiff"))
 ```
