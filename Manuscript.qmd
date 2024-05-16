@@ -1,0 +1,367 @@
+---
+title: "Towards caring 15-minute neighbourhoods"
+author:
+  - name: Anastasia Soukhov 
+    email: soukhoa@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+    attributes:
+        corresponding: true
+  - name: Léa Ravensbergen
+    email: ravensbl@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+  - name: Lucía Mejía Dorantes
+    email: lucia.mejia.dorantes@gmail.com
+    affiliations:
+        - name: Consultant
+          city: Karlsruhe, Germany
+  - name: Antonio Páez
+    email: paezha@mcmaster.ca
+    affiliations:
+        - name: McMaster University
+          department: School of Earth, Environment & Society
+          city: Hamilton, Canada
+format: 
+  docx
+  # elsevier-pdf:
+  #   keep-tex: true
+  #   include-in-header:
+  #     text: |
+  #       \usepackage{graphicx}
+  #       \usepackage{unicode-math}
+  #       \usepackage{hyperref}
+  #       \def\tightlist{}
+  #       \usepackage{setspace}
+  #       \doublespacing
+  #       \usepackage{lineno}
+  #       \linenumbers
+  #   journal:
+  #     name: 7th International Conference on Women and Gender in Transportation (WGiT)
+  #     formatting: preprint
+  #     model: 3p
+  #     cite-style: authoryear
+keywords: ["Accessibility", "Mobility of Care", "Gender", "15-Minute City", "Care Complete Neighbourhoods"]
+bibliography: bibliography.bib
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache=FALSE)
+```
+
+```{r}
+#function for creating comments
+word_comment <- function(comment, highlight = "") {
+  if (isTRUE(knitr:::pandoc_to() == "docx")) {
+    paste0('[', comment, ']{.comment-start id="0" author="Anastasia"',
+           'date="2024-05-16T15:00:00Z"}', highlight, '[]{.comment-end id="0"}')
+  }
+}
+```
+
+```{r library-setup}
+library(biscale)
+library(cowplot)
+library(sf)
+library(here)
+library(dplyr)
+library(tmap)
+library(mapview)
+library(tmaptools)
+library(pander)
+library(flextable)
+library(ftExtra)
+library(scales)
+```
+
+```{r}
+load("data/care_dest.rda")
+```
+
+```{r reformat care-dest specific categories}
+care_dest <- care_dest |> 
+  mutate(Care_Category_Specific = case_when(
+    Care_Category_Specific  == "Daycare_EarlyON" ~ "Daycare or EarlyON",
+    Care_Category_Specific == "Community_Centre" ~ "Community or Recreation Centre",
+    Care_Category_Specific == "Daycare_Centre" ~ "Daycare or EarlyON",
+    Care_Category_Specific == "Recreation_Centre" ~ "Community or Recreation Centre",
+    Care_Category_Specific == "School" ~ "School",
+    Care_Category_Specific == "Long-Term_Care_Home" ~ "Long-Term Care or Retirement Home",
+    Care_Category_Specific == "Retirement_Home" ~ "Long-Term Care or Retirement Home",
+    Care_Category_Specific == "Senior_Centre" ~ "Senior Centre",
+    Care_Category_Specific == "Seniors_Active_Living_Centre" ~ "Senior Centre",
+    Care_Category_Specific == "Post_Office" ~ "Post Office",
+    Care_Category_Specific == "Library" ~ "Library",
+    Care_Category_Specific == "Banks" ~ "Bank or ATM",
+    Care_Category_Specific == "Grocer_ConvenienceStore" ~ "Convenience Store",
+    Care_Category_Specific == "Clinics" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Grocer_Retail" ~ "Grocer",
+    Care_Category_Specific == "Dentist" ~ "Dentist",
+    Care_Category_Specific == "Hosptial" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Hospital" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Pharmacy" ~ "Pharmacy",
+    Care_Category_Specific == "Park" ~ "Park"),
+  Care_Category = case_when(
+    Care_Category == "Child_Centric" ~ "Dependent-centric",
+    Care_Category == "Elder_Centric" ~ "Dependent-centric",
+    Care_Category == "Errand_Centric" ~ "Errand-centric",
+    Care_Category == "Grocery_Centric" ~ "Grocery-centric",
+    Care_Category == "Health_Centric" ~ "Health-centric"))
+
+care_dest <- care_dest |> rename("care_ID" = "ID") |> mutate(care_ID = as.character(care_ID)) 
+# care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n())
+```
+
+```{r re-weighting points so all destinations are considered spatially equal in access counts, include=FALSE}
+Dependent_Centric <- 0.25*2225/1265
+Errand_Centric <- 0.25*2225/158
+Grocery_Centric <- 0.25*2225/381
+Health_Centric <- 0.25*2225/421
+
+#adds up to 2225 opportunities  
+0.25*2225/1265*(1265) +  0.25*2225/158*(158) + 0.25*2225/381*(381) + 0.25*2225/421*(421)
+
+#adding the weighted care destination counts -- reweighted such that the 4 categories each make up 25% of the 2225 points.
+care_dest <- care_dest |>
+          mutate(Dest_count_weighted = case_when(Care_Category == "Dependent-centric" ~ Dependent_Centric,
+                                                 Care_Category == "Errand-centric" ~ Errand_Centric,
+                                                 Care_Category == "Grocery-centric" ~ Grocery_Centric,
+                                                 Care_Category == "Health-centric" ~ Health_Centric))
+
+care_dest$Dest_count_weighted |> sum()
+```
+ 
+# Abstract 
+
+The 15-Minute City is a normative conceptualisation gaining ground in urban planning: it frames neighbourhoods as responsive to human needs and environmental sensibilities, where most daily necessities can be reached within a 15-minute walk or bike ride [@Allam2022]. As a related tool, accessibility measures (the ease of reaching opportunities) are increasingly important amongst transport planners aiming to foster just and sustainable cities [@vale2023accessibility]. Both the 15-Minute City and accessibility measures are flexible enough to consider all destination types holistically however, gendered examinations have been lacking in the literature. For instance, accessibility analyses have historically focused on employment-centric and discretionary travel, types of travel more frequent for working-age and higher-income men. 
+
+To counter this masculinist bias, this study investigates a way to gender-mainstream the 15-Minute City through a care lens [e.g., @lawWomenTransportNew1999; @cresswell_gendered_2008; @Oestergaard1992; @levy1991towards; @levy2013travel] supported by the Mobility of Care framework (coined by @sanchezdemadariagaMobilityCareIntroducing2013). Mobility of Care emphasizes the importance of travel to unpaid work (care trips) in contrast to the better-studied travel to employment and leisure. While all three trip types (work, care, and leisure) are essential, care trips are often relatively shorter-distance, proximate to residential/work/school, and comprise approximately 30% of adults’ daily trips [@sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory; @mejia2021mobility]; fitting well within the 15-Minute City conceptualisation.
+
+Our study provides an empirical example that maps the 15-Minute City onto the Mobility of Care framework. Specifically, it identifies which areas in Hamilton, Canada are 'caring 15-minute neighbourhoods'. To do so, a database of care destinations is created using secondary data. In this database, care destinations include all places associated with sustaining household tasks needed for the reproduction of life namely: shopping (e.g., groceries), errands (e.g., libraries), health (e.g., dentist), and caring for dependents (e.g., schools). This database is used to estimate the number and mix of care-destinations that can be reached within a 15-minute walk- and cycling- sheds from census centroids. Typologies are generated to illustrate which neighbourhoods can and to what degree facilitate 15-minute access to care.
+
+Results indicate only a few neighbourhoods outside of the downtown core are 'care-complete', i.e., contain a sufficiently high mix of care destinations from all categories and sub-categories. However, some neighbourhoods are almost 'care-complete' and provide 15-minute access to some care categories. Our study frames these neighbourhoods on the continuum of 'caring' and in need of further intervention. The quantitative investigation conducted provides a high-level picture of what neighbourhoods (and their underlying land-use) are connected to transport infrastructure that can support reaching care-destinations. 
+
+Taken together, this study provides a theoretical bridge to connect 15-Minute Cities, accessibility analysis and Mobility of Care framework for the purpose of informing policy choice aimed to encourage just and sustainable mobility. 
+
+# Introduction
+
+Caring is one of the most fundamental activities in societies, which has allowed humanity to survive and evolve. It involves activities targeted to meet physical, psychological, and emotional needs of others [@ilo_care_2018]. Yet, it is one of the worst devalued, underpaid, and unequal activities worldwide. Traditionally, caring activities have remained on women’s shoulders. Even though the society has evolved, and nowadays women attain higher educational levels and tend to work out of home more than ever before, the bulk of care remains (at any stage of her lifecourse) heavily on her shoulders. The Second Job or the Second Shift remains in all industrial societies, mostly women’s work (Hayden, 1982 (?Citation)) [@hochschild_second_2012]. 
+
+This unequal share of caring responsibilities leads to gendered differences in among others, career development, differences in contract types and decision-making positions, unbalanced share of women in certain professions, gender pay gap, time poverty, as recognised by different international organisations (European Institute for Gender Equality, 2016 (?Citation)) [@ilo_care_2018]. In fact, already the first feminists in the United States observed that domestic labor was the most relevant basic cause of women’s inequality [@gordon_womans_1976] (Hayden, 1982 (?Citation)).
+
+According to the [@ilo_care_2018], women and girls perform more than three-quarters of the total amount of unpaid care work and two-thirds of care workers are women. The caring economy is part of the women-dominated industries, it is characterised by the evaluative discrimination, which is only one of the dimensions of the gender pay gap [@mejiadorantes_discussing_2019]. Especially in the case of domestic workers, care workers are most of the times women and migrants’ workers, with poor working conditions, and many times associated with informal jobs which imply lack of labour rights, no social and health protection, susceptible of exploitation, one of the poorest working conditions across the care economy as the ILO observes [@ilo_care_2018]. Care workers becomes disrespected, leading to a devaluation of their activity, and consequently remains as one of the less well-paid occupations a person can undertake.
+
+If we turn our attention to the urban planning perspective, Caring is a major human activity that may take form in all urban settings, in all transport modes, all times a day and year, and yet it is not described as neither origin nor destination, and until recently, it was inexistent. 
+
+Researchers from various fields have highlighted that western modern industrial societies have imposed a physical separation of the private sphere from the public one, splitting production and reproduction, public and private spaces or simply work and home, concentrating on the economic outcome of being mobile [@cresswell_gendered_2008; @lawWomenTransportNew1999; @levy2013travel; @little_gender_1994; @tronto_toward_1990]. The man with legal rights, paid labour public sphere and woman in the private sphere, dependent, with family duties, personal relations and unpaid labour [@tronto_toward_1990]. In this line, @cresswell_gendered_2008 described how masculinity was related to mobile and active, whereas femininity to static. As an example of this dichotomy, transport planning historically framed non-work/school trips as 'non-mandatory' activities, downgrading these activities in comparison to work.
+
+Women have consistently been found to complete more mobility of care trips than men. In one study, mobility of care comprised 32% of women’s daily trips compared to 28% of men’s. While this gap was significant, it was found to be far greater in lower income households where women complete 20% more care trips than men [@ravensbergen2023exploratory]. This gendered division in mobility of care is perhaps unsurprising as women tend to complete a disproportionate amount of household-serving labour, such as caring for children and other dependents, preparing meals, cleaning, and running errands, when compared to men [@RN4]. This gender gap varies geographically [@RN5]. In Canada, adult women complete 1.9 hours, on average, more of unpaid care than men every day [@RN4]. This labour is essential, and a large component of daily life.
+
+From this research motivation, Sánchez de Madariaga coined the term ‘mobility of care’ in 2013 to refer to all travel required to sustain the needs of a household, such as grocery shopping, escorting children, travelling to health appointments, and running errands [@sanchezdemadariagaMobilityCareIntroducing2013]. While decades of research had examined these unique household-serving trips, her seminal work was the first to consider all these trips as one category. In doing so, she showed how mobility of care is a significant proportion of daily travel. Indeed, in her original work, and in the studies that have followed, it appears that approximately 30% of adults’ trips are for care purposes [@sanchezdemadariagaMobilityCareIntroducing2013; @sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory]. Sánchez de Madariaga not only shows how important these mobility of care trips are, but also highlights the ways in which “mobility of care is systematically under-represented in any analysis of urban transport” (p. 37). Transport surveys and tools do not directly capture mobility of care, which re-enforces the idea that these trips are not a significant part of daily mobility. 
+
+Cities have simplified individuals as a universal and neutral entity. As a result, public spaces are differently experienced depending on our multiple identities. Indeed, asymmetric in the distribution of time of citizens is deeply anchored with the public and private spaces organization within cities. In this light, we focus on the potential access to destinations of care through an empirical case study of the mid-sized city of Hamilton, Canada. We acknowledge that caring is composed by actors and activities but aim to spotlight the role that the urban environment plays on our daily lives, on easing our participation and on exercising our rights to the city as individuals with multiple identities. Our work hopes to contribute to a fruitful discussion that may trigger urban and transport policy interventions that increase gender-equity in caring activities among all actors.
+
+<!-- We experience our urban environment depending on our personal characteristics, such as socioeconomic level, education, profession, household responsibilities, physical or mental disabilities, and very importantly, by gender. Furthermore, our living environment is also influenced by historical, economic, social, cultural, political, religion and environmental factors. All these issues have an influence on the way we live and experience the city, on how we participate in the community and on our social relations in the public and private space, on how we invest in our socio-economic development, and finally on our well-being.  -->
+
+<!-- Cities have simplified individuals as a universal and neutral entity. As a result, public spaces are differently experienced depending on our multiple identities. Indeed, the distribution of time of citizens is deeply anchored with the public and private spaces organization within cities. In fact, the asymmetries in the distribution of time of individuals are rooted on city spaces, distances to reach them, transport alternatives and different perceived fears, emotions and constraints, along with the roles typically associated with men and women, together with the gendered division of labour [@villagran_urban_2020]. Furthermore, these authors emphasize that it is a global reality that women invest a greater amount of time to care and to unpaid work and that it is socioeconomically stratified. -->
+<!-- Many studies worldwide have documented how gender influences mobility patterns. Men commute longer distances and present direct travel patterns, whereas women present chained trips to accomplish on their way many different activities (for example, dropping children off at schools or daycare, run errands or accompany family members to medical services). For these reasons it has been documented that women tend to have shorter but more complicated transport patterns. They also tend to rely more on public transport whereas men use more private transport [@cresswell_gendered_2008; @levy2013travel; @mejia2021mobility; @the_world_bank_handbook_2020]. Sánchez de Madariaga uses the concept “mobility of care” to recognize, measure, make visible, value and account for all the travel associated to caring and unpaid tasks for the household [@sanchezdemadariagaMobilityCareIntroducing2013]. -->
+
+## Feminist 15-minute neighbourhoods
+
+Within the backdrop of urban planning and 'mobility of care', we connect our work to the 15-minute neighbourhood concept. 
+
+The spatial structure of cities and regions has been described in different ways and its advantages and disadvantages has been discussed with regard to a wide variety of issues, for example, regarding health, the environment, economic, social and equity impacts. After the traditional monocentric vision of the city with a core Centre Business District (CBD), other alternatives appeared, especially due to the expansion of cities caused by the automobile and motorized transport. The polycentric urban planning emerged based on the idea of sub-centers (or multiple business centers) with their own services and functions, well-connected among other surrounding areas, where the links between land-use and transport were optimised. Economic activities (such as retail or commercial office development) and job centers played an important role in shaping the spatial structure [@schneider_transit_1981; @sweet_are_2017]. This concept may have different interpretations depending on the spatial and geographical scales [@hall_polycentricity_2009].
+
+In the last decades, the need for more sustainable, healthier, and liveable cities has received more attention. Planners and policy makers have proposed different alternatives where residents reach “essential activities” within walkable or cycling distances, reducing the need for using motorised transportation modes. The 15-minutes cities, 20-minutes or x-minutes cities, have been long under the spotlight. This approach has also received the name of Chrono-urbanism or the “cities of proximity” [@logan_xminute_2022; @moreno_introducing_2021]. 
+
+In the international context, there are different examples that highlight the importance of good access to different services and amenities within walkable distances. Probably one of the first cities to adopt the proximity approach was Portland. The Portland Plan [@city_of_portland_20minute_2010] was adopted by the City Council on April 25, 2012 aiming at fostering an inclusive city development for the following 30 years. The plan is based on the following principles: prosperity, education, health, and equity. The progress report states that equity should be achieved, an Office of Equity and Human Rights was established focusing on equitable service delivery to all residents. Nonetheless the progress report only measures progress on topics related to racial equity or people with disabilities [@portland_government_portland_2017].
+
+In Paris, the adoption of the 15-Minute city put into the spotlight this approach. In Paris, they targeted six social functions that had to be easily accessible at any part of the city: housing, work, health care, groceries, education and leisure [@ville_de_paris_paris_2022]. In 2021, Ottawa also adopted a 15-Minutes approach in the new City of Ottawa Official Plan [@ville_dottawa_quartier_2021]. 
+
+More recently, @moreno_introducing_2021 considers four dimensions on how the 15-minute city framework: density (in terms of people per sq.km); diversity (including mixed-land use and diversity of people; the temporal and spatial proximity to essential services (residential areas, work, commercial areas, education centres, health facilities and other basic institutions) and digitalisation.  
+
+It can be observed that the feminist perspective of the cities of proximity is still underestimated. Only few examples exist that specifically target this issue [@gil_sola_choose_2022; @macintyre_her_2022].
+
+Even if we are on the right direction to facilitate caring activities, develop human-centred urban areas, the chrono-urbanism needs to set the ground on aspects that specifically target caring activities and gender. Similarly, it is necessary to provide alternatives to measure progress on this important issue. On the other hand, an intersectional approach to understand how different personal identities interact in our daily day activities in the cities is necessary. There is still room for improvement.
+
+## Mobility of care and mode-constraints 
+
+Given that almost one third of daily trips are for care purposes [@sanchezdemadariagaMobilityCareIntroducing2013], it is important to plan for mobility of care. There are also equity considerations to consider: as discussed, women, and especially low-income women, complete this travel more than men. Planning for mobility of care may also warrant different considerations because mobility of care trip characteristics differ from other trips, notably those of the commute to work. For instance, many of these trips are made through trip-chains, i.e., when a non-work-related stop is made during the commute. Women have been found to do so more than men, which is understood as being due to their need to balance unpaid-household serving care and paid employment (e.g., picking up groceries or children on the way home from work) [@ravensbergen2023exploratory; @scheinerWomenComplexDaily2015].
+
+Further, compared to the trip to work, mobility of care trips are more frequently completed by car and by foot, and less frequently done by transit or bicycle [@ravensbergen2023exploratory]. Evidence for why this modal difference is observed exists. For instance, it is possible that walking is more common for care than for work trips because care trips tend to be short [@ravensbergen2023exploratory]. In other words, if care destinations are closer to the home, it is more likely that these destinations are walkable. Ample literature examines the benefits and barriers to walking care destinations, such as schools (e.g., [@RN7;@RN8;@RN9]) and grocery stores (e.g., [@RN10;@RN11]). Little of this work uses the mobility of care framework. Instead, it tends to consider singular care destinations in research focusing on walkability. 
+
+In car dependent cities, cycling commute rates tend to be low. Emerging evidence has found that they are even lower for care trips than for work trips. For instance, in Montréal it is estimated that 2% of work trips completed by adults are done by bicycle, while only 1.1% of care trips are done using this sustainable travel mode [@ravensbergen2023exploratory]. Qualitative research has also found that in car-dependent contexts, many consider it inappropriate and unsafe to conduct escort trips by bicycle [@ravensbergenVelomobilitiesCareLowcycling2020; @sersliRidingAloneTogether2020]. Then again, other studies have uncovered the joys inherent in travelling by bicycle with children [@RN14]. This qualitative evidence has also found that the bicycle is excellent for trip-chaining owning to its flexibility and ease of parking, and that grocery shopping can be done by bicycle, though this can require some additional materials (e.g., paniers) and competencies (e.g., knowing where to put your groceries)[@ravensbergenVelomobilitiesCareLowcycling2020]. Research in the Netherlands, a high-cycling context, has found that parents can and do use their bicycles to complete mobilities of care. Indeed, one study compared women with children’s bicycle behaviours to those without children and found that the having a child did not change the amount of cycling done, but the characteristics of cycling trips: mothers’ trips tended to center around their childrens’ needs [@RN15]. Taken together, it is evident that the bicycle has potential to serve mobility of care: it is flexible, low-cost, and used for these trips in many contexts. Other barriers to this travel mode seems to exist in low-cycling contexts. 
+
+The difference in uptake of public transport for work compared to care trips is staggering. In Montréal, it is estimated that 18.7% of trips to work are made by transit. In contrast only 5.8% of care trips are made using transit [@ravensbergen2023exploratory]. While research examining accessibility to care destinations by transit exists (e.g., [@RN16;@RN17;@RN18;@RN19]), little research examines why few people use this sustainable transport mode for mobility of care. Though transit use for mobility of care is low, one study found that is it is significantly higher for low-income women. Indeed, approximately 16% of low-income women in Montreal were found to use transit for care trips (compared to 4% of high income women) [@ravensbergen2023exploratory]. In many cities, public transport is not designed to meet household demands in a convenient way [@RN20;@grantsmithManagingChallengesCombining2016]. Given how low transit use is for care trips amongst the general population, it is possible that many of these low-women using transit are transit-dependent. In other words, they may be using transit for care trips because they do not have access to a car, and not because transit is their preferred travel mode. 
+
+It appears that the car is the preferred travel mode for mobility of care. In one study, car use was higher for mobility of care trips than the commute to work (82.3% vs. 74.7%) [@ravensbergen2023exploratory]. Further, the rate of car use is higher amongst trips that are part of a chain than those that are not (85.28% v. 78.09%) [@ravensbergen2023exploratory]. Some studies found that a car is viewed as the easier way to incorporate unpaid mobility of care into one’s daily travel as it provides convenience and mitigates concerns about traffic and stranger danger [@maciejewskaHaveChildrenThus2019, @carverParentalChauffeursWhat2013]. Others, however, have found that women are more likely to complete household-serving travel duties by alternative modes than men due to their lower car access [@RN24;@RN25]. It seems that car use may be preferred for mobility of care trips, but planning mobility of care for the car may leave those who do not have access to a car, many of them low-income women, with difficult mobility of care trips. 
+
+The discussion around mobility of care and travel mode may also be relevant to larger spatial trends, including gendered spatial entrapment. Feminist geographers have noted for decades the spatial impact of women’s disproportionate household-serving labour. A relationship has been noted whereby many women’s household responsibilities results in job searches that emphasize job opportunities that are near the home and part-time or with flexible hours to allow for care responsibilities. This leads to a lower probability of securing higher paid, and often further afield, employment [@hansonGenderMobilityNew2010;@lawWomenTransportNew1999;@RN28;@RN29]. This trend has been found to be surprisingly resilient, with improvements only taking places slowly [@RN30]. Evidence has also shown that this spatial entrapment can be more in car dependent contexts, as access to cars impacts employment rates [@RN31], and is lower amongst women, and especially women of colour [@RN32].
+
+Taken together, there appears to be a preference for travel by car for mobility of care trips. This is problematic, however, in at least two major ways. First, cars are less sustainable than other modes of transport. Normalizing car use for care trips does not advance the low-carbon transport transition that most cities are aiming for (at least in principle!). Since care trips tend to be short, they are also perfect candidate to be completed by bus, bicycle, or by foot. That is, if these alternative and sustainable modes are planned with care in mind. Second, there is equity concerns with assuming people are accessing care destinations by car. Many people, and low-income women in particular, do not have access to a car. Some are also experiencing a degree of spatial entrapment. Having safe and convenient access to care destinations using alternatives to the private car is especially important for those who must rely on these options regardless of whether they are well planned. 
+
+
+# Data and Methods
+
+## Case study context
+In Canada, women have become more educated and have an achieved an increased participation in the labour market [@government_of_canada_gender_2023]. In fact, the educational level of women has surpassed most men [@government_of_canada_women_2023]. Reports observe that the gender pay gap has narrowed but disparities persist [@drolet_intersectional_2023;@pay_equity_office_gender_2023]. According to the statistics, in Ontario between 1998 to 2022 the gender gap narrowed but still women make 87 cents on average for every dollar made by a man [@pay_equity_office_gender_2023]. All reports observe that it affects women differently, women with disabilities, immigrants, indigenous or racialized suffer especially from the gender pay gap. Similarly to other countries worldwide, the occupational segregation remains and women are segregated into lower paid job classes and there is a dominance of women in minimum wage jobs [@drolet_intersectional_2023]. Furthermore, women are underemployed, and make up most part-time work. In this respect, the lack of childcare alternatives enforces this obligatory part-time work [@equal_pay_coalition_myths_2022]. All researchers and organisations agree that an intersectional approach is of utmost importance to better plan policies to enforce gender equality. 
+
+- Next: describe hamilton's land-use context; communities which are urban, rural, suburban. Also describe the residential parcels summary statistics, ~140,000 points, aggregated at the level of Canadian Census DA. See population descriptive plots in @fig-Fig1:
+```{r plot-figure1, out.width=600, out.height=600}
+#| label: fig-Fig1
+#| fig-cap: "The number of residential parcels per DA in 2020 (top) and the rate of population per dwelling per DA (middle) and prevalence of Low-income cut-offs after-tax (LICO-AT) per DA (bottom) retrieved from the 2021 Canadian Census. All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/pop_descriptive_plots.tiff")
+```
+
+## Estimated travel times
+- Next: describe the estimated 15-minute walk travel times using {r5r}, from all residential parcel points to all care destinations assuming default walking speed and OSM road network for Hamilton. Provide summary statistics.
+
+## Care destination dataset
+A spatial dataset of care destinations for Hamilton was compiled; sources include provincial and municipal open data portals [@governmentofontarioOntarioDataCatalogue2023; @cityofhamiltonOpenData2023], Data Axle, a consumer dataset compiled of businesses and companies within Canada [@axledataConsumerData2023] and manual retrieved through Google Maps. Each destination was categorized based on the specific type of care being accessed following the mobility of care research by Sanchez de Madariaga & Zucchini (2019) [@sanchezdemadariagaMeasuringMobilitiesCare2019]. Initial categories include child, elder,  grocery, health, and errand -centric destinations. For the purpose of this study, child- and elder- centric are combined to represent a 'dependent-centric' category. Category sources of data and preparation notes are detailed in @tbl-Tbl1. Their spatial distribution and sub-categories are visualised in @fig-Fig2.
+
+```{r creating-table-content}
+dat <- data.frame(matrix(c("Child-centric",
+                           "[@opendatahamiltonEducationalInstitutions2022; @governmentofontarioOntarioDataCatalogue2023; @cityofhamiltonChildCareRegistry2023; @opendatahamiltonParksDatabase2022; @opendatahamiltonRecreationCommunityCentres2022]",
+                           "Schools, daycares, and community centres, recreation centres, and parks: 1,190 locations are included. After manual review, all locations that typically do not serve children were removed including: Post-Secondary, Adult-Learning Centres, Group Homes, and Foster Care Centres. Further, through examination some Section 23 institutions defined as _“centres for children who cannot attend school to meet the needs of care or treatment, and rehabilitation”_ [@governmentofontarioministryofeducationFundingEducationCommunity2023], were kept due to their innate connection to care.",
+                           "Elder-centric",
+                           "[@opendatahamiltonRecreationCommunityCentres2022; @ontarioministryofhealthgeohubMinistryHealthService2023]",
+                           "Senior centres, long-term care homes, and retirement homes: 75 destinations are identified.",
+                           "Grocery-centric",
+                           "[@axledataConsumerData2023]",
+                           "Grocery stores, namely a place a household could buy groceries ranging from convenience stores to large retail stores: 381 destinations are identified. Data is filtered by Company Name, Suite Number, Address, City, Province, Phone Number and Postal Code. The type was then identified e.g., grocers specialty foods, grocers retail, grocer health food, grocer wholesale, grocer curbside, grocer delicatessen wholesale, grocer convenience. Data was crossreferenced to ensure all included locations were operational and legitimate grocery stores.",
+                           "Health-centric",
+                           "[@ontarioministryofhealthgeohubMinistryHealthService2023; @hamiltonniagarahaldimandbranthealthlineWalkInMedicalClinics2023]",
+                           "Hospitals, pharmacies, clinics, and dentist offices: 421 destinations are identified. Hospitals and pharmacies were retrieved while clinics and dentistry clincs were manually scraped from a healthcare services database and checked via Google Maps to remove non-operational locations and confirm dentistry-orientation. ",
+                           "Errand-centric",
+                           "Hamilton libraries [@opendatahamiltonLibraries2022], post office locations [@axledataConsumerData2023;@canadapostPostOfficeLocator2023], and datasets of all national bank chains [@bankofmontrealBankMontrealBranch2023; @thehongkongandshanghaibankingcorporationlimitedhsbcHSBCBranchABM2023; @nationalbankNationalBankBranches2023; @royalbankofcanadaRBCBranchABM2023; @scotiabankScotiabankABMBranch2023; @thetorontodominionbankTDBankBranch2023].",
+                                                      "Libraries, post offices, and banks: 158 destinations are identified. Post offices are retrieved from a mix of databases, and duplicates are removed. Banks are also derived from Data Axle and then cross-referenced to ensure data quality with a Bank Locator website for all national banking firms."
+                           ), ncol = 3, byrow = T))
+```
+
+```{r creating-table}
+#| tbl-cap: "Details on the preparation and data sources of care destinations."
+#| label: tbl-Tbl1
+set_flextable_defaults(font.size= 10,
+                       font.family = NULL,
+                       text.align = 'justify',
+                       table.layout = 'fixed')
+
+flextable(dat) %>%
+  ftExtra::colformat_md() %>%
+  compose(
+    i = 1, j = c(1,2,3), part = "header", value = as_paragraph(c("Care category", "Sources", "Data preparation notes"))) %>%
+  width(j = 1, width = 1.7, unit = "cm") %>%
+  width(j = 2, width = 4.3, unit = "cm") %>%
+  width(j = 3, width = 11, unit = "cm")
+```
+
+```{r plot-figure2, out.width=600, out.height=600}
+#| label: fig-Fig2
+#| fig-cap: "The locations of care destinations in Hamilton separated by the author-generated categories of: dependent-, errand-, grocery- and health- centric care categories. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/care_categories_plot.tiff")
+```
+
+For the purpose of this analysis and in absence of city-wide household preferences for care destinations, all locations are re-weighted to make each of the four categories conceptually equivalent i.e., each location within each category $c$ is `r word_comment("Thoughts on this", "weighted to equal")` $W_j^c = \frac{1}{C} \frac{\sum_{c} O_j^c}{O_j^c}$ where $C$ is the total number of categories and $O_j^c$ is a location at destination $j$ within a category $c$.  The total sum of locations is preserved after weighting such that $\sum_{c} \sum_{j} O_j^c = \sum_{c} \sum_{j} W_j^c * O_j^c$. Conceptually, this simplistic re-weight makes destinations in categories with fewer locations more important and destinations in categories with more locations less important. The underlying assumption is the status-quo of locations per category is sufficient, e.g., many daycares (smaller capacities) and few hospitals (larger capacities) sufficiently serves  the populations' care needs. Re-weighting in this way ensures that populations who are near _assumed_ smaller capacity destinations such as daycares are not assigned a disproportionately high accessibility score and vice versa for populations near destinations with larger service capacities like hospitals. In absence of empirical data for amenity weight calibration, this methodological assumption is a limitation. 
+
+- Dependent-centric (`r sum(care_dest$Care_Category == "Dependent-centric")` destinations each at `r Dependent_Centric`), 
+- Errand-centric (`r sum(care_dest$Care_Category == "Errand-centric")` destinations each at `r Errand_Centric`),
+- Grocery-centric (`r sum(care_dest$Care_Category == "Grocery-centric")` destinations each at `r Grocery_Centric`) and,
+- Health- centric (`r sum(care_dest$Care_Category == "Health-centric")` destinations each at `r Health_Centric`) . 
+
+## Methods
+Cumulative opportunity method; 15-minute normative catchment for walk mode (and cycling, travel time matrix already calculated but to be added later) is used to represent the 15-minute neighbourhood concept. This has been done in previous literature such as @vale2023accessibility, @graellsCityCitiesMeasuring2021 and @gaglioneUrbanAccessibility15minute2022.
+
+In this work, the cumulative opportunity score is calculated for each parcel and aggregated by care category at the DA level. The Q3 number of opportunities accessibility in a 15 minute walk per care category in retained for each DA. So in this analysis, $i$ is both the parcel and DA spatial unit. To the author's this is one of the first 15-minute neighbourhood analyse with a focus on care destinations. 
+
+**Cumulative opportunity accessibility** takes the following form:
+$$
+S^c_i=\sum_{j}W_j^{c}\cdot f(c_{ij})
+$$
+\noindent Where:
+
+- $i$ is a set of parcel point origin locations.
+- $j$ is a set of destination locations.
+- $c$ is a set of care categories.
+- $W^c_j$ is a number of weighted opportunities ($O_j^c$) of category $c$ at $j$.
+- $c_{ij}$ is the travel cost between $i$ and $j$.
+- $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value [@handyMeasuringAccessibilityExploration1997].
+- $S_{i}^c$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $c$.
+
+Next, the Q3 (median + standard deviation) of all $\sum_{c}S_i^c$ values for each DA are taken and represented as $S^{c}_{DA}$. $S^{c}_{DA}$ is the upper quartile number of weighted care destinations that can be potentially interacted with within a 15 minute walk by parcels within a DA: an optimistic perspective on how many opportunities can be potentially reached `r word_comment("Thoughts on this choice instead of the median? I do this because the parcels are not population weighted, so 1 parcel = 1 travel time. There can be obviously multiple households in 1 parcel, so using Q3 makes some sense.", ".")`  
+
+*Entropy* measure has been widely used to characterise the diversity of land-use mix in early work by @frankLinkingObjectivelyMeasured2005 based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence (this measure among other species diversity indices of the time are reviewed in @whittaker1972evolution). In the realm of urban studies and planning literature, it has since been widely used to characterise the diversity in land-use mix [@ewingTravelBuiltEnvironment2010a], especially in the context of active modes [@luUrbanDensityDiversity2017; @mavoaIdentifyingAppropriateLanduse2018] and suburban sprawl [@randallGISBasedLand2015]. Work that has used diversity indices alongside accessibility analysis are scarce, though examples of its use as parameters within accessibility scores in the case of employment opportunities [@chengMeasuringUrbanJob2013; @daiIncorporatingJobDiversity2018] and more recently to describe the diversity in transit facilities [@yinIncorporatingFacilityDiversity2024] are present. To the authors knowledge, the use of an entropy measure to reflect the diversity in care destination amenity types and in context within a 15-minute neighbourhood, has yet to be done. 
+
+In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$ `r word_comment("Thoughts on this choice? I think we need to consider both the category type and the specific type in this paper. We justify the categories so that's fair but I still think there's value in presenting the specific type  some how - this is what I think this diversity index is good for so I've presented that as an option. Note though, it'd be much more simple to just focus on calculating the $D^{st}_{DA}$ using the $S_i^c$ and not introducing the $S_i^{st}$ calculation like I've done.. so I've made the analysis more complicated. Also destination weighting is based on the four categories - so that is distorting the diversity in certain ways.",".")`
+
+As such, the entropy measure is used to reflect the diversity of specific type of care destinations. The value ranges from 0 to 1, with 1 representing total evenness in the number of (weighted) specific type $st$ care opportunities can be reached at the aggregated spatial unit $DA$:
+
+$$
+D^{st}_{DA} = \frac{-\sum_{c} S_i^{st} / S^{st}_{DA} \times ln(S_i^{st} / S^{st}_{DA} )}{ln(ST)}
+$$
+\noindent Where:
+
+- $i$ is a set of parcel point origin locations.
+- $st$ is a set of specific type care categories. In our work they are `r care_dest$Care_Category_Specific |> unique()`.
+- $DA$ is a set of DA spatial units (to aggregate parcel point data).
+- $S_{i}^{st}$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $st$.
+- $S^{st}_{DA}$ is the aggregated unconstrained accessibility at each $DA$. In our work, it is the upper quartile of $S_i^{st}$ values in a $DA$. 
+- $ST$ is the total sum of categories. In our work, this is equal to 14. 
+- $D^{st}_{DA}$ is the entropy index.
+
+# Results
+
+```{r plot-figure3, out.width=600, out.height=600}
+#| label: fig-Fig3
+#| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_copp_weighted_plot.tiff")
+```
+
+```{r plot-figure4, out.width=600, out.height=600}
+#| label: fig-Fig4
+#| fig-cap: "The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_entropy_copp_weighted_plot.tiff")
+```
+
+```{r plot-figure5, out.width=600, out.height=600}
+#| label: fig-Fig5
+#| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA - fig3) and the diversity measure (fig 4). Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_bivariate_entropy_copp_plot.tiff")
+```
+
+BONUS! Per capita spatial availability. This is not discussed in the methods. The spatial availability calculation assumes population is 'population density' and weighted opportunity count. With this map we can start thinking about per capita availability of opportunities. 
+```{r plot-figure6, out.width=600, out.height=600}
+#| label: fig-Fig6
+#| fig-cap: "Per capita spatial availability of care opportunities. Uses weighted care opportunities, population density as competition, and 15 minute binary cut-off. Aggregates parcel level spatial availability at the DA level (by summation) and divides by the DA population. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_vvi_plot.tiff")
+```
+
+`r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")`
+ 
+
+# References
+
+::: {#refs}
+:::
+
+\pagebreak
+
+# Appendix
+
+```{r plot-figure7, out.width=600, out.height=600}
+#| label: fig-Fig7
+#| fig-cap: "UNWEIGHTED -- The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_copp_plot.tiff")
+```
+
+
+```{r plot-figure8, out.width=600, out.height=600}
+#| label: fig-Fig8
+#| fig-cap: "UNWEIGHTED -- The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics("data/all_cats_entropy_copp_plot.tiff")
+```

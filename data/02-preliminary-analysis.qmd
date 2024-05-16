@@ -1,0 +1,940 @@
+---
+title: "02-preliminary-analysis"
+format: html
+---
+```{r}
+rm(list = ls())
+```
+
+Working with the parcel to dest TTM - walk and cycling. 
+
+```{r library-setup}
+library(biscale)
+library(cowplot)
+library(sf)
+library(here)
+library(dplyr)
+library(tmap)
+library(mapview)
+library(tmaptools)
+library(pander)
+library(flextable)
+library(ftExtra)
+library(scales)
+```
+
+```{r spatial-availability-function}
+sp_avail_detailed <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
+  
+  o_id <- rlang::enquo(o_id)
+  d_id <- rlang::enquo(d_id)
+  pop <- rlang::enquo(pop)
+  opp <- rlang::enquo(opp)
+  r <- rlang::enquo(r)
+  f <- rlang::enquo(f)
+  
+  sum_pop <- x |>
+    dplyr::distinct(!!o_id,
+                    .keep_all = TRUE) |>
+    dplyr::mutate(sum_pop = !!r*(!!pop)^alpha) |>
+    dplyr::pull(sum_pop) |>
+    sum()
+  
+  f_p <- dplyr::pull(x, !!r) * dplyr::pull(x, !!pop)^alpha / sum_pop
+  
+  sum_impedance <- x |>
+    dplyr::group_by(!!d_id) |>
+    dplyr::summarize(sum_impedance = sum(!!f))
+  
+  x <- x |>
+    dplyr::left_join(sum_impedance,
+                     by = rlang::as_name(d_id))
+  
+  f_c <- dplyr::pull(x, !!f) / x$sum_impedance
+  
+  x$f_c <- f_c
+  x$f_p <- f_p
+  
+  sum_pa <- x |>
+    dplyr::group_by(!!d_id) |>
+    dplyr::summarize(sum_pa= sum(f_p * f_c))
+  
+  x <- x |>
+    dplyr::left_join(sum_pa,
+                     by = rlang::as_name(d_id))
+  x$f_t <- (f_p * f_c) / dplyr::pull(x, sum_pa)
+  
+  x |>
+    dplyr::mutate(V_ij = !!opp * f_t)
+}
+```
+
+```{r}
+#boundaries for mapping
+Community_Boundaries <- st_read("data-raw/boundaries/Community_Boundaries.shp") |> mutate(COMMUNITY_ = ifelse(COMMUNITY_ == "Hamilton", "Hamilton-Central", COMMUNITY_))|> st_transform(crs=4326)
+City_Boundary <- st_read("data-raw/boundaries/City_Boundary.shp") |> st_transform(crs=4326)
+hydro_p_LakeOntario <- st_read("data-raw/boundaries/hydro_p_LakeOntario.shp") |> st_transform(crs=4326)
+ham_bay <- st_read("data-raw/boundaries/Waterbodies.shp") |> st_transform(crs=4326) |> filter(FEATURE_TY == "Lake")
+ham_bay_cropped<-st_crop(ham_bay$geometry, Community_Boundaries$geometry)
+hydro_p_LakeOntario_cropped<-st_crop(hydro_p_LakeOntario$geometry, Community_Boundaries$geometry)
+
+load("care_dest.rda")
+load("HAM_census_21.rda")
+
+load("parcel-ttm/ttm_care_bike_parcel1.rda")
+load("parcel-ttm/ttm_care_bike_parcel2.rda")
+load("parcel-ttm/ttm_care_bike_parcel3.rda")
+load("parcel-ttm/ttm_care_bike_parcel4.rda")
+load("parcel-ttm/ttm_care_walk_parcel1.rda")
+load("parcel-ttm/ttm_care_walk_parcel2.rda")
+load("parcel-ttm/ttm_care_walk_parcel3.rda")
+load("parcel-ttm/ttm_care_walk_parcel4.rda")
+
+ttm_care_bike_parcel <-rbind(ttm_care_bike_parcel1, ttm_care_bike_parcel2,
+                             ttm_care_bike_parcel3, ttm_care_bike_parcel4)
+rm(ttm_care_bike_parcel1, ttm_care_bike_parcel2, ttm_care_bike_parcel3, ttm_care_bike_parcel4)
+
+ttm_care_walk_parcel <-rbind(ttm_care_walk_parcel1, ttm_care_walk_parcel2,
+                             ttm_care_walk_parcel3, ttm_care_walk_parcel4)
+rm(ttm_care_walk_parcel1, ttm_care_walk_parcel2, ttm_care_walk_parcel3, ttm_care_walk_parcel4)
+```
+
+```{r}
+load("data-raw/parcels/R_PARCELS_CENTS_2020.rda") #add the census id to the parcels, then the ttm
+
+#first join it to census. Transfer the GeoUID from the DAs that intersect with the residential land use parcel centroids to the R_PARCELS_CENTS_2020 sf object. (we use 'over' here instead of st_intersection because it is way faster)
+R_PARCELS_CENTS_GeoUIDs <- sp::over(as_Spatial(R_PARCELS_CENTS_2020),as_Spatial(HAM_census_21 |> dplyr::select(GeoUID)))
+
+R_PARCELS_CENTS_GeoUIDs_IDs <- cbind(R_PARCELS_CENTS_GeoUIDs, R_PARCELS_CENTS_2020 |> dplyr::select("ID") |> st_drop_geometry()) |> 
+  mutate(ID = as.character(ID),
+         GeoUID = as.character(GeoUID))
+
+rm(R_PARCELS_CENTS_GeoUIDs)
+#Some variables of interest: use "ID" to join "GeoUID", "WARD", "COMMUNITY" "PROP_AREA" and "URBAN_RURA" (either S, U, or R for rural -- to characteris how 'rural' or 'urban' certain areas are by their area)
+
+ttm_care_walk_parcel <- left_join(ttm_care_walk_parcel, R_PARCELS_CENTS_GeoUIDs_IDs, by = c("from_id"="ID"))
+ttm_care_bike_parcel <- left_join(ttm_care_bike_parcel, R_PARCELS_CENTS_GeoUIDs_IDs, by = c("from_id"="ID"))
+```
+
+```{r}
+HAM_census_21 <- HAM_census_21 |>
+  rename("LICO_AT_TOTAL" = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`) |> 
+  mutate(LICO_AT_TOTAL = ifelse(is.na(LICO_AT_TOTAL), 0, LICO_AT_TOTAL)) |>
+  rowwise() |> mutate(
+         perc_walked = (`v_CA21_7647: Walked`)/sum(`v_CA21_7647: Walked`,`v_CA21_7635: Car, truck or van`, `v_CA21_7644: Public transit`,`v_CA21_7650: Bicycle`, `v_CA21_7653: Other method`, na.rm=TRUE),
+         perc_car = (`v_CA21_7635: Car, truck or van`)/sum(`v_CA21_7647: Walked`,`v_CA21_7635: Car, truck or van`, `v_CA21_7644: Public transit`,`v_CA21_7650: Bicycle`, `v_CA21_7653: Other method`, na.rm=TRUE),
+perc_transit = (`v_CA21_7644: Public transit`)/sum(`v_CA21_7647: Walked`,`v_CA21_7635: Car, truck or van`, `v_CA21_7644: Public transit`,`v_CA21_7650: Bicycle`, `v_CA21_7653: Other method`, na.rm=TRUE),
+ perc_cycle_other = (`v_CA21_7650: Bicycle`+ `v_CA21_7653: Other method`)/sum(`v_CA21_7647: Walked`,`v_CA21_7635: Car, truck or van`, `v_CA21_7644: Public transit`,`v_CA21_7650: Bicycle`, `v_CA21_7653: Other method`, na.rm=TRUE)) |>
+  select(c("GeoUID", "Population", "Households", "Dwellings", "LICO_AT_TOTAL", "perc_walked", "perc_car", "perc_transit", "perc_cycle_other"))
+
+HAM_census_21 <- st_join(HAM_census_21, Community_Boundaries|> select("COMMUNITY_"), largest=TRUE)
+HAM_census_21 <- HAM_census_21 |> filter(Population > 0) #drop households with 0 households, only 3 DAs
+
+DA_centroids <- HAM_census_21 |> st_centroid() 
+```
+
+```{r reformat care-dest specific categories}
+care_dest <- care_dest |> 
+  mutate(Care_Category_Specific = case_when(
+    Care_Category_Specific  == "Daycare_EarlyON" ~ "Daycare or EarlyON",
+    Care_Category_Specific == "Community_Centre" ~ "Community or Recreation Centre",
+    Care_Category_Specific == "Daycare_Centre" ~ "Daycare or EarlyON",
+    Care_Category_Specific == "Recreation_Centre" ~ "Community or Recreation Centre",
+    Care_Category_Specific == "School" ~ "School",
+    Care_Category_Specific == "Long-Term_Care_Home" ~ "Long-Term Care or Retirement Home",
+    Care_Category_Specific == "Retirement_Home" ~ "Long-Term Care or Retirement Home",
+    Care_Category_Specific == "Senior_Centre" ~ "Senior Centre",
+    Care_Category_Specific == "Seniors_Active_Living_Centre" ~ "Senior Centre",
+    Care_Category_Specific == "Post_Office" ~ "Post Office",
+    Care_Category_Specific == "Library" ~ "Library",
+    Care_Category_Specific == "Banks" ~ "Bank or ATM",
+    Care_Category_Specific == "Grocer_ConvenienceStore" ~ "Convenience Store",
+    Care_Category_Specific == "Clinics" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Grocer_Retail" ~ "Grocer",
+    Care_Category_Specific == "Dentist" ~ "Dentist",
+    Care_Category_Specific == "Hosptial" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Hospital" ~ "Hospital or Clinic",
+    Care_Category_Specific == "Pharmacy" ~ "Pharmacy",
+    Care_Category_Specific == "Park" ~ "Park"),
+  Care_Category = case_when(
+    Care_Category == "Child_Centric" ~ "Dependent-centric",
+    Care_Category == "Elder_Centric" ~ "Dependent-centric",
+    Care_Category == "Errand_Centric" ~ "Errand-centric",
+    Care_Category == "Grocery_Centric" ~ "Grocery-centric",
+    Care_Category == "Health_Centric" ~ "Health-centric"))
+
+care_dest <- care_dest |> rename("care_ID" = "ID") |> mutate(care_ID = as.character(care_ID)) 
+```
+```{r}
+care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n())
+```
+
+```{r re-weighting points so all destinations are considered spatially equal in access counts, include=FALSE}
+Dependent_Centric <- 0.25*2225/1265
+Errand_Centric <- 0.25*2225/158
+Grocery_Centric <- 0.25*2225/381
+Health_Centric <- 0.25*2225/421
+
+#adds up to 2225 opportunities  
+0.25*2225/1265*(1265) +  0.25*2225/158*(158) + 0.25*2225/381*(381) + 0.25*2225/421*(421)
+
+#adding the weighted care destination counts -- reweighted such that the 4 categories each make up 25% of the 2225 points.
+care_dest <- care_dest |>
+          mutate(Dest_count_weighted = case_when(Care_Category == "Dependent-centric" ~ Dependent_Centric,
+                                                 Care_Category == "Errand-centric" ~ Errand_Centric,
+                                                 Care_Category == "Grocery-centric" ~ Grocery_Centric,
+                                                 Care_Category == "Health-centric" ~ Health_Centric))
+
+care_dest$Dest_count_weighted |> sum()
+```
+
+```{r travel-time-15min}
+#15 mins or less
+ttm_care_walk_15 <- ttm_care_walk_parcel |> 
+  filter(travel_time_p50 <= 15)|> 
+  left_join(
+    care_dest |> st_drop_geometry() |> select(c("care_ID", "Care_Category", "Care_Category_Specific", "Care_Category_Speciality", "Dest_count_weighted")),  by = c("to_id" = "care_ID")) |>
+  mutate(f = 1)
+
+ttm_care_walk_15 <- ttm_care_walk_15 |>
+  left_join(HAM_census_21 |> st_drop_geometry() |> select(c("GeoUID", "Population", "Households", "Dwellings", "LICO_AT_TOTAL")), by=c("GeoUID")) |>
+  mutate(pop_dwell = Population/Dwellings)
+
+ttm_care_walk_15 <- ttm_care_walk_15 |> tidyr::drop_na("Population")
+```
+
+```{r}
+access_15 <- ttm_care_walk_15 |> 
+  group_by(from_id, Care_Category, Care_Category_Specific) |> 
+  summarize(GeoUID = first(GeoUID),
+            copp_isc = n(),
+            copp_isc_w = sum(Dest_count_weighted)) 
+
+test_all <- ttm_care_walk_15 |>
+  sp_avail_detailed(o_id = from_id,
+                    d_id = to_id, 
+                    pop = pop_dwell, #pop assumed at each res. parcel -- it is the pop in the DA divided by the number of dwellings in the DA. 
+                    opp = Dest_count_weighted, #instead of just being vector of 1
+                    r = f, f = f, alpha = 1) |> 
+  group_by(from_id, Care_Category, Care_Category_Specific) |> summarize(V_isc_w = sum(V_ij, na.rm = TRUE)) 
+
+access_15 <- access_15 |> left_join(test_all, by=c("from_id", "Care_Category", "Care_Category_Specific")) |> ungroup()
+rm(test_all)
+access_15$V_isc_w |> sum(na.rm = TRUE) #sums to 2206 opportunities -- out of 2225 total opportunities. some opportunities canot be reached wtihin 15 min walk! 
+```
+
+```{r}
+# all Care_Category_Specific should be represented, i.e., each ID should have 14 rows -- if that category is empty it should be 0. Let's add those 0s. 
+access_15_zeros <- 
+  data.frame(from_id = rep(R_PARCELS_CENTS_2020$ID, length(access_15$Care_Category_Specific |> unique())),
+           Care_Category = rep(c("Dependent-centric", "Dependent-centric", "Grocery-centric", "Dependent-centric", 
+                                 "Dependent-centric", "Dependent-centric",
+                                 "Errand-centric", "Errand-centric", 
+                                 "Grocery-centric","Health-centric",
+                                 "Health-centric", "Errand-centric",
+                                 "Dependent-centric", "Health-centric"), length(R_PARCELS_CENTS_2020$ID)),
+           
+           Care_Category_Specific = rep(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
+                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Bank or ATM", "Library", 
+                                          "Grocer", "Dentist", 
+                                          "Pharmacy", "Post Office",
+                                          "Community or Recreation Centre", "Hospital or Clinic"), length(R_PARCELS_CENTS_2020$ID)),
+           copp_isc = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
+                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Bank or ATM", "Library", 
+                                          "Grocer", "Dentist", 
+                                          "Pharmacy", "Post Office",
+                                          "Community or Recreation Centre", "Hospital or Clinic"))),
+           copp_isc_w = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
+                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Bank or ATM", "Library", 
+                                          "Grocer", "Dentist", 
+                                          "Pharmacy", "Post Office",
+                                          "Community or Recreation Centre", "Hospital or Clinic"))),
+           
+           V_isc_w = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
+                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Bank or ATM", "Library", 
+                                          "Grocer", "Dentist", 
+                                          "Pharmacy", "Post Office",
+                                          "Community or Recreation Centre", "Hospital or Clinic")))) |>
+  mutate(from_id = as.character(from_id))
+
+access_15_zeros <- left_join(access_15_zeros, R_PARCELS_CENTS_GeoUIDs_IDs, by=c("from_id" = "ID"))
+
+access_15 <- bind_rows(access_15_zeros, access_15) |>
+  group_by(from_id, Care_Category, Care_Category_Specific) |> 
+  summarize(GeoUID = first(GeoUID),
+            copp_isc = sum(copp_isc),
+            copp_isc_w = sum(copp_isc_w),
+            V_isc_w = sum(V_isc_w))
+rm(access_15_zeros)
+#check
+access_15$V_isc_w |> sum(na.rm=T)
+```
+
+Aggregating time!
+
+```{r}
+# by care category, for parcels 
+access_15_bycategory <- access_15 |> group_by(from_id, Care_Category)  |> 
+  summarize(GeoUID = first(GeoUID),
+            copp_ic = sum(copp_isc, na.rm=T), #the number of opportunities that can be reached by category from each parcel
+            copp_ic_w = sum(copp_isc, na.rm=T), #the number of opportunities that can be reached by category from each parcel
+            V_ic_w = sum(V_isc_w, na.rm = T))
+#check
+access_15_bycategory$V_ic_w |> sum(na.rm=T)
+```
+
+```{r}
+#by DA and mean:
+access_15_DA <- access_15 |>
+  left_join(HAM_census_21 |> st_drop_geometry() |> select(c("GeoUID", "Population", "Dwellings", "LICO_AT_TOTAL", "COMMUNITY_")), 
+            by=c("GeoUID")) |> 
+  group_by(GeoUID) |>
+  summarise(copp_iscDA_med = median(copp_isc), #the median number of opportunities (all) that can be reached from each parcel in a DA
+            copp_iscDA_sd = sd(copp_isc), #the SD
+    copp_iscDA_w_med = median(copp_isc_w), #the median number of opportunities (all) that can be reached from each parcel in a DA
+            copp_iscDA_w_sd = sd(copp_isc_w), #the SD
+            V_w_iscDA = sum(V_isc_w), #the number of total spatially available opportunities (all) that can be reached from each parcel in a DA
+            vv_w_iscDA = sum(V_isc_w)/first(Population), #the per-capita number of total spatially available opportunities (all) that can be reached from each parcel in a DA
+            Population = first(Population),
+            Dwellings = first(Dwellings),
+            LICO_AT_TOTAL = first(LICO_AT_TOTAL),
+            COMMUNITY_ = first(COMMUNITY_)) |>
+  tidyr::drop_na(Population)
+
+#add the number of parcels per DA 
+R_PARCELS_CENTS_count_GeoUID <- R_PARCELS_CENTS_GeoUIDs_IDs |> group_by(GeoUID) |> summarise(parcel_count = n())
+access_15_DA <- access_15_DA |> left_join(R_PARCELS_CENTS_count_GeoUID, by="GeoUID")
+access_15_DA <- left_join(HAM_census_21 |> select(c(GeoUID)), access_15_DA, by=c("GeoUID"))
+
+# now by category
+access_15_bycategory_DA <- access_15 |>
+  left_join(HAM_census_21 |> st_drop_geometry() |> select(c("GeoUID", "Population","Dwellings", "LICO_AT_TOTAL", "COMMUNITY_")), 
+            by=c("GeoUID")) |>
+  group_by(GeoUID, Care_Category) |>
+  summarise(copp_ic_med = median(copp_isc), #the median number of opportunities that can be reached by category from each parcel in a DA
+            copp_ic_sd = sd(copp_isc), #the SD
+            copp_ic_w_med = median(copp_isc_w), #the median number of opportunities that can be reached by category from each parcel in a DA
+            copp_ic_w_sd = sd(copp_isc_w), #the SD
+            V_ic_w = sum(V_isc_w), #the number of total spatially available opportunities that can be reached by category from each parcel in a DA
+            vv_ic_w = sum(V_isc_w)/first(Population), #the per-capita number of total spatially available opportunities that can be reached by category from each parcel in a DA
+            Population = first(Population),
+            Dwellings = first(Dwellings),
+            LICO_AT_TOTAL = first(LICO_AT_TOTAL),
+            COMMUNITY_ = first(COMMUNITY_) ) |>
+  tidyr::drop_na(Population)
+
+#now by specific category
+access_15_byspecificcategory_DA <- access_15 |>
+  left_join(HAM_census_21 |> st_drop_geometry() |> select(c("GeoUID", "Population","Dwellings", "LICO_AT_TOTAL", "COMMUNITY_")), 
+            by=c("GeoUID")) |>
+  group_by(GeoUID, Care_Category, Care_Category_Specific) |>
+  summarise(copp_isc_med = median(copp_isc), #the median number of opportunities that can be reached by specific category from each parcel in a DA
+            copp_isc_sd = sd(copp_isc), #the SD
+            copp_isc_w_med = median(copp_isc_w), #the median number of opportunities that can be reached by specific category from each parcel in a DA
+            copp_isc_w_sd = sd(copp_isc_w), #the SD
+            V_isc_w = sum(V_isc_w), #the number of total spatially available opportunities that can be reached by specific category from each parcel in a DA
+            vv_isc = sum(V_isc_w)/first(Population), #the per-capita number of total spatially available opportunities that can be reached by specific category from each parcel in a DA
+            Population = first(Population),
+            Dwellings = first(Dwellings),
+            LICO_AT_TOTAL = first(LICO_AT_TOTAL),
+            COMMUNITY_ = first(COMMUNITY_) ) |>
+  tidyr::drop_na(Population)
+
+#checks
+# access_15_DA |> summary()
+access_15_bycategory_DA |> summary()
+access_15_DA$V_w_iscDA |> sum(na.rm=T)
+access_15_bycategory_DA$V_ic_w |> sum(na.rm=T)
+access_15_byspecificcategory_DA$V_isc_w |> sum(na.rm=T)
+
+#RECALL, categories are either 
+# - "Dependent-centric" and include "Community or Recreation Centre", "Daycare or EarlyON", "Long-Term Care or Retirement Home", "Park", "School", "Senior Centre"
+# - "Errand-centric" and include: "Bank or ATM", "Library", "Post Office"
+# - "Grocery-centric" and include: "Convenience Store", "Grocer"
+# - "Health-centric" and include: "Dentist", "Hospital or Clinic", "Pharmacy"
+```
+```{r}
+access_15_byspecificcategory_DA |> group_by(Care_Category_Specific) |> summarise(V_isc_w = sum(V_isc_w))
+care_dest |> st_drop_geometry() |> group_by(Care_Category_Specific) |> 
+  summarise(Dest_count_weighted = sum(Dest_count_weighted),
+            count = n())
+
+```
+
+```{r}
+#calculating entropy, here I do it by the 14 specific categories. This is a way to consider their diversity within and between categories. Because they have been weighted before calc. the cumulative opp counts, we can proceed without anymore adjustments.
+step1 <- access_15_byspecificcategory_DA  |> group_by(GeoUID) |> 
+  summarise(OPPi = sum(copp_isc_med, na.rm=T) + sum(copp_isc_sd, na.rm=T),
+            OPPi_w = sum(copp_isc_w_med, na.rm=T) + sum(copp_isc_w_sd, na.rm=T),
+            Vi_w = sum(V_isc_w))
+
+step2 <- access_15_byspecificcategory_DA |> left_join(step1, by="GeoUID")
+
+step2 <- step2 |> mutate(top1_copp = (copp_isc_med+copp_isc_sd) / OPPi * log((copp_isc_med+copp_isc_sd) / OPPi),
+             top1_copp = ifelse(is.nan(top1_copp), 0, top1_copp),
+             top1_coppw = (copp_isc_w_med+copp_isc_w_sd) / OPPi_w * log((copp_isc_w_med+copp_isc_w_sd) / OPPi_w),
+             top1_coppw = ifelse(is.nan(top1_coppw), 0, top1_coppw),
+             top1_Vw= (V_isc_w) / Vi_w * log((V_isc_w) / Vi_w),
+             top1_Vw = ifelse(is.nan(top1_Vw), 0, top1_Vw),)  |> 
+  group_by(GeoUID) |>
+  summarise(entropy_copp_isc_medsd = sum(top1_copp) / -log(14),
+            entropy_copp_isc_medsd_w = sum(top1_coppw) / -log(14),
+            entropy_V_isc_w = sum(top1_Vw) / -log(14))
+
+#join this to access_15_bycategory_DA
+
+access_15_bycategory_DA <- access_15_bycategory_DA |> left_join(step2, by="GeoUID")
+```
+
+```{r}
+#the number of opportunities from each categories
+all_cats <- access_15_bycategory_DA |> 
+  mutate(copp_all = sum(copp_ic_med, na.rm=T) + sum(copp_ic_sd, na.rm=T),
+         copp_all_w = sum(copp_ic_w_med, na.rm=T) + sum(copp_ic_w_sd, na.rm=T)) |>
+  group_by(GeoUID) |>
+         summarise(summed_copp_all = sum(copp_all),
+                   summed_copp_all_w = sum(copp_all_w),
+                   summed_Vic_w = sum(V_ic_w, na.rm=T),
+                   Population = mean(Population),
+                   Care_Access_Status1 = case_when(summed_copp_all < 4 ~ "[0-04 des.) Not caring",
+                                 summed_copp_all >= 4 & summed_copp_all < 25 ~ "[04-25 des.) Caring", 
+                                 summed_copp_all >= 25 ~ "[25+ des.) Very caring"),
+                   Care_Access_Status1_w = case_when(summed_copp_all_w < 4 ~ "[0-04 des.) Not caring",
+                                 summed_copp_all_w >= 4 & summed_copp_all_w < 25 ~ "[04-25 des.) Caring", 
+                                 summed_copp_all_w >= 25 ~ "[25+ des.) Very caring"),
+                   
+                   Care_Access_Status2 = case_when(all(copp_all >= 2 & copp_all < 4) ~ "- complete (2 to 4 options per cat.)", 
+                                                   all(copp_all >= 4) ~ "- very complete (4 or more options per cat.)"),
+                   Care_Access_Status2_w = case_when(all(copp_all_w >= 2 & copp_all_w < 4) ~ "- complete (2 to 4 options per cat.)", 
+                                                   all(copp_all_w >= 4) ~ "- very complete (4 or more options per cat.)"),
+                   entropy_copp_isc_medsd = first(entropy_copp_isc_medsd),
+                   entropy_copp_isc_medsd_w = first(entropy_copp_isc_medsd_w),
+                   entropy_V_isc_w = first(entropy_V_isc_w)) |>
+  mutate(Care_Access_Status2 = ifelse(is.na(Care_Access_Status2), "", Care_Access_Status2),
+         Care_Access_Status2_w = ifelse(is.na(Care_Access_Status2_w), "", Care_Access_Status2_w),
+         Care_Access_Status = paste(Care_Access_Status1,Care_Access_Status2, sep=" "),
+         Care_Access_Status_w = paste(Care_Access_Status1_w,Care_Access_Status2_w, sep=" "),
+         vvi = summed_Vic_w/Population)
+
+all_cats$summed_Vic_w |> sum() #only 2206  opps can be reached out of the total 2225, so that's what the numbers are based on.
+care_dest|> nrow()
+
+all_cats <- left_join(HAM_census_21 |> select(c(GeoUID)), all_cats, by=c("GeoUID"))
+```
+
+```{r message=FALSE}
+#tmap_mode("plot")
+all_cats_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("Care_Access_Status",
+              border.alpha = 0.2,
+              palette = c("darkred", "orangered", "orange", "yellow", "forestgreen", "lightgreen"),
+              title = "Number of care destinations (all) spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12
+            # legend.title.size = 0.7,
+            # legend.text.size = 0.6
+            )
+
+tmap_save(all_cats_copp_plot, file="all_cats_copp_plot.tiff")
+
+all_cats_copp_weighted_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("Care_Access_Status_w",
+              border.alpha = 0.2,
+              palette = c("darkred", "orangered", "orange", "yellow", "forestgreen", "lightgreen"),
+              title = "Number of care destinations (all - weighted) spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12
+            # legend.title.size = 0.7,
+            # legend.text.size = 0.6
+            )
+tmap_save(all_cats_copp_weighted_plot, file="all_cats_copp_weighted_plot.tiff")
+```
+
+```{r}
+all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("entropy_copp_isc_medsd",
+              border.alpha = 0.2,
+              palette = "Reds",
+              title = "Diversity of (all) care destinations spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12)
+
+tmap_save(all_cats_entropy_copp_plot, file="all_cats_entropy_copp_plot.tiff")
+
+all_cats_entropy_copp_weighted_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("entropy_copp_isc_medsd_w",
+              border.alpha = 0.2,
+              palette = "Reds",
+              title = "Diversity of (all - weighted) care destinations spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12)
+
+tmap_save(all_cats_entropy_copp_weighted_plot, file="all_cats_entropy_copp_weighted_plot.tiff")
+```
+
+```{r}
+all_cats_vvi_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("vvi",
+              border.alpha = 0.2,
+              palette = c("orangered", "forestgreen"),
+              breaks = c(0, 0.003804, 0.022174),
+              labels = c("Below Median", "Median and above"),
+              title = "Per capita spatially available care destinations (all - weighted) within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12
+            )
+
+tmap_save(all_cats_vvi_plot, file="all_cats_vvi_plot.tiff")
+```
+
+
+```{r}
+all_cats |> group_by(Care_Access_Status_w) |> summarise(min = min(summed_copp_all_w),
+                                                        median = median(summed_copp_all_w),
+                                                        max = max(summed_copp_all_w))
+all_cats |> group_by(Care_Access_Status) |> summarise(min = min(summed_copp_all),
+                                                        median = median(summed_copp_all),
+                                                        max = max(summed_copp_all))
+all_cats$entropy_copp_isc_medsd|> summary()
+all_cats$entropy_copp_isc_medsd_w |> summary()
+all_cats$Care_Access_Status_w |> unique()
+```
+
+
+```{r}
+#adding entropy labels
+all_cats <- all_cats |> 
+  mutate(bivariate_entropy_w = 
+           case_when( ((Care_Access_Status_w == "[04-25 des.) Caring - complete (2 to 4 options per cat.)"  |
+                       Care_Access_Status_w =="[04-25 des.) Caring - very complete (4 or more options per cat.)" |
+                         Care_Access_Status_w =="[25+ des.) Very caring - very complete (4 or more options per cat.)") &
+                         entropy_copp_isc_medsd_w >= 0.7154) ~ "Caring, complete and amenity diverse",  #the median diversity,
+                      
+                     ((Care_Access_Status_w == "[04-25 des.) Caring - complete (2 to 4 options per cat.)"  |
+                       Care_Access_Status_w =="[04-25 des.) Caring - very complete (4 or more options per cat.)" |
+                         Care_Access_Status_w =="[25+ des.) Very caring - very complete (4 or more options per cat.)") &
+                        entropy_copp_isc_medsd_w < 0.7154) ~ "Caring, complete but not amenity diverse", 
+                     
+                     ((Care_Access_Status_w == "[0-04 des.) Not caring " |
+                       Care_Access_Status_w == "[04-25 des.) Caring ")  &
+                        entropy_copp_isc_medsd_w >= 0.7154) ~ "Not caring or not complete, but amenity diverse", 
+                     
+                     ((Care_Access_Status_w == "[0-04 des.) Not caring "  |
+                       Care_Access_Status_w == "[04-25 des.) Caring ")  &
+                        entropy_copp_isc_medsd_w < 0.7154) ~ "Not caring, complete, or amenity diverse"),
+         
+         bivariate_entropy = 
+           case_when( ((Care_Access_Status == "[04-25 des.) Caring - complete (2 to 4 options per cat.)"  |
+                       Care_Access_Status =="[04-25 des.) Caring - very complete (4 or more options per cat.)" |
+                         Care_Access_Status =="[25+ des.) Very caring - very complete (4 or more options per cat.)") &
+                         entropy_copp_isc_medsd >= 0.7418) ~ "Caring, complete and amenity diverse",  #the median diversity,
+                      
+                     ((Care_Access_Status == "[04-25 des.) Caring - complete (2 to 4 options per cat.)"  |
+                       Care_Access_Status =="[04-25 des.) Caring - very complete (4 or more options per cat.)" |
+                         Care_Access_Status =="[25+ des.) Very caring - very complete (4 or more options per cat.)") &
+                        entropy_copp_isc_medsd < 0.7418) ~ "Caring, complete but not amenity diverse", 
+                     
+                     ((Care_Access_Status == "[0-04 des.) Not caring " |
+                       Care_Access_Status == "[04-25 des.) Caring ")  &
+                        entropy_copp_isc_medsd >= 0.7418) ~ "Not caring or not complete, but amenity diverse", 
+                     
+                     ((Care_Access_Status == "[0-04 des.) Not caring "  |
+                       Care_Access_Status == "[04-25 des.) Caring ")  &
+                        entropy_copp_isc_medsd < 0.7418) ~ "Not caring, complete, or amenity diverse"))
+                       
+```
+
+
+```{r}
+all_cats_bivariate_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("bivariate_entropy_w",
+              border.alpha = 0.2,
+              palette = c("yellowgreen","yellow","blue", "#FFFFDF"),
+              title = "Diversity of (all - weighted) care destinations spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12)
+
+tmap_save(all_cats_bivariate_entropy_copp_plot, file="all_cats_bivariate_entropy_copp_plot.tiff")
+```
+
+
+```{r}
+all_cats_entropy_copp_weighted_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(all_cats) +
+  tm_polygons("entropy_copp_isc_medsd_w",
+              border.alpha = 0.2,
+              palette = "Reds", style="quantile", n=4,
+              title = "Diversity of (all - weighted) care destinations spatially accessible within 15 min. walk",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12)
+
+tmap_save(all_cats_entropy_copp_weighted_plot, file="all_cats_entropy_copp_weighted_plot.tiff")
+```
+
+```{r}
+care_categories_plot <- 
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(Community_Boundaries, bbox=Community_Boundaries) + tm_polygons(col = "white", border.col = "black", lwd=1)+
+  tm_shape(care_dest) + tm_dots("Care_Category_Specific", palette = RColorBrewer::brewer.pal(n = 4, name = 'Dark2'), size=0.025, title = "")+
+  tm_facets("Care_Category", nrow = 2, free.scales= TRUE)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 20)) +
+  tm_compass(position = c("left", "top"), size=0.9) +
+  tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.bg.color = "white", legend.bg.alpha = 0.4,
+            panel.labels = c("1,265 Dependent-centric destinations", 
+                             "158 Errand-centric destinations", 
+                             "381 Grocery-centric destinations", 
+                             "421 Health-centric destinations"),
+            panel.label.size = 0.8) 
+care_categories_plot
+
+tmap_save(care_categories_plot, filename ="care_categories_plot.tiff")
+```
+```{r}
+parcels_DA_plot <- 
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("parcel_count",
+              border.alpha = 0.2,
+              palette = "Reds",style = "quantile", n=4,
+              title = "Count of residential parcels",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+poprate_DA_plot <- 
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA |> mutate(popden = Population/Dwellings)) +
+  tm_polygons("popden",
+              border.alpha = 0.2,
+              palette = "Purples", style = "quantile", n=4,
+              title = "Population per dwelling",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+LICOAT_DA_plot <- 
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("LICO_AT_TOTAL",
+              border.alpha = 0.2,
+              palette = "Oranges", style = "quantile", n=4,
+              title = "Prevalance of household LICO-AT",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+pop_descriptive_plots <- tmap_arrange(parcels_DA_plot, poprate_DA_plot, LICOAT_DA_plot, nrow=3)
+tmap_save(pop_descriptive_plots, file="pop_descriptive_plots.tiff", asp = 1/0.6)
+```
+
+
+<!-- let's exclude this for now and focus on ALL categories -->
+<!-- ```{r} -->
+<!-- #the number of opportunities from each 'non dependent' categories -->
+<!-- no_dependents <- access_15_bycategory_DA |> filter(Care_Category == "Errand-centric"| -->
+<!--                                                       Care_Category == "Grocery-centric" | -->
+<!--                                                       Care_Category == "Health-centric") |> -->
+<!--   mutate(copp_nodeps = sum(copp_ic_med, na.rm=T) + sum(copp_ic_sd, na.rm=T)) |> -->
+<!--   group_by(GeoUID) |> -->
+<!--          summarise(summed_copp_nodeps = sum(copp_nodeps), -->
+<!--                    summed_Vic = sum(V_ic, na.rm=T), -->
+<!--                    Population = mean(Population), -->
+<!--                    Care_Access_Status1 = case_when(summed_copp_nodeps < 3 ~ "[0-03 des.) Not caring", -->
+<!--                                  summed_copp_nodeps >= 3 & summed_copp_nodeps <= 10 ~ "[03-10 des.) Caring", -->
+<!--                                  summed_copp_nodeps > 10 ~ "[10+ des.) Very caring"), -->
+
+<!--                    Care_Access_Status2 = case_when(all(copp_nodeps >= 2 & copp_nodeps <= 4) ~ "- complete (2 to 4 options per cat.)", -->
+<!--                                                    all(copp_nodeps > 4) ~ "- very complete (4 or more options per cat.)")) |> -->
+<!--   mutate(Care_Access_Status2 = ifelse(is.na(Care_Access_Status2), "", Care_Access_Status2), -->
+<!--          Care_Access_Status = paste(Care_Access_Status1,Care_Access_Status2, sep=" "), -->
+<!--          vvi = summed_Vic/Population) -->
+
+<!-- no_dependents$summed_Vic |> sum() #only 952 of the no-dependent opps can be reached out of the 960, so that's what the numbers are based on. -->
+<!-- care_dest |> filter(Care_Category == "Errand-centric"| -->
+<!--                       Care_Category == "Grocery-centric" | -->
+<!--                       Care_Category == "Health-centric") |> nrow() -->
+
+<!-- no_dependents <- left_join(HAM_census_21 |> select(c(GeoUID)), no_dependents, by=c("GeoUID")) -->
+<!-- ``` -->
+
+<!-- ```{r message=FALSE} -->
+<!-- #tmap_mode("plot") -->
+<!-- no_dependents_copp_plot<-tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) + -->
+<!--   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+ -->
+<!--   tm_shape(no_dependents) + -->
+<!--   tm_polygons("Care_Access_Status", -->
+<!--               border.alpha = 0.2, -->
+<!--               palette = c("darkred", "orangered", "orange", "yellow", "forestgreen", "lightgreen"), -->
+<!--               title = "Number of care destinations (no dependents) spatially accessible within 15 min. walk", -->
+<!--               legend.is.portrait = TRUE) + -->
+<!--   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+ -->
+<!--   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) + -->
+<!--   tm_compass(position = c("right", "top"), size=1.0)+ -->
+<!--   tm_layout(bg.color = "grey", -->
+<!--             panel.label.bg.color = "white", -->
+<!--             panel.label.color = "black", -->
+<!--             legend.outside = TRUE, -->
+<!--             legend.position = c("center", "bottom"), -->
+<!--             legend.outside.position = "bottom", -->
+<!--             legend.outside.size = 0.2, -->
+<!--             legend.width = 12 -->
+<!--             # legend.title.size = 0.7, -->
+<!--             # legend.text.size = 0.6 -->
+<!--             ) -->
+<!-- tmap_save(no_dependents_copp_plot, file="no_dependents_copp_plot.tiff") -->
+<!-- ``` -->
+
+<!-- ```{r, message=FALSE} -->
+<!-- no_dependents_vvi_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) + -->
+<!--   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+ -->
+<!--   tm_shape(no_dependents) + -->
+<!--   tm_polygons("vvi", -->
+<!--               border.alpha = 0.2, -->
+<!--               palette = c("orangered", "forestgreen"), -->
+<!--               breaks = c(0, 0.0013, 0.0148680), -->
+<!--               labels = c("Below Median", "Median and above"), -->
+<!--               title = "Per capita spatially available care destinations (no dependents) within 15 min. walk", -->
+<!--               legend.is.portrait = TRUE) + -->
+<!--   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+ -->
+<!--   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) + -->
+<!--   tm_compass(position = c("right", "top"), size=1.0)+ -->
+<!--   tm_layout(bg.color = "grey", -->
+<!--             panel.label.bg.color = "white", -->
+<!--             panel.label.color = "black", -->
+<!--             legend.outside = TRUE, -->
+<!--             legend.position = c("center", "bottom"), -->
+<!--             legend.outside.position = "bottom", -->
+<!--             legend.outside.size = 0.2, -->
+<!--             legend.width = 12 -->
+<!--             # legend.title.size = 0.7, -->
+<!--             # legend.text.size = 0.6 -->
+<!--             ) -->
+
+<!-- tmap_save(no_dependents_vvi_plot, file="no_dependents_vvi_plot.tiff") -->
+<!-- ``` -->
+
+<!-- NOTES FROM LEA CONVO FEB 22:
+
+We changed some category tags. 
+ - child and elder centric are now both 'dependent-centric'. These are 'caring for others'. We also consolidated some sub-categories. Daycare and EarlyON are now combined.. Long Term-Care Home and Residential Home are now combined.. Senior Centre and Senior Active Living Centre are combined. Hospital and Clinic are combined. Recreation Centre and COmmunity Centre are now combined.
+ - A consideration for the future * maybe convenience stores and grocery stores can be be modulated based on their time -- i.e., if a DA trip to convenience is less than grocery, it is counted, if it is more than grocery it is not. More thought needs to be put into this, for now I did not include this consideration. 
+ - We will consider the following 2 (or maybe 3?) faceted (by mode) map with scales:
+
+1.	No-children (oneself and partner, no dependents) city map (15 min walk + 15 min cycle):
+-	Errand, grocery, health
+
+-	Scale: 
+o	not-caring (does not have 1 of each category), 
+o	caring (1 of each category), 
+o	very caring (2 or more of each category), 
+o	completely caring (1 of each sub-category), 
+o	very completely caring (2 of each sub-category)
+
+2.	Children+seniors: -- the truly caring city has all 4 categories. You always preform care but not always care for others. Your status will change. 
+-	+elder+children
+-	Scale: (same)
+
+3. What neighbourhoods are ‘almost there’ for being completely caring? What are they missing?
+
+And our presentation's angle: a 15 minute city is XYZ, the destinations are contested but typically are 'care' trips as well as discretionary trips (fun stuff). The mobility of care framework: paid, unpaid, and discretionary. All is important. But unpaid travel is under-studied. We are going to explore unpaid trips: they are essential and short-distance trips. A masculine city is one where paid work + discretionary trips are planned for. This analysis presents a tool to conceptual what is and is not a 'caring' or 'caring complete' neighbourhood. presents some visualisations.
+
+
+APRIL 25 2024
+- for simplicity, 15 min walk thresholds as a baseline for 15-min caring neighbourhoods. 15 min cycle thresholds to demonstrate the potential of cyling to get those 'almost there' neighbourhoods to be more caring if cycling infrastructure is implemented. Transit/bike to care isn't so common currently, but it's ane equity argument and shows political potential.
+
+-->
+
+```{r}
+tmap_mode("plot")
+tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(one_cat) +
+  tm_polygons("Complete",
+              border.alpha = 0,
+              legend.is.portrait = FALSE,
+              n=2,
+              labels = c("Not complete", "Complete")) +
+  tm_facets(by=c("Care_Category"), nrow=2, showNA = FALSE)+
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 20)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12,
+            legend.title.size = 0.7,
+            legend.text.size = 0.6)
+```
+
+Questions:
+
+- what is a reasonable travel time? Is 15 minute walk indeed fine for our purpose?
+
+- is 1 potential opportunity enough per subcategory? 
+
+- Should some subcategories be substitutes? E.g., 1 daycare OR EARLYON centre is enough, not 1 of each. 
+
+- Are there ways the categories can overlap to tell a story? Maybe to include google maps images. eg. 
+  - communities where children+errand+grocery centric care is easier -- especially for women
+  - health_centric+Elder_centric -- people with higher health care needs
+  
+- care trips 30% of all trips made. they are essential and have
+
+<!-- ```{r} -->
+<!-- test1 <- ttm_care_walk_15 |> filter(Care_Category == "Child_Centric") |> -->
+<!--   sp_avail_detailed(o_id = from_id, -->
+<!--                     d_id = to_id,  -->
+<!--                     pop = Population,  -->
+<!--                     opp = f, -->
+<!--                     r = f,  -->
+<!--                     f = f, alpha = 1)|> -->
+<!--   group_by(from_id, Care_Category) |> summarize(V_ic = sum(V_ij, na.rm = TRUE))  -->
+
+
+<!-- test2 <- ttm_care_walk_15 |> filter(Care_Category == "Grocery_Centric") |> -->
+<!--   sp_avail_detailed(o_id = from_id, -->
+<!--                     d_id = to_id,  -->
+<!--                     pop = Population,  -->
+<!--                     opp = f, -->
+<!--                     r = f,  -->
+<!--                     f = f, alpha = 1)|> -->
+<!--   group_by(from_id, Care_Category) |> summarize(V_ic = sum(V_ij, na.rm = TRUE))  -->
+
+<!-- test3 <- ttm_care_walk_15 |> filter(Care_Category == "Elder_Centric") |> -->
+<!--   sp_avail_detailed(o_id = from_id, -->
+<!--                     d_id = to_id,  -->
+<!--                     pop = Population,  -->
+<!--                     opp = f, -->
+<!--                     r = f,  -->
+<!--                     f = f, alpha = 1)|> -->
+<!--   group_by(from_id, Care_Category) |> summarize(V_ic = sum(V_ij, na.rm = TRUE))  -->
+
+
+<!--  test4 <- ttm_care_walk_15 |> filter(Care_Category == "Errand_Centric") |> -->
+<!--   sp_avail_detailed(o_id = from_id, -->
+<!--                     d_id = to_id,  -->
+<!--                     pop = Population,  -->
+<!--                     opp = f, -->
+<!--                     r = f,  -->
+<!--                     f = f, alpha = 1)|> -->
+<!--   group_by(from_id, Care_Category) |> summarize(V_ic = sum(V_ij, na.rm = TRUE))  -->
+
+
+<!-- test5 <- ttm_care_walk_15 |> filter(Care_Category == "Health_Centric") |> -->
+<!--   sp_avail_detailed(o_id = from_id, -->
+<!--                     d_id = to_id,  -->
+<!--                     pop = Population,  -->
+<!--                     opp = f, -->
+<!--                     r = f,  -->
+<!--                     f = f, alpha = 1)|> -->
+<!--   group_by(from_id, Care_Category) |> summarize(V_ic = sum(V_ij, na.rm = TRUE))  -->
+
+<!-- test <- rbind(test1, test2, test3, test4, test5) -->
+
+<!-- access_15 <- access_15 |> left_join(test, by=c("from_id", "Care_Category")) |> ungroup() -->
+
+<!-- rm(test, test1, test2, test3, test4, test5) -->
+<!-- ``` -->
+
