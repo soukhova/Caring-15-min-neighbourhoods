@@ -48,6 +48,20 @@ format:
 keywords: ["Accessibility", "Mobility of Care", "Gender", "15-Minute City", "Care Complete Neighbourhoods"]
 bibliography: bibliography.bib
 ---
+
+<!-- 
+
+•	Establishing definitive research questions and the work’s contributions. Us deciding on this together will help me sculpt from what’s there
+  •	Thoughts on methods? Can we improve presentation?
+  •	Thoughts on results? Can we improve presentation? What are insights that are significant to you? What do you want to know more about?
+o	Thoughts on how I weighted care destinations
+o	Thoughts on aggregation by ‘care category’ vs ‘specific type’ of destination
+o	Thoughts on additional dimensions – i.e., the inclusion of results that only consider ‘grocery, errand, and health centric’ destinations (for people who have no dependents). For the time being, I left this consideration out and just demo _all_ destinations. Also, what about LICO-AT discussion?
+  •	Critical thoughts on how to tie walking and cycling modes together. For now, I did not include cycling results, though I have the cycling travel time matrices. We should use the cycling results perhaps to demo how the range of care access can be extended for certain neighbourhoods. A potential ‘what-if’ scenario?
+  •	Next steps
+
+-->
+
 ```{r}
 #| label: setup-knitr-options
 #| include: false
@@ -221,6 +235,14 @@ The discussion around mobility of care and travel mode may also be relevant to l
 
 Taken together, there appears to be a preference for travel by car for mobility of care trips. This is problematic, however, in at least two major ways. First, cars are less sustainable than other modes of transport. Normalizing car use for care trips does not advance the low-carbon transport transition that most cities are aiming for (at least in principle!). Since care trips tend to be short, they are also perfect candidate to be completed by bus, bicycle, or by foot. That is, if these alternative and sustainable modes are planned with care in mind. Second, there is equity concerns with assuming people are accessing care destinations by car. Many people, and low-income women in particular, do not have access to a car. Some are also experiencing a degree of spatial entrapment. Having safe and convenient access to care destinations using alternatives to the private car is especially important for those who must rely on these options regardless of whether they are well planned. 
 
+RESEARCH OBJECTIVES: 
+
+1)	15 minute cities stem from conventional methods that ignore mobility of care perspectives. There is an applied way of doing this, 
+2)	Use of the innovative destination dataset
+3)	Mid-size typical Canadian city, how frequently do we find these caring neighbourhoods (potential - accessibility). 
+4)	Who enjoys them and who does not? Clustering methodology. 
+a.	Types of profiles will emerge – i.e. with LICO > X + Prevalence of children >Y + walking accessibility score > U + diversity score > W = “caring neighbourhood” 
+
 
 # Data and Methods
 
@@ -304,15 +326,15 @@ $$
 - $j$ is a set of destination locations.
 - $c$ is a set of care categories.
 - $W^c_j$ is a number of weighted opportunities ($O_j^c$) of category $c$ at $j$.
-- $c_{ij}$ is the travel cost between $i$ and $j$.
+- $c_{ij}$ is the travel cost between $i$ and $j$. <!--AS NOTE: TAKE THIS AWAY, have it be non-weighted-->
 - $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value [@handyMeasuringAccessibilityExploration1997].
 - $S_{i}^c$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $c$.
 
-Next, the Q3 (median + standard deviation) of all $\sum_{c}S_i^c$ values for each DA are taken and represented as $S^{c}_{DA}$. $S^{c}_{DA}$ is the upper quartile number of weighted care destinations that can be potentially interacted with within a 15 minute walk by parcels within a DA: an optimistic perspective on how many opportunities can be potentially reached `r word_comment("Thoughts on this choice instead of the median? I do this because the parcels are not population weighted, so 1 parcel = 1 travel time. There can be obviously multiple households in 1 parcel, so using Q3 makes some sense.", ".")`  
+Next, the Q3 (median + standard deviation) of all $\sum_{c}S_i^c$ values for each DA are taken and represented as $S^{c}_{DA}$. $S^{c}_{DA}$ is the upper quartile number of weighted care destinations that can be potentially interacted with within a 15 minute walk by parcels within a DA: an optimistic perspective on how many opportunities can be potentially reached. 
 
 *Entropy* measure has been widely used to characterise the diversity of land-use mix in early work by @frankLinkingObjectivelyMeasured2005 based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence (this measure among other species diversity indices of the time are reviewed in @whittaker1972evolution). In the realm of urban studies and planning literature, it has since been widely used to characterise the diversity in land-use mix [@ewingTravelBuiltEnvironment2010a], especially in the context of active modes [@luUrbanDensityDiversity2017; @mavoaIdentifyingAppropriateLanduse2018] and suburban sprawl [@randallGISBasedLand2015]. Work that has used diversity indices alongside accessibility analysis are scarce, though examples of its use as parameters within accessibility scores in the case of employment opportunities [@chengMeasuringUrbanJob2013; @daiIncorporatingJobDiversity2018] and more recently to describe the diversity in transit facilities [@yinIncorporatingFacilityDiversity2024] are present. To the authors knowledge, the use of an entropy measure to reflect the diversity in care destination amenity types and in context within a 15-minute neighbourhood, has yet to be done. 
 
-In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$ `r word_comment("Thoughts on this choice? I think we need to consider both the category type and the specific type in this paper. We justify the categories so that's fair but I still think there's value in presenting the specific type  some how - this is what I think this diversity index is good for so I've presented that as an option. Note though, it'd be much more simple to just focus on calculating the $D^{st}_{DA}$ using the $S_i^c$ and not introducing the $S_i^{st}$ calculation like I've done.. so I've made the analysis more complicated. Also destination weighting is based on the four categories - so that is distorting the diversity in certain ways.",".")`
+In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$. <!--AS NOTE: remove 'st' and just have diveristy be based on 'c'. -->
 
 As such, the entropy measure is used to reflect the diversity of specific type of care destinations. The value ranges from 0 to 1, with 1 representing total evenness in the number of (weighted) specific type $st$ care opportunities can be reached at the aggregated spatial unit $DA$:
 
@@ -330,7 +352,13 @@ $$
 - $D^{st}_{DA}$ is the entropy index.
 
 # Results
+<!--Initial thoughts on results:
 
+Initial results seem optimistic. With SOM , method will classify neighbourhoods into these clusters we then tag/name. 
+
+A part of this - spatial knowledge of people doesn't match the dataset. i.e. all stores are not equal, they have qualities that make them less/more accessibly. 
+
+But we can speak in potentials. They facilities are there and they could potentially be improved. -->
 ```{r plot-figure3, out.width=600, out.height=600}
 #| label: fig-Fig3
 #| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."

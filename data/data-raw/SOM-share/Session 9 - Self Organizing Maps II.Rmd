@@ -1,0 +1,347 @@
+---
+title: "Artificial Neural Networks - Session 9: Self Organizing Maps II"
+---
+
+# Introduction
+
+In the preceding session self-organizing maps were introduced. As seen there, self-organizing maps are a form of neural network that operates on some distinctive principles, importantly:
+
+1) Learning happens in a competitive way
+2) The network has topological relationships
+
+In this way, a lattice of neurons compete for training samples, and in the process learn from those samples. The outcome of the learning process is that training samples are grouped (or classified), in a self-organized map.
+
+The example in the preceding seminar consisted of a simple 1D map. In this seminar, two-dimensional maps will be introduced, along with the resources to train SOMs in R.
+
+There are several packages that implement SOMs in R, including `kohonen`, `som`, and `SOMbrero`. Each package offers slightly different functions, some of which we will explore. For instance, `kohonen` implements unsupervised SOMs, supervised SOMs with two parallel maps, SOMs with multiple parallel maps. The package `SOMbrero` (which stands for _SOM Bound to Realize Euclidean and Relational Outputs_) can be used to train SOMs using numerical data, contingency tables, and disimilarity matrices.
+
+```{r}
+rm(list = ls())
+```
+
+
+Lets begin by loading the packages used for this:
+```{r message = FALSE}
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
+library(plotly) # Create Interactive Web Graphics via 'plotly.js'
+library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+```
+
+The dataset for the example is a collection of pokemon characters, compiled from several sources, as described [here](https://www.kaggle.com/shwetp/pokemon-visualizations-unsupervised-learning/data)
+```{r message = FALSE}
+pokemon <- read_csv("data/pokemon_gen.csv")
+```
+
+The dataframe contains the following pieces of information for n = `r nrow(pokemon)` pokemon:
+```{r}
+summary(pokemon)
+```
+
+Note: Pokemon are sometimes cute.
+
+![Figure 1. Pikachu](figures/Pikachu.png)
+
+Pokemon are described by their so-called _stats_, including hit points (which determine how much damage they can take), Attack (how much damage they cause), Defense (influences how much damage they receive when attacked), Special Attack and Special Defense (similar to Attack and Defense but when using special abilities), and Speed (which determines their order in battle: higher speed monsters attack first).
+
+These are all numerical attributes.
+
+In addition, there is the legendary status of the monster. Legendary monsters are rare and typically very powerful. The generation, on the other hand, is a sequence for release of the games, and successive generations modify previous monsters.
+
+Note that generation should be a factor, so lets change it:
+```{r}
+pokemon$Generation <- as.factor(pokemon$Generation)
+```
+
+To illustrate SOMs in two dimensions, we will use only two of the _stats_ in the dataframe, `Defense` and `Speed`:
+```{r}
+df <- select(pokemon, Defense, Speed)
+```
+
+Since these are two numerical attributes, we can visualize them using a scattetplot:
+```{r}
+ggplot(data = df, aes(x = Defense, y = Speed)) + 
+  geom_point() +
+  coord_fixed()
+```
+
+Given these two attributes, a SOM can be trained using the function `trainSOM` from `SOMbrero`. Only one argument is needed, the input data `x.data`. Other arguments can be assigned by default. In what follows the dimension of the map is given as 5-by-5, and I request that 100 intermediate steps be saved. 
+```{r}
+set.seed(593)
+# run the SOM algorithm 
+nrows <- 5
+ncols <- 5
+poke.som <- trainSOM(x.data=df, dimension=c(nrows, ncols), nb.save = 100, radius.type = "letremy", verbose = TRUE)
+```
+
+The value of the function (output) is an object of class somRes:
+```{r}
+class(poke.som)
+```
+
+The summary reports some attributes of the map:
+```{r}
+summary(poke.som)
+```
+
+In this implementation of SOM, the energy is a measure of deformation of the map, when conceptualized as an elastic membrane. The _topographic error_, on the other hand, is the proportion of all data vectors for which first and second best matching units are not adjacent. This measures topology preservation.
+
+In addition, the summary of the SOM includes the results of ANOVA, using the the results of the clustering as the factor. This helps to assess the relevance of each variable to discriminate between clusters. In the present example, the results of ANOVA indicate that the means of the variables for the clusters are significantly different.
+
+The `somRes` object includes the following items: 
+
+- clustering: the results of the clustering algorithm, which gives each observation a number that corresponds to their best matching unit (BMU).
+
+- prototypes: the final weights of the cells.
+
+- energy: the final energy.
+
+- backup: a list that includes the prototypes (the weights) at intermediate steps, the steps at which backups were recorded, intermediate clustering results, etc.
+
+Since backups were requested, it is possible to plot the evolution of the training algorithm. For instance, the following plot shows the energy:
+```{r}
+plot(poke.som, what = "energy")
+```
+
+It is also possible to visualize the evolution of the map. This necessitates that we define the topology of the lattice:
+```{r}
+poke.grid <- cell2nb(nrow = nrows, ncol = ncols, type = "rook")
+```
+
+The above gives the list of neighbors for neurons in the lattice.
+
+The prototypes from the backups are extracted for each of the backups and flattened for plotting. The topology obtained above can be used to obtain the edges, by giving the start and endpoints by neighbors:
+```{r}
+som.grid <- data.frame(x1 = numeric(length(poke.som$backup$prototypes) * length(unlist(poke.grid))))
+count <- 0
+for(p in 1:length(poke.som$backup$prototypes)){
+  for(i in 1:(nrows * ncols)){
+    for(j in 1:length(poke.grid[[i]])){
+      count <- count + 1
+      som.grid$x1[count] <- poke.som$backup$prototypes[[p]][i,1]
+      som.grid$y1[count] <- poke.som$backup$prototypes[[p]][i,2]
+      som.grid$x2[count] <- poke.som$backup$prototypes[[p]][poke.grid[[i]][j],1]
+      som.grid$y2[count] <- poke.som$backup$prototypes[[p]][poke.grid[[i]][j],2]
+      som.grid$backup[count] <- p
+    }
+  }  
+}
+```
+
+And these are the points:
+```{r}
+som.points <- do.call(rbind.data.frame, poke.som$backup$prototypes)
+rownames(som.points) <- c()
+som.points$backup <- rep(1:100, each = 25)
+```
+
+Now the evolution of the map can be plotted as follows:
+```{r warning = FALSE, message = FALSE}
+p <- ggplot(data = som.points, 
+            aes(x = Defense, y = Speed, frame = backup)) +
+  geom_segment(data = som.grid, 
+               aes(x = x1, y = y1, xend = x2, yend = y2, frame = backup)) +
+  geom_point(aes(frame = backup), size = 2) +
+  coord_equal()
+
+p <- ggplotly(p)
+p
+```
+
+The final map is:
+```{r}
+som.grid.final <- data.frame(x1 = numeric(length(unlist(poke.grid))))
+count <- 0
+for(i in 1:(nrows * ncols)){
+    for(j in 1:length(poke.grid[[i]])){
+      count <- count + 1
+      som.grid.final$x1[count] <- poke.som$prototypes[i,1]
+      som.grid.final$y1[count] <- poke.som$prototypes[i,2]
+      som.grid.final$x2[count] <- poke.som$prototypes[poke.grid[[i]][j],1]
+      som.grid.final$y2[count] <- poke.som$prototypes[poke.grid[[i]][j],2]
+    }
+  }  
+```
+
+```{r}
+ggplot(data = data.frame(node = factor(1:25), poke.som$prototypes), 
+       aes(x = Defense, y = Speed)) +
+  geom_segment(data = som.grid.final, 
+               aes(x = x1, y = y1, xend = x2, yend = y2)) +
+  geom_point(aes(color = node), size = 4) +
+  coord_equal()
+```
+
+```{r}
+ggplot(data = data.frame(node = factor(1:25), poke.som$prototypes), 
+       aes(x = Defense, y = Speed)) +
+    geom_point(data = data.frame(node = factor(poke.som$clustering), df),
+       aes(x = Defense, y = Speed, color = node)) +
+  geom_segment(data = som.grid.final, 
+               aes(x = x1, y = y1, xend = x2, yend = y2),
+               size = 1) +
+  geom_point(aes(color = node), size = 4) +
+  geom_point(shape = 1, size = 4) +
+  coord_equal()
+```
+
+Is this a "good" result?
+
+Lets change the parameters:
+```{r}
+set.seed(593)
+# run the SOM algorithm 
+nrows <- 5
+ncols <- 7
+poke.som2 <- trainSOM(x.data=df, dimension=c(nrows, ncols), radius.type = "letremy", verbose = TRUE)
+```
+
+```{r}
+summary(poke.som2)
+```
+
+Now the final map is:
+
+```{r}
+poke.grid2 <- cell2nb(nrow = nrows, ncol = ncols, type = "rook")
+
+som.grid.final2 <- data.frame(x1 = numeric(length(unlist(poke.grid2))))
+count <- 0
+for(i in 1:(nrows * ncols)){
+    for(j in 1:length(poke.grid2[[i]])){
+      count <- count + 1
+      som.grid.final2$x1[count] <- poke.som2$prototypes[i,1]
+      som.grid.final2$y1[count] <- poke.som2$prototypes[i,2]
+      som.grid.final2$x2[count] <- poke.som2$prototypes[poke.grid2[[i]][j],1]
+      som.grid.final2$y2[count] <- poke.som2$prototypes[poke.grid2[[i]][j],2]
+    }
+  }  
+```
+
+```{r}
+ggplot(data = data.frame(node = factor(1:(nrows * ncols)),
+                         poke.som2$prototypes), 
+       aes(x = Defense, y = Speed)) +
+    geom_point(data = data.frame(node = factor(poke.som2$clustering), df),
+       aes(x = Defense, y = Speed, color = node)) +
+  geom_segment(data = som.grid.final2, 
+               aes(x = x1, y = y1, xend = x2, yend = y2),
+               size = 1) +
+  geom_point(aes(color = node), size = 4) +
+  geom_point(shape = 1, size = 4) +
+  coord_equal()
+```
+
+Lets now try this but with the full array of numeric stats:
+```{r}
+df <- select(pokemon, HP, Attack, Defense, SpAtk = `Sp. Atk`, SpDef = `Sp. Def`, Speed)
+```
+
+A rule of thumb for selecting the size of the SOM is $5\sqrt n$ neurons. Since the size of the sample is `r nrow(pokemon)`, this means a square with `r round(sqrt(5 * sqrt(nrow(pokemon))))`:
+```{r}
+set.seed(593)
+# run the SOM algorithm 
+nrows <- 12
+ncols <- 12
+poke.som3 <- trainSOM(x.data=df, dimension=c(nrows, ncols), radius.type = "letremy", verbose = TRUE)
+```
+
+This gives the summary for the map:
+```{r}
+summary(poke.som3)
+```
+
+The results of ANOVA indicate that all variables contribute to discrimination in the clustering.
+
+The following shows the number of cases assigned to each node:
+```{r}
+table(poke.som3$clustering)
+```
+
+Which can be visualized by means of a _hitmap_:
+```{r}
+plot(poke.som3, what = "obs", type = "hitmap")
+```
+
+The hitmap reveals two empty cells, that is, neurons that did not classify a single observation.
+
+Change the size of the map:
+```{r}
+set.seed(593)
+# run the SOM algorithm 
+nrows <- 8
+ncols <- 8
+poke.som3 <- trainSOM(x.data=df, dimension=c(nrows, ncols), radius.type = "letremy", verbose = TRUE)
+```
+
+```{r}
+summary(poke.som3)
+```
+
+Plotting the _hitmap_:
+```{r}
+plot(poke.som3, what = "obs", type = "hitmap")
+```
+
+# Interpretation of clusters
+
+Interpretation of clusters typically involves descriptive statistics of the clusters. `SOMbrero` implements a number of graphical tools to support interpretation.
+
+The first example is a heatmap of the variables in clusters:
+```{r}
+par(mfrow=c(3,2))
+plot(poke.som3, what="obs", type="color", variable=1, print.title=TRUE, 
+     main="HP")
+plot(poke.som3, what="obs", type="color", variable=2, print.title=TRUE, 
+     main="Attack")
+plot(poke.som3, what="obs", type="color", variable=3, print.title=TRUE, 
+     main="Defense")
+plot(poke.som3, what="obs", type="color", variable=4, print.title=TRUE, 
+     main="Special Attack")
+plot(poke.som3, what="obs", type="color", variable=3, print.title=TRUE, 
+     main="Special Defense")
+plot(poke.som3, what="obs", type="color", variable=4, print.title=TRUE, 
+     main="Speed")
+```
+
+The lower left corner of the map concentrates monsters with high speed, high special attack, and high special attack. the upper left corner concentrates high defense and high special defense. High hit points are towards the center of the map.
+
+Two additional way of visualizing the characteristics of the clusters are as follows.
+
+This creates barplots:
+```{r}
+plot(poke.som, what="obs", type="barplot", print.title=TRUE)
+```
+
+And this creates mean lines:
+```{r}
+plot(poke.som3, what="obs", type="meanline", key.loc=c(-2,8), mar=c(0,2,2,0))
+```
+
+And of course, we would like to know how much dispersion there is within the clusters, something that can be explored by means of boxplots:
+```{r}
+plot(poke.som3, what="obs", type="boxplot")
+```
+
+Seeing how some of the stats indicate puny monsters, I am curious to see if this is due to their status as legendary monsters. A plot of an additional variable is as follows:
+```{r}
+plot(poke.som3, what="add", type="pie", variable=pokemon$Legendary)
+```
+
+```{r}
+poke.sc <- superClass(poke.som3, k=5)
+summary(poke.sc)
+```
+
+This is a dendogram with the super-clusters:
+```{r}
+plot(poke.sc, plot.var=FALSE)
+```
+
+And the map with the superclusters:
+
+```{r}
+plot(poke.sc, type="grid", plot.legend=TRUE)
+```
+
+

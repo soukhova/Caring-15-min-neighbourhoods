@@ -1,0 +1,426 @@
+---
+title: "Artificial Neural Networks - Session 11: Self Organizing Maps IV: Analysis of Contingency Tables"
+---
+
+# Setup
+
+Clear the workspace:
+```{r clear-workspace}
+rm(list = ls())
+```
+
+Load the libraries used in this notebook:
+```{r load-libraries, include = FALSE}
+library(readxl) # Read Excel Files
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(rgdal) # Bindings for the 'Geospatial' Data Abstraction Library
+library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+library(rgeos) # Interface to Geometry Engine - Open Source ('GEOS')
+library(dplyr) # A Grammar of Data Manipulation
+library(tmap) # Thematic Maps
+library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
+library(rpart) # Recursive Partitioning and Regression Trees
+library(rpart.plot) # Plot 'rpart' Models: An Enhanced Version of 'plot.rpart'
+library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+```
+
+Load geography and data files for this session:
+```{r load-ridings}
+ridings <- st_read("data/Ridings.shp")
+```
+
+# Introduction
+
+Self Organizing Maps are often used to produce clusters when numeric data are available. Numeric data is often presented in the form of a table, with each record corresponding to a unit of analysis, and each column is an attribute. An example of this is a table showing, for instance, socio-economic and demographic attributes for zones.
+
+Consider a selection of attributes for political jurisdictions in Ontario, which are available from the following file:
+```{r read-census-data}
+data <- read.csv("data/Ridings-Census Subdivisions-Overlay-Data.csv")
+ridings$ED_NAME_EN <- data$ED_NAME_EN
+```
+
+The table below is an example of numeric information in a table 
+```{r numeric-table-example}
+
+
+kable(data |>
+        select(ED_NAME_EN, Population, `Private.Dwellings`, `Avg.Median.Age`), 
+      "html", 
+      caption = "Example of table with numeric data",
+      col.names = c("Jurisdiction", "Population", "Private Dwellings", "Avg Median Age"), 
+      digits = 0) %>%
+  kable_styling()
+```
+
+Each jurisdiction is described by a set of attributes, which could be, and often are, used to produce clustering/segmentation systems, as seen in the preceding session.
+
+Other times, data is available that does not necessarily conform to the format of a table as shown above. Sometimes, for example, we have tables that describe relationships between variables, typically in the form of frequencies of occurrence. Such tables are then cross-tabulations or contingency tables. 
+
+An example of a table of this type is, for example, the results of Ontario's provincial election of 2018, which are available from the following file:
+```{r load-election-data}
+results.raw <- read.csv("data/Unofficial Results.csv")
+results.raw <- rename(results.raw, ED_NAME_EN = Riding)
+results.raw$ED_NAME_EN <- ridings$ED_NAME_EN
+```
+
+The table below is an example of a contingency table: 
+```{r contingency-table}
+kable(results.raw[,c(1,14:18)], "html", caption = "Contingency table: votes for each party by riding",
+      col.names = c("Riding", "Votes Liberal", "Votes PC", "Votes NDP", "Votes Green", "Votes Other"), digits = 0) %>%
+  kable_styling()
+```
+
+What is a key difference between a contingency table, and the other commonly used data tables?
+
+Notice how in a contingency table, both the rows AND the columns can be considered units of analysis. In the table above, the rows are for "Jurisdictions", whereas the columns are for "Parties". The contents of the table are "Votes".
+
+This is not the same for all data tables. The columns of the table with socio-economic and demographic information above do not necessarily represent an underlying variable, and in fact more commonly are used to collect multivariate information.
+
+Whereas the sum of all values in a contingency table adds up to some universe (for instance total number of votes cast in the election), the sum of all values in a data table is not necessarily a meaningful quantity, since the variables are likely to be in different units! (e.g., number of people, number of dwellings, years).
+
+Contingency tables then collect information about bivariate relationships.
+
+When a contingency table is small, relationships are relatively easy to spot at a glance. Consider the following toy example of apartment occupancy by proximity to transit:
+```{r toy-example}
+df <- data.frame(Occupation = c(rep("Occupied", 240), rep("Vacant", 10), rep("Occupied", 180), rep("Vacant", 20)),
+                     Distance = c(rep("Within Walking Distance", 240), rep("Within Walking Distance", 10), rep("Not Within Walking Distance", 180), rep("Not Within Walking Distance", 20)))
+kable(addmargins(xtabs(~ Occupation + Distance, df)), "html") %>% kable_styling()
+```
+
+A relevant question is whether occupancy is related to proximity to transit: is "Occupied" more closely related to "Not Within Walking Distance" than to "Within Walking Distance"? In this case, the answer appears to be yes: apartments are more frequently occupied when they are _within_ walking distance of transit (occupancy rate within walking distance is 240/250 = 0.96, whereas beyond walking distance is 180/200 = 0.90).
+
+There are statistics that can be implemented to test whether any variations in the frequency of events are significantly different from what could be expected purely by chance. For instance, a $\chi^2$ test of independence is as follows:
+```{r chi2-toy-example}
+chisq.test(xtabs(~ Occupation + Distance, df))
+```
+
+The test tells us that occupancy rates are significantly higher/lower based on proximity to transit, than what would be expected by chance.
+
+Making sense of a larger contingency table is considerably more challenging based on visual inspection. Lets return to the results of the election in Ontario.
+
+First, we will create a contingency table:
+```{r create-contingency-table}
+#Copy to create contingency table
+results.ct <- results.raw
+#Create row names for table
+results.ct <- results.ct %>% rename(Riding = ED_NAME_EN) %>% select(Votes_Liberal, Votes_PC, Votes_NDP, Votes_Green, Votes_Other)
+results.ct <- round(results.ct)
+row.names(results.ct) <- results.raw$ED_NAME_EN
+```
+
+A test of independence indicates that the votes are not allocated at random in each riding (if that were the case, the results of the election would have been quite different!):
+```{r chi2-votes}
+chisq.test(results.ct)
+```
+
+However, this test does not help to answer the question of which ridings are more closely associated with each party (check the contingency table again).
+
+The results of the election already give a natural way to cluster ridings: we can group ridings based on the party that won. See the contingency table, now coded by winner of the riding (with Liberals in red, PC in blue, NDP in orange, and Greens in green):
+```{r contingency-table-with-winners}
+results.raw %>%
+  mutate(Votes_Liberal = cell_spec(round(Votes_Liberal), 
+                              color = "white",
+                              align = "c",
+                              background = factor(Winner, c("Liberal", "PC", "NDP", "Green", "Other"), 
+                                        c("red", "blue", "orange", "green", "white"))),
+         Votes_PC = cell_spec(round(Votes_PC), 
+                              color = "white",
+                              align = "c",
+                              background = factor(Winner, c("Liberal", "PC", "NDP", "Green", "Other"), 
+                                        c("red", "blue", "orange", "green", "white"))),
+         Votes_NDP = cell_spec(round(Votes_NDP), 
+                              color = "white",
+                              align = "c",
+                              background = factor(Winner, c("Liberal", "PC", "NDP", "Green", "Other"), 
+                                        c("red", "blue", "orange", "green", "white"))),
+         Votes_Green = cell_spec(round(Votes_Green), 
+                              color = "white",
+                              align = "c",
+                              background = factor(Winner, c("Liberal", "PC", "NDP", "Green", "Other"), 
+                                        c("red", "blue", "orange", "green", "white"))),
+         Votes_Other = cell_spec(round(Votes_Other), 
+                              color = "white",
+                              align = "c",
+                              background = factor(Winner, c("Liberal", "PC", "NDP", "Green", "Other"), 
+                                        c("red", "blue", "orange", "green", "white"))))%>%
+  select(ED_NAME_EN, Votes_Liberal, Votes_PC, Votes_NDP, Votes_Green, Votes_Other) %>%
+  kable(escape = F) %>%
+  kable_styling()
+```
+
+The summary of ridings won by each party is:
+```{r}
+table(results.raw$Winner)
+```
+
+Clustering the ridings based on the winners of the election, however, potentially misses some important nuances. For example, Brampton West was won by the PC, but it is much closer to the NDP than Bruce-Grey-Owen Sound, also won by the PC.
+
+A mechanism to simultaneously cluster the ridings _and_ the parties could help to understand some of these nuances. A canonical approach to do this is Correspondence Analysis, a statistical method closely related to Principal Component Analysis. Self Organizing Maps can also be used to this end [see paper by Cottrell et al. 1993](Analysing a contingency table with Kohonen maps.pdf). This session illustrates this application of SOMs as implemented in the `SOMbrero` package.
+
+# Train SOM
+
+The `SOMbrero` package can be used to train a SOM on a contingency table, by setting the argument `type` to "korresp".
+
+A measure of the quality of a SOM is its topographic error, which measures the quality of the projection to the data. The topographic error varies between zero (perfect projection) to one (poor projection).
+
+In this example, we can try different map configurations (i.e., the dimensions of the map) to try to improve the quality of the projection.
+
+The first map uses the default 8 by 8 parameters:
+```{r train-som-8by8}
+set.seed(2343)
+#Try different dimensions to reduce topographic error
+korresp.som <- trainSOM(x.data = results.ct, dimension = c(8, 8),
+                        type = "korresp", scaling = "chi2", nb.save = 10,
+                        radius.type = "letremy")
+summary(korresp.som)
+```
+
+Try several dimensions:
+```{r train-som-mbyn}
+set.seed(2343)
+#Try different dimensions to reduce topographic error
+korresp.som <- trainSOM(x.data = results.ct, dimension = c(4, 7),
+                        type = "korresp", scaling = "chi2", nb.save = 10,
+                        radius.type = "letremy")
+summary(korresp.som)
+```
+
+After some experimentation, a map of size 4-by-5 seems to give the best projection quality (notice as well that it also has the lowest final energy):
+```{r train-som-final}
+set.seed(2343)
+#Try different dimensions to reduce topographic error
+korresp.som <- trainSOM(x.data = results.ct, dimension = c(4, 5),
+                        type = "korresp", scaling = "chi2", nb.save = 10,
+                        radius.type = "letremy")
+summary(korresp.som)
+```
+
+Since we saved intermediate steps when training we can check the progress of the algorithm:
+```{r energy-plot}
+plot(korresp.som, what="energy")
+```
+
+The results of the clustering are as follows, with cell 1 clustering four ridings, cell 2 nine ridings, and so on. There are twenty cells in total (4 times 5) and only cell 8 is empty:
+```{r}
+table(korresp.som$clustering)
+```
+
+Note that there are 124 ridings and 5 types of vote totals: Liberal, PC, NDP, Green, Other. Therefore, a total of 129 units are clustered. As shown next, 
+```{r clusters-table}
+kable(korresp.som$clustering, "html", caption = "Results of SOM clustering algorithm (unit and cluster number)") %>% 
+  kable_styling()
+```
+
+Notice how Liberal was clustered at cell 17, PC at cell 20, NDP at 1, Green at 4, and Other at 3. In this way, the ridings that are closest to Liberal are Eglinton and Orleans, also in cell 17:
+```{r cluster-17}
+kable(korresp.som$clustering[korresp.som$clustering == 17], "html", caption = "Results of SOM clustering algorithm (unit and cluster number)") %>% 
+  kable_styling()
+```
+
+A hitmap can help to visualize the distribution of units to cells:
+
+```{r hitmap}
+plot(korresp.som, what="obs", type="hitmap", print.title=TRUE)
+```
+
+The hitmap can be complemented with line plots of the columns (recall that each column corresponds to a party):
+```{r line-plot}
+plot(korresp.som, what="prototypes", type="lines", view="c", print.title=TRUE)
+```
+
+The peak in Cluster 1 corresponds to the third column, i.e., NDP, whereas the peak in Cluster 20 corresponds to the second column, i.e., PC. The algorithm has clustered the main parties in opposite corners of the map, with Other right next to Green in cell 3.
+
+Notice that ridings clustered in cells 2, 5, and 6 tend to be similar to those that align closely with NDP, whereas ridings in cells 12, 15, 16, and 19 are more similar to those closely aligned with PC. Cluster 17, associated with Liberal, on the other hand has an immediate neighbor with several ridings that did not prefer strongly any party (cluster 14). Cluster 14 is the largest cluster, and is comprised of 16 ridings.
+
+# Obtain superclusters
+
+A way to refine the insights derived from the previous analysis is to collect clusters into superclusters. The choice of the number of superclusters is up to the analyst, and depends on the tradeoff between conciseness and loss of information. For the example, I chose $k=6$, so that the superclusters can capture at least the five major parties, and possibly a catchall class:
+```{r obtain-superclusters}
+korresp.sc <- superClass(korresp.som, k=6)
+summary(korresp.sc)
+```
+
+The frequency table above shows that supercluster 1 is comprised of four SOM cells, supercluster 2 of three and so on, as also seen in the dendogram below:
+```{r dendogram}
+plot(korresp.sc, plot.var=FALSE)
+```
+
+Lets repeat the lines plot with the superclusters:
+```{r}
+plot(korresp.sc, type="hitmap", print.title=TRUE, view="c")
+```
+
+The superclusters can be characterized as follows: SC1: NDP, SC2: Green, SC3: Leans NDP, SC4: Leans PC, SC5: PC, SC6: Liberal. Change the labels:
+```{r relabel-clusters}
+korresp.sc$cluster <- factor(korresp.sc$cluster,labels=c("NDP","Green","Leans NDP", "Leans PC", "PC", "Liberal"))
+```
+
+To explore these results we first append the results of the cluster and supercluster analysis to dataframe:
+```{r append-clusters-results}
+clusters.df <- data.frame(ED_NAME_EN = names(korresp.som$clustering))
+clusters.df$cluster.som <- korresp.som$clustering
+clusters.df$scluster.som <- korresp.sc$cluster[korresp.som$clustering]
+```
+
+Append to dataframe with results from election:
+```{r}
+results <- left_join(results.raw, clusters.df, by = "ED_NAME_EN")
+```
+
+Here we "tidy" the table to facilitate facetting during visualization:
+```{r tidy-results-table}
+results.t <- gather(results, key = "Party", "Votes", 14:18)
+```
+
+And relevel the variable `Party`:
+```{r}
+results.t$Party <- factor(results.t$Party)
+results.t$Party <- factor(results.t$Party, levels(results.t$Party)[c(5, 2, 4, 3, 1)])
+```
+
+Define color palettes for visualization:
+```{r color-palettes}
+pal1 <- c("orange", "green", "gold", "dodgerblue", "blue", "red")
+pal2 <- c("red", "green", "orange", "blue")
+pal3 <- c( "blue", "red", "white", "orange", "green")
+```
+
+The following boxplot shows the distribution of votes per riding for each of the superclusters:
+```{r}
+ggplot(data = results.t, aes(x = Party, y = Votes, fill = Party)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  scale_fill_manual(values = pal3) +
+  facet_wrap(~ scluster.som)
+```
+
+With the exception of Liberal, it can be seen that superclusters affiliated with the major parties are distinctly in favor of the respective parties. The ridings in the "Leans PC" supercluster, on the other hand, have on average a vote advantage for PC, compared to the ridings in "Leans NDP", where the NDP does not have a clear advantage.
+
+Compare the results of the clustering procedure to the results of the election:
+```{r}
+kable(table(results$Winner, results$scluster.som), "html", caption = "Ridings Won by Party and SOM Supercluster") %>%
+  kable_styling() %>%
+  add_header_above(c(" " = 1, "SOM Superclusters" = 6))
+```
+
+Three PC-leaning ridings were won by the NDP, six NDP-leaning ridings were won by PC and two more by the Liberals.
+
+Lets now check the geography of the election. First, append the results to the `SpatialPolygonsDataFrame` for mapping:
+```{r join-election-to-geography}
+ridings <- ridings |>
+  left_join(results, 
+            by = "ED_NAME_EN")
+```
+
+Convert the variable `Winner` to a factor:
+```{r convert-outcome-to-factor}
+ridings$Winner <- factor(ridings$Winner)
+ridings$Winner <- factor(ridings$Winner, levels(ridings$Winner)[c(1, 3, 2, 4)])
+```
+
+```{r}
+tmap_mode("view")
+map1 <- tm_shape(ridings) + tm_polygons("scluster.som", palette = pal1)
+map2 <- tm_shape(ridings) + tm_polygons("Winner", palette = pal2)
+tmap_arrange(map1, map2)
+```
+
+```{r}
+results %>%
+  mutate(Votes_Liberal = cell_spec(round(Votes_Liberal), 
+                              color = "white",
+                              align = "c",
+                              background = factor(scluster.som, c("NDP", "Green", "Leans NDP", "Leans PC", "PC", "Liberal"), 
+                                        c("orange", "green", "gold", "dodgerblue", "blue", "red"))),
+         Votes_PC = cell_spec(round(Votes_PC), 
+                              color = "white",
+                              align = "c",
+                              background = factor(scluster.som, c("NDP", "Green", "Leans NDP", "Leans PC", "PC", "Liberal"), 
+                                        c("orange", "green", "gold", "dodgerblue", "blue", "red"))),
+         Votes_NDP = cell_spec(round(Votes_NDP), 
+                              color = "white",
+                              align = "c",
+                              background = factor(scluster.som, c("NDP", "Green", "Leans NDP", "Leans PC", "PC", "Liberal"), 
+                                        c("orange", "green", "gold", "dodgerblue", "blue", "red"))),
+         Votes_Green = cell_spec(round(Votes_Green), 
+                              color = "white",
+                              align = "c",
+                              background = factor(scluster.som, c("NDP", "Green", "Leans NDP", "Leans PC", "PC", "Liberal"), 
+                                        c("orange", "green", "gold", "dodgerblue", "blue", "red"))),
+         Votes_Other = cell_spec(round(Votes_Other), 
+                              color = "white",
+                              align = "c",
+                              background = factor(scluster.som, c("NDP", "Green", "Leans NDP", "Leans PC", "PC", "Liberal"), 
+                                        c("orange", "green", "gold", "dodgerblue", "blue", "red")))) %>%
+  select(ED_NAME_EN, Votes_Liberal, Votes_PC, Votes_NDP, Votes_Green, Votes_Other) %>%
+  kable(escape = F) %>%
+  kable_styling()
+```
+
+#Profile ridings
+
+Collect the data to profile:
+```{r select-census-variables}
+data <- transmute(data, ED_NAME_EN, 
+                  Population, `Population.Density` = `Avg.Pop.Density`,
+                  `Median.Age` = `Avg.Median.Age`,
+                  `Median.Income` = `Avg.Median.income`, `Male.Median.Income` = `Avg.Male_Median.income`, `Female.Median.Income` = `Avg.Female_Median.income`,
+                  `Pct.Government.Transfer.Payments` = `Avg.Government.transfer.payments..`,
+                  `Median Commuting Duration` = `Avg.Median.commuting.duration`,
+                  `Avg Income Taxes as Pct Income` = `Avg.Income.taxes.as...of.total.income`,
+                  `Pct Population in Low Income` = `Avg.Population.in.low.income..`,
+                  `Population.25.64`,
+                  `X15._No.certificate.diploma.degree`,
+                  `X15._HS.diploma.equivalent`,
+                  `X15._Post.HS.diploma`,
+                  `X15._Apprentice.trades.certificate`,
+                  `X15._College.certificate.diploma`,
+                  `X15._University..bachelor.s`,
+                  `X15._University.bachelor.s.`,
+                  `X15._University_Bachelor.s.degree`,
+                  `X15._University_Above.bachelor.s`
+                  )
+```
+
+Transform Census Variables:
+```{r transform-census-variables}
+data.model <- mutate(data,
+                     `Prop no certificate/diploma/degree` = `X15._No.certificate.diploma.degree`/`Population.25.64`,
+                     `Prop HS diploma/equivalent` = `X15._HS.diploma.equivalent`/`Population.25.64`,
+                     `Prop Post HS diploma` = `X15._Post.HS.diploma`/`Population.25.64`,
+                     `Prop apprentice/trades certificate` = `X15._Apprentice.trades.certificate`/`Population.25.64`,
+                     `Prop college certificate/diploma` = `X15._College.certificate.diploma`/`Population.25.64`,
+                     `Prop university bachelor` = `X15._University..bachelor.s`/`Population.25.64`,
+                     `Prop postgraduate` = `X15._University_Bachelor.s.degree`/`Population.25.64`)
+```
+
+Select variables for modelling:
+```{r}
+data.model <- select(data.model,-starts_with("X15"), -`Population.25.64`)
+```
+
+Join results of superclusters:
+```{r}
+data.model$`Super Cluster` <- results$scluster.som
+#data.model$Winner <- results$Winner
+data.model <- select(data.model, -c(Population, ED_NAME_EN))
+```
+
+Join to census geography:
+```{r join-census-to-geography}
+#Join results dataframe to spatial polygons:
+#ridings@data <- left_join(ridings@data, data.model, by = "ED_NAME_EN")
+```
+
+Train a decision tree using the data:
+```{r}
+classmod.som <- rpart(`Super Cluster` ~., data = data.model)
+#summary(classmod.som)
+```
+
+Plot results of the decision tree:
+```{r fig.width= 12}
+rpart.plot(classmod.som, cex = 0.75, box.palette = 0, type = 3)
+```
+
+
