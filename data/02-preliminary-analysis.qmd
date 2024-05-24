@@ -170,22 +170,22 @@ care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n
 ```
 
 ```{r re-weighting points so all destinations are considered spatially equal in access counts, include=FALSE}
-Dependent_Centric <- 0.25*2225/1265
-Errand_Centric <- 0.25*2225/158
-Grocery_Centric <- 0.25*2225/381
-Health_Centric <- 0.25*2225/421
-
-#adds up to 2225 opportunities  
-0.25*2225/1265*(1265) +  0.25*2225/158*(158) + 0.25*2225/381*(381) + 0.25*2225/421*(421)
-
-#adding the weighted care destination counts -- reweighted such that the 4 categories each make up 25% of the 2225 points.
-care_dest <- care_dest |>
-          mutate(Dest_count_weighted = case_when(Care_Category == "Dependent-centric" ~ Dependent_Centric,
-                                                 Care_Category == "Errand-centric" ~ Errand_Centric,
-                                                 Care_Category == "Grocery-centric" ~ Grocery_Centric,
-                                                 Care_Category == "Health-centric" ~ Health_Centric))
-
-care_dest$Dest_count_weighted |> sum()
+# Dependent_Centric <- 0.25*2225/1265
+# Errand_Centric <- 0.25*2225/158
+# Grocery_Centric <- 0.25*2225/381
+# Health_Centric <- 0.25*2225/421
+# 
+# #adds up to 2225 opportunities  
+# 0.25*2225/1265*(1265) +  0.25*2225/158*(158) + 0.25*2225/381*(381) + 0.25*2225/421*(421)
+# 
+# #adding the weighted care destination counts -- reweighted such that the 4 categories each make up 25% of the 2225 points.
+# care_dest <- care_dest |>
+#           mutate(Dest_count_weighted = case_when(Care_Category == "Dependent-centric" ~ Dependent_Centric,
+#                                                  Care_Category == "Errand-centric" ~ Errand_Centric,
+#                                                  Care_Category == "Grocery-centric" ~ Grocery_Centric,
+#                                                  Care_Category == "Health-centric" ~ Health_Centric))
+# 
+# care_dest$Dest_count_weighted |> sum()
 ```
 
 ```{r travel-time-15min}
@@ -193,7 +193,7 @@ care_dest$Dest_count_weighted |> sum()
 ttm_care_walk_15 <- ttm_care_walk_parcel |> 
   filter(travel_time_p50 <= 15)|> 
   left_join(
-    care_dest |> st_drop_geometry() |> select(c("care_ID", "Care_Category", "Care_Category_Specific", "Care_Category_Speciality", "Dest_count_weighted")),  by = c("to_id" = "care_ID")) |>
+    care_dest |> st_drop_geometry() |> select(c("care_ID", "Care_Category", "Care_Category_Specific", "Care_Category_Speciality")),  by = c("to_id" = "care_ID")) |>
   mutate(f = 1)
 
 ttm_care_walk_15 <- ttm_care_walk_15 |>
@@ -207,14 +207,13 @@ ttm_care_walk_15 <- ttm_care_walk_15 |> tidyr::drop_na("Population")
 access_15 <- ttm_care_walk_15 |> 
   group_by(from_id, Care_Category, Care_Category_Specific) |> 
   summarize(GeoUID = first(GeoUID),
-            copp_isc = n(),
-            copp_isc_w = sum(Dest_count_weighted)) 
+            copp_isc = n()) 
 
 test_all <- ttm_care_walk_15 |>
   sp_avail_detailed(o_id = from_id,
                     d_id = to_id, 
                     pop = pop_dwell, #pop assumed at each res. parcel -- it is the pop in the DA divided by the number of dwellings in the DA. 
-                    opp = Dest_count_weighted, #instead of just being vector of 1
+                    opp = f, 
                     r = f, f = f, alpha = 1) |> 
   group_by(from_id, Care_Category, Care_Category_Specific) |> summarize(V_isc_w = sum(V_ij, na.rm = TRUE)) 
 
@@ -267,7 +266,6 @@ access_15 <- bind_rows(access_15_zeros, access_15) |>
   group_by(from_id, Care_Category, Care_Category_Specific) |> 
   summarize(GeoUID = first(GeoUID),
             copp_isc = sum(copp_isc),
-            copp_isc_w = sum(copp_isc_w),
             V_isc_w = sum(V_isc_w))
 rm(access_15_zeros)
 #check
@@ -275,6 +273,10 @@ access_15$V_isc_w |> sum(na.rm=T)
 ```
 
 Aggregating time!
+```{r}
+#ID = care destination ID (in care_dest), GeoUID is id of the DA, from_id is parcel ID
+saveRDS(access_15, "access_15.rds")
+```
 
 ```{r}
 # by care category, for parcels 
@@ -386,10 +388,9 @@ step2 <- step2 |> mutate(top1_copp = (copp_isc_med+copp_isc_sd) / OPPi * log((co
             entropy_V_isc_w = sum(top1_Vw) / -log(14))
 
 #join this to access_15_bycategory_DA
-
 access_15_bycategory_DA <- access_15_bycategory_DA |> left_join(step2, by="GeoUID")
 ```
-
+COMEBACKHERE
 ```{r}
 #the number of opportunities from each categories
 all_cats <- access_15_bycategory_DA |> 
