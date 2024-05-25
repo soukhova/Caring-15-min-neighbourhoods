@@ -10,26 +10,16 @@ Lets begin by loading the packages used for this:
 ```{r message = FALSE}
 library(AppliedPredictiveModeling) # Functions and Data Sets for 'Applied Predictive Modeling'
 library(caret) # Classification and Regression Training
-library(ggparty)
-library(ggpubr)
-library(party)
+library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
+library(ggparty) # 'ggplot' Visualizations for the 'partykit' Package
+library(party) # A Laboratory for Recursive Partytioning
 library(plotly) # Create Interactive Web Graphics via 'plotly.js'
 library(rpart) # Recursive Partitioning and Regression Trees
 library(rpart.plot) # Plot 'rpart' Models: An Enhanced Version of 'plot.rpart'
-library(skimr)
-#library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+library(skimr) # Compact and Flexible Summaries of Data
+library(sf) # Simple Features for R
 library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
 library(tidyverse) # Easily Install and Load the 'Tidyverse'
-
-# library(formattable) # Create 'Formattable' Data Structures
-# library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
-# library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
-# library(plotly) # Create Interactive Web Graphics via 'plotly.js'
-# library(sf) # Simple Features for R
-# library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
-# library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
-# library(tidyverse) # Easily Install and Load the 'Tidyverse'
-# library(tmap) # Thematic Maps
 ```
 
 Read od table:
@@ -158,7 +148,7 @@ Now this table can be used for the clustering analysis.
 
 Given these normalized attributes, a SOM can be trained using the function `trainSOM` from `SOMbrero`. Only one argument is needed, the input data `x.data`. Other arguments can be assigned by default. In what follows the dimension of the map is given as 5-by-5, and I request that 100 intermediate steps be saved. 
 ```{r}
-set.seed(593)
+set.seed(5935)
 # run the SOM algorithm 
 nrows <- 5
 ncols <- 5
@@ -373,33 +363,36 @@ Autoplot as ggplot:
 autoplot(classmod.sompar)
 ```
 
-Frequency of parcels in the super clusters (look at the data of the first node):
+Frequency of parcels in the super clusters:
 ```{r}
-freq_sc <- ggplot(classmod.sompar[1]$data) +
+freq_sc <- ggplot(access_15_wide |> 
+         mutate(scluster = factor(scluster))) +
   geom_bar(aes(x = "", 
+               group = scluster, 
                fill = scluster)) +
-  scale_fill_discrete(name = "super cluster") +
-  theme_void()
+  scale_fill_discrete(name = "super cluster") #+
+  #theme_void() +
+  #guides(fill = guide_legend(nrow = 1)) +
+  #theme(legend.position = "bottom")
 
 freq_sc
 ```
 
 Extract the legend:
 ```{r}
-leg <- ggpubr::get_legend(freq_sc,
-                          position = "bottom")
+legd <- cowplot::get_legend(freq_sc)
 
-leg <- as_ggplot(leg)
-
-leg
+legd
 ```
 
 Make a prettier plot:
 ```{r}
 party_plot <- ggparty(classmod.sompar) +
   geom_edge() +
-  geom_edge_label(size = 1.5) +
-  geom_node_splitvar(size = 2) +
+  geom_edge_label(size = 1.8) +
+  geom_node_label(aes(label = splitvar),
+                  id = "inner", 
+                  size = 2, nudge_y = -0.022) +
   # pass list to gglist containing all ggplot components we want to plot for each
   # (default: terminal) node
   geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
@@ -416,6 +409,106 @@ Plot the tree:
 party_plot
 ```
 
+```{r}
+library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2' # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
+
+plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
+
+```
+
+Cluster 6 is high in suckitude: low in diversity, with 4.6 Dependent Centric destinations on average, and typically no other destinations: zero Errand centric destinations, and only about 3.5% of parcels have access to Grocery-centric destinations.
+```{r}
+access_15_wide |>
+  select(scluster, starts_with("total_"), div) |>
+  rename_with(.fn = ~str_replace(.x, "total_", "")) |>
+  filter(scluster == 6) |>
+  skim()
+```
+
+## Demographic profile of clusters
+
+```{r}
+load("HAM_census_21.rda")
+```
+
+```{r}
+access_15_wide <- access_15_wide |>
+  left_join(access_15 |>
+              ungroup() |>
+              distinct(from_id, 
+                       .keep_all = TRUE) |>
+              select(from_id, 
+                     GeoUID),
+            by = "from_id") |>
+  left_join(HAM_census_21 |>
+              st_drop_geometry(),
+            by = "GeoUID")
+```
 
 
+Select data for classification:
+```{r}
+df <- access_15_wide |>
+  transmute(scluster = factor(scluster),
+            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`)
+```
 
+Train a decision tree using the data:
+```{r}
+classdemo.som <- rpart(scluster ~ ., 
+                      data = df)
+```
+
+Visualize the decision tree:
+```{r}
+rpart.plot(classdemo.som, cex = 0.5, type = 0, varlen = 8)
+```
+
+convert the rpart object to a party object:
+```{r}
+classdemo.sompar <- as.party(classdemo.som)
+```
+
+Make a prettier plot:
+```{r}
+party_plot <- ggparty(classdemo.sompar) +
+  geom_edge() +
+  geom_edge_label(size = 1.8) +
+  geom_node_label(aes(label = splitvar),
+                  id = "inner", 
+                  size = 2, nudge_y = -0.022) +
+  # pass list to gglist containing all ggplot components we want to plot for each
+  # (default: terminal) node
+  geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
+                                        position = position_fill()),
+                               xlab(""),
+                               ylab(""),
+                               theme_void(),
+                               theme(axis.text = element_blank())))
+```
+
+
+Plot the tree:
+```{r}
+party_plot
+```
+
+```{r}
+library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2' # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
+
+plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
+
+```
+
+Notice that super cluster 3 () makes most of the node with the highest prevalence of poverty (LICO > 10.9%). What is the accessibility profile of this cluster?
+
+It is high diversity, with multiple Grocery with multiple Grocery- and Dependant-centric opportunities, and at least some Errand-centric opportunities:
+```{r}
+access_15_wide |>
+  select(scluster, starts_with("total_"), div) |>
+  rename_with(.fn = ~str_replace(.x, "total_", "")) |>
+  filter(scluster == 3) |>
+  skim()
+```
+
+It is clear that LICO alone is not sufficient to sharply profile the clusters. Ask Anastasia to choose other variables. 
