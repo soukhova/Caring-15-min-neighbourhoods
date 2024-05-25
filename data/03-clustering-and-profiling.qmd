@@ -1,0 +1,421 @@
+---
+title: "Clustering"
+author: "Antonio Paez & Anastasia Soukhov"
+format: html
+---
+
+## Quarto
+
+Lets begin by loading the packages used for this:
+```{r message = FALSE}
+library(AppliedPredictiveModeling) # Functions and Data Sets for 'Applied Predictive Modeling'
+library(caret) # Classification and Regression Training
+library(ggparty)
+library(ggpubr)
+library(party)
+library(plotly) # Create Interactive Web Graphics via 'plotly.js'
+library(rpart) # Recursive Partitioning and Regression Trees
+library(rpart.plot) # Plot 'rpart' Models: An Enhanced Version of 'plot.rpart'
+library(skimr)
+#library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+
+# library(formattable) # Create 'Formattable' Data Structures
+# library(kableExtra) # Construct Complex Table with 'kable' and Pipe Syntax
+# library(knitr) # A General-Purpose Package for Dynamic Report Generation in R
+# library(plotly) # Create Interactive Web Graphics via 'plotly.js'
+# library(sf) # Simple Features for R
+# library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
+# library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
+# library(tidyverse) # Easily Install and Load the 'Tidyverse'
+# library(tmap) # Thematic Maps
+```
+
+Read od table:
+```{r}
+load("access_15.rda")
+```
+
+Aggregate by Care Category:
+```{r}
+access_15_aggregated <- access_15 |>
+  group_by(from_id,
+           Care_Category) |>
+  summarize(copp_isc = sum(copp_isc),
+            .groups = "drop")
+```
+
+Calculate total Care Category opportunities by parcel:
+```{r}
+access_15_aggregated_total <- access_15_aggregated |>
+  group_by(from_id) |>
+  summarize(tot_copp_isc = sum(copp_isc),
+            .groups = "drop")
+```
+
+Notice that some parcels have access to zero opportunities:
+```{r}
+summary(access_15_aggregated_total)
+```
+
+How many parcels have zero accessibility (i.e., total number of opportunities is zero):
+```{r}
+access_15_aggregated_total |>
+  filter(tot_copp_isc == 0) |>
+  nrow()
+```
+
+Join total opportunities to table:
+```{r}
+access_15_aggregated <- access_15_aggregated |>
+  left_join(access_15_aggregated_total,
+            by = "from_id")
+```
+
+Calculate proportion of opportunities by class (use a zero for the parcels that have accessibility zero):
+```{r}
+access_15_aggregated <- access_15_aggregated |>
+  mutate(prop_copp_isc = ifelse(tot_copp_isc > 0, copp_isc/tot_copp_isc, 0))  
+```
+
+Check that the proportions are correct (all should add up to one):
+```{r}
+access_15_aggregated |>
+  group_by(from_id) |>
+  summarize(prop = sum(prop_copp_isc)) |>
+  filter(round(prop) != 1)
+```
+
+Normalize number of opportunities to min-max range:
+```{r}
+access_15_aggregated <- access_15_aggregated |>
+  mutate(copp_isc_norm = ifelse(tot_copp_isc != 0, (copp_isc - min(tot_copp_isc))/(max(tot_copp_isc) - min(tot_copp_isc)), 0))
+```
+
+Calculate diversity index:
+```{r}
+access_15_agg_div <- access_15_aggregated |>
+  group_by(from_id) |>
+  summarize(div = -sum(prop_copp_isc * log(prop_copp_isc), na.rm = TRUE)/log(4))
+```
+
+Pivot od table wider so that each Care Category is a column then retrieve the proportion of opportunities by Care Category:
+```{r}
+access_15_prop_wide <- access_15_aggregated |>
+  select(from_id, Care_Category, prop_copp_isc) |>
+  pivot_wider(names_from = "Care_Category", 
+              values_from = "prop_copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("prop_",
+                            str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each Care Category is a column and retrieve the normalized number of opportunities:
+```{r}
+access_15_norm_wide <- access_15_aggregated |>
+  select(from_id, Care_Category, copp_isc_norm) |>
+  pivot_wider(names_from = "Care_Category", 
+              values_from = "copp_isc_norm") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("norm_", str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each Care Category is a column and retrieve the total number of opportunities by Category:
+```{r}
+access_15_total_wide <- access_15_aggregated |>
+  select(from_id, Care_Category, copp_isc) |>
+  pivot_wider(names_from = "Care_Category", 
+              values_from = "copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("total_", str_replace(.x, "-","_")))
+```
+
+Summary of these tables:
+```{r}
+summary(access_15_total_wide)
+summary(access_15_norm_wide)
+summary(access_15_prop_wide)
+summary(access_15_agg_div)
+```
+Join the tables:
+```{r}
+access_15_wide <- access_15_total_wide |>
+  left_join(access_15_norm_wide,
+            by = "from_id") |>
+  left_join(access_15_prop_wide,
+            by = "from_id") |>
+  left_join(access_15_agg_div,
+            by = "from_id")
+```
+
+Summary of this table:
+```{r}
+summary(access_15_wide)
+```
+
+Now this table can be used for the clustering analysis.
+
+Given these normalized attributes, a SOM can be trained using the function `trainSOM` from `SOMbrero`. Only one argument is needed, the input data `x.data`. Other arguments can be assigned by default. In what follows the dimension of the map is given as 5-by-5, and I request that 100 intermediate steps be saved. 
+```{r}
+set.seed(593)
+# run the SOM algorithm 
+nrows <- 5
+ncols <- 5
+access.som <- trainSOM(x.data = access_15_wide |>
+                       # Remove the non-normalized accessibility scores
+                       select(-c(from_id, starts_with("total_"))),
+                     dimension=c(nrows, ncols),
+                     nb.save = 100,
+                     radius.type = "letremy",
+                     verbose = TRUE)
+```
+
+The value of the function (output) is an object of class somRes:
+```{r}
+class(access.som)
+```
+
+The summary reports some attributes of the map:
+```{r}
+summary(access.som)
+```
+
+
+In this implementation of SOM, the energy is a measure of deformation of the map, when conceptualized as an elastic membrane. The _topographic error_, on the other hand, is the proportion of all data vectors for which first and second best matching units are not adjacent. This measures topology preservation.
+
+In addition, the summary of the SOM includes the results of ANOVA, using the the results of the clustering as the factor. This helps to assess the relevance of each variable to discriminate between clusters.
+
+The `somRes` object includes the following items: 
+
+- clustering: the results of the clustering algorithm, which gives each observation a number that corresponds to their best matching unit (BMU).
+
+- prototypes: the final weights of the cells.
+
+- energy: the final energy.
+
+- backup: a list that includes the prototypes (the weights) at intermediate steps, the steps at which backups were recorded, intermediate clustering results, etc.
+
+Since backups were requested, it is possible to plot the evolution of the training algorithm. For instance, the following plot shows the energy:
+```{r}
+plot(access.som, 
+     what = "energy")
+```
+
+The following shows the number of cases assigned to each node:
+```{r}
+table(access.som$clustering)
+```
+Which can be visualized by means of a _hitmap_:
+```{r}
+plot(access.som,
+     what = "obs",
+     type = "hitmap")
+```
+
+# Interpretation of clusters
+
+Interpretation of clusters typically involves descriptive statistics of the clusters. `SOMbrero` implements a number of graphical tools to support interpretation.
+
+The first example is a heatmap of the variables in clusters:
+```{r}
+par(mfrow=c(3,2))
+plot(access.som, 
+     what = "obs", 
+     type = "color", 
+     variable = 1, 
+     show.names=TRUE, 
+     main="norm_Dependent_centric")
+plot(access.som, 
+     what = "obs", 
+     type = "color", 
+     variable = 2, 
+     show.names = TRUE, 
+     main = "norm_Errand_centric")
+plot(access.som, 
+     what = "obs", 
+     type = "color", 
+     variable = 3,
+     show.names = TRUE, 
+     main="norm_Grocery_centric")
+plot(access.som, 
+     what="obs", 
+     type="color", 
+     variable=4, 
+     show.names = TRUE, 
+     main="norm_Health_centric")
+plot(access.som, 
+     what="obs", 
+     type="color",
+     variable = 9, 
+     show.names = TRUE, 
+     main="Diversity")
+```
+
+The lower left corner of the map concentrates monsters with high speed, high special attack, and high special attack. the upper left corner concentrates high defense and high special defense. High hit points are towards the center of the map.
+
+Two additional way of visualizing the characteristics of the clusters are as follows.
+
+This creates barplots:
+```{r}
+plot(access.som, 
+     what = "obs", 
+     type="barplot", 
+     show.names=TRUE)
+```
+
+And this creates mean lines:
+```{r}
+plot(access.som, 
+     what="obs", 
+     type="meanline", 
+     key.loc=c(-2,8), 
+     mar=c(0,2,2,0))
+```
+
+And of course, we would like to know how much dispersion there is within the clusters, something that can be explored by means of boxplots:
+```{r}
+plot(access.som, 
+     what="obs", 
+     type="boxplot")
+```
+
+Super clusters:
+```{r}
+access.sc <- superClass(access.som,
+                        k = 6)
+summary(access.sc)
+```
+
+This is a dendogram with the super-clusters:
+```{r}
+plot(access.sc, 
+     plot.var = TRUE)
+```
+
+And the map with the superclusters:
+```{r}
+plot(access.sc, 
+     type = "grid", 
+     plot.legend = TRUE)
+```
+
+## Profile the superclusters
+
+Once that clusters have been obtained, it is interesting to profile the results. By profiling the results, we can derive insights as to the (hopefully) distinctive characteristics of the clusters. For instance, is Cluster 1 mostly composed of young people? People with internet access? 
+
+Explore the results. First append the results of the cluster and super cluster analysis to dataframe:
+```{r}
+access_15_wide$cluster <- access.som$clustering
+access_15_wide$scluster <- access.sc$cluster[access.som$clustering]
+```
+
+Select four of the features with the greatest discriminatory power, and do a feature plot (from package `caret`):
+```{r fig.width=16}
+# transparentTheme(trans = .4)
+# featurePlot(x = data.frame(access_15_wide$div, 
+#                            access_15_wide$Dependent_centric_norm, 
+#                            access_15_wide$Errand_centric_norm,
+#                            access_15_wide$Grocery_centric_norm,
+#                            access_15_wide$Health_centric_norm), 
+#             y = as.factor(access_15_wide$scluster), 
+#             plot = "pairs",
+#             ## Add a key at the top
+#             auto.key = list(columns = 8))
+```
+
+Descriptive statistics of superclusters.
+
+```{r}
+access_15_wide |>
+  select(scluster, starts_with("total_"), div) |>
+  group_by(scluster) |>
+  skim()
+```
+
+## Profiling the super clusters
+
+One possibility is to analyze the results of the clustering algorithm by means of a classification technique. This is illustrated here by means of a decision tree. A decision tree is a supervised learning technique, which in this case can use the results of the clustering algorithm as labels, and the input variables as features. If the clustering algorithm performed well, class membership must be relatively homogeneous. Since a decision tree 
+
+Select data for classification:
+```{r}
+df <- access_15_wide |>
+  select(-c(cluster,
+            from_id, 
+            starts_with("prop"), 
+            starts_with("norm"))) |>
+  rename(Dependent = total_Dependent_centric,
+         Grocery = total_Grocery_centric,
+         Errand = total_Errand_centric,
+         Health = total_Health_centric) |>
+  mutate(scluster = factor(scluster),
+         div = round(div, digits = 3))
+```
+
+Train a decision tree using the data:
+```{r}
+classmod.som <- rpart(scluster ~ ., 
+                      data = df)
+```
+
+Visualize the decision tree:
+```{r}
+rpart.plot(classmod.som, cex = 0.5, type = 0, varlen = 8)
+```
+
+This does not look too pretty. Try ggparty, but first convert the rpart object to a party object:
+```{r}
+classmod.sompar <- as.party(classmod.som)
+```
+
+Autoplot as ggplot:
+```{r}
+autoplot(classmod.sompar)
+```
+
+Frequency of parcels in the super clusters (look at the data of the first node):
+```{r}
+freq_sc <- ggplot(classmod.sompar[1]$data) +
+  geom_bar(aes(x = "", 
+               fill = scluster)) +
+  scale_fill_discrete(name = "super cluster") +
+  theme_void()
+
+freq_sc
+```
+
+Extract the legend:
+```{r}
+leg <- ggpubr::get_legend(freq_sc,
+                          position = "bottom")
+
+leg <- as_ggplot(leg)
+
+leg
+```
+
+Make a prettier plot:
+```{r}
+party_plot <- ggparty(classmod.sompar) +
+  geom_edge() +
+  geom_edge_label(size = 1.5) +
+  geom_node_splitvar(size = 2) +
+  # pass list to gglist containing all ggplot components we want to plot for each
+  # (default: terminal) node
+  geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
+                                        position = position_fill()),
+                               xlab(""),
+                               ylab(""),
+                               theme_void(),
+                               theme(axis.text = element_blank())))
+```
+
+
+Plot the tree:
+```{r}
+party_plot
+```
+
+
+
+

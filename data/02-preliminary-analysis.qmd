@@ -165,6 +165,7 @@ care_dest <- care_dest |>
 
 care_dest <- care_dest |> rename("care_ID" = "ID") |> mutate(care_ID = as.character(care_ID)) 
 ```
+
 ```{r}
 care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n())
 ```
@@ -275,7 +276,7 @@ access_15$V_isc_w |> sum(na.rm=T)
 Aggregating time!
 ```{r}
 #ID = care destination ID (in care_dest), GeoUID is id of the DA, from_id is parcel ID
-saveRDS(access_15, "access_15.rds")
+save(access_15, file = "access_15.rda", compress = "xz")
 ```
 
 ```{r}
