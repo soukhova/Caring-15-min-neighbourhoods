@@ -147,24 +147,6 @@ care_dest <- care_dest |> rename("care_ID" = "ID") |> mutate(care_ID = as.charac
 # care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n())
 ```
 
-```{r re-weighting points so all destinations are considered spatially equal in access counts, include=FALSE}
-Dependent_Centric <- 0.25*2225/1265
-Errand_Centric <- 0.25*2225/158
-Grocery_Centric <- 0.25*2225/381
-Health_Centric <- 0.25*2225/421
-
-#adds up to 2225 opportunities  
-0.25*2225/1265*(1265) +  0.25*2225/158*(158) + 0.25*2225/381*(381) + 0.25*2225/421*(421)
-
-#adding the weighted care destination counts -- reweighted such that the 4 categories each make up 25% of the 2225 points.
-care_dest <- care_dest |>
-          mutate(Dest_count_weighted = case_when(Care_Category == "Dependent-centric" ~ Dependent_Centric,
-                                                 Care_Category == "Errand-centric" ~ Errand_Centric,
-                                                 Care_Category == "Grocery-centric" ~ Grocery_Centric,
-                                                 Care_Category == "Health-centric" ~ Health_Centric))
-
-care_dest$Dest_count_weighted |> sum()
-```
  
 # Abstract 
 
@@ -304,13 +286,6 @@ flextable(dat) %>%
 knitr::include_graphics(glue::glue(here::here(), "/data/care_categories_plot.tiff"))
 ```
 
-For the purpose of this analysis and in absence of city-wide household preferences for care destinations, all locations are re-weighted to make each of the four categories conceptually equivalent i.e., each location within each category $c$ is `r word_comment("Thoughts on this", "weighted to equal")` $W_j^c = \frac{1}{C} \frac{\sum_{c} O_j^c}{O_j^c}$ where $C$ is the total number of categories and $O_j^c$ is a location at destination $j$ within a category $c$.  The total sum of locations is preserved after weighting such that $\sum_{c} \sum_{j} O_j^c = \sum_{c} \sum_{j} W_j^c * O_j^c$. Conceptually, this simplistic re-weight makes destinations in categories with fewer locations more important and destinations in categories with more locations less important. The underlying assumption is the status-quo of locations per category is sufficient, e.g., many daycares (smaller capacities) and few hospitals (larger capacities) sufficiently serves  the populations' care needs. Re-weighting in this way ensures that populations who are near _assumed_ smaller capacity destinations such as daycares are not assigned a disproportionately high accessibility score and vice versa for populations near destinations with larger service capacities like hospitals. In absence of empirical data for amenity weight calibration, this methodological assumption is a limitation. 
-
-- Dependent-centric (`r sum(care_dest$Care_Category == "Dependent-centric")` destinations each at `r Dependent_Centric`), 
-- Errand-centric (`r sum(care_dest$Care_Category == "Errand-centric")` destinations each at `r Errand_Centric`),
-- Grocery-centric (`r sum(care_dest$Care_Category == "Grocery-centric")` destinations each at `r Grocery_Centric`) and,
-- Health- centric (`r sum(care_dest$Care_Category == "Health-centric")` destinations each at `r Health_Centric`) . 
-
 ## Methods
 Cumulative opportunity method; 15-minute normative catchment for walk mode (and cycling, travel time matrix already calculated but to be added later) is used to represent the 15-minute neighbourhood concept. This has been done in previous literature such as @vale2023accessibility, @graellsCityCitiesMeasuring2021 and @gaglioneUrbanAccessibility15minute2022.
 
@@ -325,8 +300,8 @@ $$
 - $i$ is a set of parcel point origin locations.
 - $j$ is a set of destination locations.
 - $c$ is a set of care categories.
-- $W^c_j$ is a number of weighted opportunities ($O_j^c$) of category $c$ at $j$.
-- $c_{ij}$ is the travel cost between $i$ and $j$. <!--AS NOTE: TAKE THIS AWAY, have it be non-weighted-->
+- $O^c_j$ is a number of opportunities of category $c$ at $j$.
+- $c_{ij}$ is the travel cost between $i$ and $j$.
 - $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value [@handyMeasuringAccessibilityExploration1997].
 - $S_{i}^c$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $c$.
 
@@ -334,7 +309,7 @@ Next, the Q3 (median + standard deviation) of all $\sum_{c}S_i^c$ values for eac
 
 *Entropy* measure has been widely used to characterise the diversity of land-use mix in early work by @frankLinkingObjectivelyMeasured2005 based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence (this measure among other species diversity indices of the time are reviewed in @whittaker1972evolution). In the realm of urban studies and planning literature, it has since been widely used to characterise the diversity in land-use mix [@ewingTravelBuiltEnvironment2010a], especially in the context of active modes [@luUrbanDensityDiversity2017; @mavoaIdentifyingAppropriateLanduse2018] and suburban sprawl [@randallGISBasedLand2015]. Work that has used diversity indices alongside accessibility analysis are scarce, though examples of its use as parameters within accessibility scores in the case of employment opportunities [@chengMeasuringUrbanJob2013; @daiIncorporatingJobDiversity2018] and more recently to describe the diversity in transit facilities [@yinIncorporatingFacilityDiversity2024] are present. To the authors knowledge, the use of an entropy measure to reflect the diversity in care destination amenity types and in context within a 15-minute neighbourhood, has yet to be done. 
 
-In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$. <!--AS NOTE: remove 'st' and just have diveristy be based on 'c'. -->
+In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$. <!--AS NOTE: potentially remove 'st' and just have diveristy be based on 'c'. For now, let's keep as is.. -->
 
 As such, the entropy measure is used to reflect the diversity of specific type of care destinations. The value ranges from 0 to 1, with 1 representing total evenness in the number of (weighted) specific type $st$ care opportunities can be reached at the aggregated spatial unit $DA$:
 
@@ -346,29 +321,26 @@ $$
 - $i$ is a set of parcel point origin locations.
 - $st$ is a set of specific type care categories. In our work they are `r care_dest$Care_Category_Specific |> unique()`.
 - $DA$ is a set of DA spatial units (to aggregate parcel point data).
-- $S_{i}^{st}$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $st$.
+- $S_{i}^{st}$ is the unconstrained accessibility, the sum of opportunities reachable within $f(\cdot)$, at each $i$ for each $st$.
 - $S^{st}_{DA}$ is the aggregated unconstrained accessibility at each $DA$. In our work, it is the upper quartile of $S_i^{st}$ values in a $DA$. 
 - $ST$ is the total sum of categories. In our work, this is equal to 14. 
 - $D^{st}_{DA}$ is the entropy index.
 
 # Results
 <!--Initial thoughts on results:
-
-Initial results seem optimistic. With SOM , method will classify neighbourhoods into these clusters we then tag/name. 
-
-A part of this - spatial knowledge of people doesn't match the dataset. i.e. all stores are not equal, they have qualities that make them less/more accessibly. 
-
-But we can speak in potentials. They facilities are there and they could potentially be improved. -->
+-Initial results seem optimistic. With SOM , method will classify neighbourhoods into these clusters we then tag/name. 
+- A part of this - spatial knowledge of people doesn't match the dataset. i.e. all stores are not equal, they have qualities that make them less/more accessibly. 
+- But we can speak in potentials. They facilities are there and they could potentially be improved. -->
 ```{r plot-figure3, out.width=600, out.height=600}
 #| label: fig-Fig3
 #| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_weighted_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_plot.tiff"))
 ```
 
 ```{r plot-figure4, out.width=600, out.height=600}
 #| label: fig-Fig4
 #| fig-cap: "The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_weighted_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_plot.tiff"))
 ```
 
 ```{r plot-figure5, out.width=600, out.height=600}
