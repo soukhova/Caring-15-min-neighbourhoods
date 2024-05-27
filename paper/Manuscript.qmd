@@ -326,6 +326,8 @@ $$
 - $ST$ is the total sum of categories. In our work, this is equal to 14. 
 - $D^{st}_{DA}$ is the entropy index.
 
+Self organizing map (**SOM**) is used to profile the types of neighbourhoods by their magnitude in 15-minute walking accessibility to caring opportunities, diversity in these opportunities and socio-economic characteristics. SOM is a type of artificial neural network (ANN) trained using unsupervised learning that produces a two-dimensional representation of the input space. It is a dimensionality reduction method as it applies competitive learning by way of a neighbourhood function thereby preserving the topological properties of the input space and producing combinations of the input space that we intuitively profile.  
+
 # Results
 <!--Initial thoughts on results:
 -Initial results seem optimistic. With SOM , method will classify neighbourhoods into these clusters we then tag/name. 
@@ -348,15 +350,6 @@ knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_pl
 #| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA - fig3) and the diversity measure (fig 4). Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
 knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_bivariate_entropy_copp_plot.tiff"))
 ```
-
-BONUS! Per capita spatial availability. This is not discussed in the methods. The spatial availability calculation assumes population is 'population density' and weighted opportunity count. With this map we can start thinking about per capita availability of opportunities. 
-```{r plot-figure6, out.width=600, out.height=600}
-#| label: fig-Fig6
-#| fig-cap: "Per capita spatial availability of care opportunities. Uses weighted care opportunities, population density as competition, and 15 minute binary cut-off. Aggregates parcel level spatial availability at the DA level (by summation) and divides by the DA population. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_vvi_plot.tiff"))
-```
-
-`r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")`
  
 
 # References
@@ -364,19 +357,4 @@ knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_vvi_plot.tiff")
 ::: {#refs}
 :::
 
-\pagebreak
-
-# Appendix
-
-```{r plot-figure7, out.width=600, out.height=600}
-#| label: fig-Fig7
-#| fig-cap: "UNWEIGHTED -- The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_plot.tiff"))
-```
-
-
-```{r plot-figure8, out.width=600, out.height=600}
-#| label: fig-Fig8
-#| fig-cap: "UNWEIGHTED -- The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_plot.tiff"))
-```
+<!-- `r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")` -->
