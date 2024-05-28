@@ -235,7 +235,7 @@ In Canada, women have become more educated and have an achieved an increased par
 ```{r plot-figure1, out.width=600, out.height=600}
 #| label: fig-Fig1
 #| fig-cap: "The number of residential parcels per DA in 2020 (top) and the rate of population per dwelling per DA (middle) and prevalence of Low-income cut-offs after-tax (LICO-AT) per DA (bottom) retrieved from the 2021 Canadian Census. All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/pop_descriptive_plots.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/pop_descriptive_plots.tiff"))
 ```
 
 ## Estimated travel times
@@ -283,7 +283,7 @@ flextable(dat) %>%
 ```{r plot-figure2, out.width=600, out.height=600}
 #| label: fig-Fig2
 #| fig-cap: "The locations of care destinations in Hamilton separated by the author-generated categories of: dependent-, errand-, grocery- and health- centric care categories. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/care_categories_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/care_categories_plot.tiff"))
 ```
 
 ## Methods
@@ -336,19 +336,19 @@ Self organizing map (**SOM**) is used to profile the types of neighbourhoods by 
 ```{r plot-figure3, out.width=600, out.height=600}
 #| label: fig-Fig3
 #| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_copp_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_copp_plot.tiff"))
 ```
 
 ```{r plot-figure4, out.width=600, out.height=600}
 #| label: fig-Fig4
 #| fig-cap: "The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_entropy_copp_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.tiff"))
 ```
 
 ```{r plot-figure5, out.width=600, out.height=600}
 #| label: fig-Fig5
 #| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA - fig3) and the diversity measure (fig 4). Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/data/all_cats_bivariate_entropy_copp_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_bivariate_entropy_copp_plot.tiff"))
 ```
  
 

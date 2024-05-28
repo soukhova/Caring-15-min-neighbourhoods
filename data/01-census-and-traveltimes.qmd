@@ -36,22 +36,58 @@ list_census_regions('CA21') %>%
 HAM_census_21 <- get_census(dataset='CA21', 
                             regions=list(CSD="3525005"),
                             vectors=c("v_CA21_11", #total - aged 0-14
-                                      "v_CA21_12", #males - aged 0-14
-                                      "v_CA21_13", #females - aged 0-14
                                       "v_CA21_68", #total - aged 15-64
-                                      "v_CA21_69", #males - aged 15-64
-                                      "v_CA21_70", #females - aged 15-64
                                       "v_CA21_251", #total - aged 65 and over
-                                      "v_CA21_252", #males - aged 65 and over
-                                      "v_CA21_253", #females - aged 65 and over
-                                      "v_CA21_1085", #total - prevalence of LICO-AT (%)
-                                      "v_CA21_1086", #male - prevalence of LICO-AT (%)
-                                      "v_CA21_1087",#female - prevalence of LICO-AT (%)
-                                      "v_CA21_7647", #total - walked to work
-                                      "v_CA21_7635", #total - drove or was driven to work
-                                      "v_CA21_7644", #total - used transit to get to work
-                                      "v_CA21_7650", #total - biked to work
-                                      "v_CA21_7653" #total - used some other mode to get to work
+                                      
+                                       
+                                       "v_CA21_498", #Average number of children in census families with children
+                                      "v_CA21_500", # No. of couple families
+                                      "v_CA21_507", # No. of (non-couple) one-parent families
+                                      "v_CA21_1085", #Prevalence of LICO-AT (%)
+                                      
+                                      "v_CA21_1103", #No. of pop in priv households in the Adjusted after-tax family income decile group in the BOTTOM HALF of distribution
+                                      "v_CA21_1121", #No. of pop in priv households in the Adjusted after-tax family income decile group in the TOP HALF of distribution
+                                      
+                                      
+                                      "v_CA21_1142", #Gini index on adjusted household after-tax income
+                                      "v_CA21_907", #Median after-tax income of household in 2020 ($)
+                                      
+                                      "v_CA21_945", # no. of households making under $5,000 (AT income)
+                                      "v_CA21_946", # no. of households making $5000-$9999 (AT income)
+                                      "v_CA21_947", # no. of households making $10000-$14999 (AT income)
+                                      "v_CA21_948", # no. of households making $15000-$19999 (AT income)
+                                      "v_CA21_949", # no. of households making $20000-$24999 (AT income)
+                                      "v_CA21_950", # no. of households making $25000-$29999 (AT income)
+                                      "v_CA21_951", # no. of households making $30000-$34999 (AT income)
+                                      "v_CA21_952", # no. of households making $35000-$39999 (AT income)
+                                      "v_CA21_953", # no. of households making $40000-$44999 (AT income)
+                                      "v_CA21_954", # no. of households making $45000-$49999 (AT income)
+                                      "v_CA21_955", # no. of households making $50000-$59999 (AT income)
+                                      "v_CA21_956", # no. of households making $60000-$69999 (AT income)
+                                      "v_CA21_957", # no. of households making $70000-$79999 (AT income)
+                                      "v_CA21_958", # no. of households making $80000-$89999 (AT income)
+                                      "v_CA21_959", # no. of households making $90000-$99999 (AT income)
+                                      "v_CA21_960", # no. of households making over $100000 (AT income)
+                                      
+                                      "v_CA21_6498",# No. of pop. who are employed (in the labour force)
+                                      "v_CA21_6501",#  No. of pop. who are not employed (in the labour force)
+                                      "v_CA21_6504",#  No. of pop. who are not in the labour force
+                                      
+                                      "v_CA21_1144",# TOTAL - knowledge of official languages for the total population excluding institutional residents
+                                       "v_CA21_1156",# No. of pop population with no knowledge of official languages (either English or French), NOTE: _1144 - 1156 = the No. of pop who have knowledge of at least 1 off. lang.
+                                      
+                                      "v_CA21_4875",# No. of pop who are visible minority
+                                      "v_CA21_4914",# No. of pop who are are NOT visible minority
+
+                                      "v_CA21_5868",#  No. of pop w/ No certificate, diploma or degree for the population aged 25 to 64 years in private households
+                                      "v_CA21_5871",#  No. of pop (age 25 to 64 year) w/ Highest degree is a High (secondary) school diploma or equivalency certificate
+                                      "v_CA21_5874",# No. of pop (age 25 to 64 year) w/ Highest degree is Postsecondary certificate, diploma or degree (bachelor or higher)
+                                      
+                                      "v_CA21_7647", # % total - walked to work
+                                      "v_CA21_7635", # % total - drove or was driven to work
+                                      "v_CA21_7644", # % total - used transit to get to work
+                                      "v_CA21_7650", # % total - biked to work
+                                      "v_CA21_7653" # % total - used some other mode to get to work
                                       ), 
                                       level='DA', use_cache = FALSE, geo_format = 'sf', quiet = TRUE)
 

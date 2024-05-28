@@ -450,7 +450,15 @@ Select data for classification:
 ```{r}
 df <- access_15_wide |>
   transmute(scluster = factor(scluster),
-            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`)
+            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
+            Unemployed = `v_CA21_6501: Unemployed`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income`,
+            Vis_minority = `v_CA21_4875: Total visible minority population`/ (`v_CA21_4914: Not a visible minority`+ `v_CA21_4875: Total visible minority population`),
+            Age_0to14_and_Age_65plus =( `v_CA21_11: 0 to 14 years` + `v_CA21_251: 65 years and over`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`),
+            One_parent_families = `v_CA21_507: Total one-parent families` / (`v_CA21_507: Total one-parent families` + `v_CA21_500: Total couple families`) )
+
+# # examining correlations
+# cor(df |> select(-c("scluster")), use = "complete.obs")
 ```
 
 Train a decision tree using the data:
