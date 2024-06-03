@@ -3,11 +3,10 @@ title: "02-preliminary-analysis"
 format: html
 ---
 ```{r}
-rm(list = ls())
+# rm(list = ls())
 ```
 
-Working with the parcel to dest TTM - walk and cycling. 
-
+Working with the parcel to dest TTM - walk mode.
 ```{r library-setup}
 library(biscale)
 library(cowplot)
@@ -82,18 +81,18 @@ hydro_p_LakeOntario_cropped<-st_crop(hydro_p_LakeOntario$geometry, Community_Bou
 load("care_dest.rda")
 load("HAM_census_21.rda")
 
-load("parcel-ttm/ttm_care_bike_parcel1.rda")
-load("parcel-ttm/ttm_care_bike_parcel2.rda")
-load("parcel-ttm/ttm_care_bike_parcel3.rda")
-load("parcel-ttm/ttm_care_bike_parcel4.rda")
+# load("parcel-ttm/ttm_care_bike_parcel1.rda")
+# load("parcel-ttm/ttm_care_bike_parcel2.rda")
+# load("parcel-ttm/ttm_care_bike_parcel3.rda")
+# load("parcel-ttm/ttm_care_bike_parcel4.rda")
 load("parcel-ttm/ttm_care_walk_parcel1.rda")
 load("parcel-ttm/ttm_care_walk_parcel2.rda")
 load("parcel-ttm/ttm_care_walk_parcel3.rda")
 load("parcel-ttm/ttm_care_walk_parcel4.rda")
 
-ttm_care_bike_parcel <-rbind(ttm_care_bike_parcel1, ttm_care_bike_parcel2,
-                             ttm_care_bike_parcel3, ttm_care_bike_parcel4)
-rm(ttm_care_bike_parcel1, ttm_care_bike_parcel2, ttm_care_bike_parcel3, ttm_care_bike_parcel4)
+# ttm_care_bike_parcel <-rbind(ttm_care_bike_parcel1, ttm_care_bike_parcel2,
+#                              ttm_care_bike_parcel3, ttm_care_bike_parcel4)
+# rm(ttm_care_bike_parcel1, ttm_care_bike_parcel2, ttm_care_bike_parcel3, ttm_care_bike_parcel4)
 
 ttm_care_walk_parcel <-rbind(ttm_care_walk_parcel1, ttm_care_walk_parcel2,
                              ttm_care_walk_parcel3, ttm_care_walk_parcel4)
@@ -114,7 +113,7 @@ rm(R_PARCELS_CENTS_GeoUIDs)
 #Some variables of interest: use "ID" to join "GeoUID", "WARD", "COMMUNITY" "PROP_AREA" and "URBAN_RURA" (either S, U, or R for rural -- to characteris how 'rural' or 'urban' certain areas are by their area)
 
 ttm_care_walk_parcel <- left_join(ttm_care_walk_parcel, R_PARCELS_CENTS_GeoUIDs_IDs, by = c("from_id"="ID"))
-ttm_care_bike_parcel <- left_join(ttm_care_bike_parcel, R_PARCELS_CENTS_GeoUIDs_IDs, by = c("from_id"="ID"))
+#ttm_care_bike_parcel <- left_join(ttm_care_bike_parcel, R_PARCELS_CENTS_GeoUIDs_IDs, by = c("from_id"="ID"))
 ```
 
 ```{r}
@@ -224,7 +223,7 @@ rm(test_all)
 access_15$V_isc |> sum(na.rm = TRUE) #sums to 2206 opportunities -- out of 2225 total opportunities. some opportunities canot be reached wtihin 15 min walk! 
 ```
 
-```{r}
+```{r, eval=FALSE}
 # all Care_Category_Specific should be represented, i.e., each ID should have 14 rows -- if that category is empty it should be 0. Let's add those 0s. 
 access_15_zeros <- 
   data.frame(from_id = rep(R_PARCELS_CENTS_2020$ID, length(access_15$Care_Category_Specific |> unique())),
@@ -275,9 +274,12 @@ access_15$V_isc |> sum(na.rm=T)
 ```
 
 Aggregating time!
-```{r}
+```{r, eval=FALSE}
 #ID = care destination ID (in care_dest), GeoUID is id of the DA, from_id is parcel ID
 save(access_15, file= file.path(here("data/access_15.rda")), compress = "xz")
+```
+```{r}
+load(file= file.path(here("data/access_15.rda")))
 ```
 
 ```{r}
@@ -292,7 +294,7 @@ access_15_bycategory$V_ic |> sum(na.rm=T)
 
 ```{r}
 #by DA and mean:
-access_15_DA <- access_15 |>
+access_15_DA_2 <- access_15 |>
   left_join(HAM_census_21 |> st_drop_geometry() |> select(c("GeoUID", "Population", "Dwellings", "LICO_AT_TOTAL", "COMMUNITY_")), 
             by=c("GeoUID")) |> 
   group_by(GeoUID) |>
@@ -308,8 +310,8 @@ access_15_DA <- access_15 |>
 
 #add the number of parcels per DA 
 R_PARCELS_CENTS_count_GeoUID <- R_PARCELS_CENTS_GeoUIDs_IDs |> group_by(GeoUID) |> summarise(parcel_count = n())
-access_15_DA <- access_15_DA |> left_join(R_PARCELS_CENTS_count_GeoUID, by="GeoUID")
-access_15_DA <- left_join(HAM_census_21 |> select(c(GeoUID)), access_15_DA, by=c("GeoUID"))
+access_15_DA_2 <- access_15_DA_2 |> left_join(R_PARCELS_CENTS_count_GeoUID, by="GeoUID")
+access_15_DA_2 <- left_join(HAM_census_21 |> select(c(GeoUID)), access_15_DA_2, by=c("GeoUID"))
 
 # now by category
 access_15_bycategory_DA <- access_15 |>
@@ -342,9 +344,9 @@ access_15_byspecificcategory_DA <- access_15 |>
   tidyr::drop_na(Population)
 
 #checks
-# access_15_DA |> summary()
+# access_15_DA_2 |> summary()
 access_15_bycategory_DA |> summary()
-access_15_DA$V_iscDA |> sum(na.rm=T)
+access_15_DA_2$V_iscDA |> sum(na.rm=T)
 access_15_bycategory_DA$V_ic |> sum(na.rm=T)
 access_15_byspecificcategory_DA$V_isc |> sum(na.rm=T)
 
@@ -410,8 +412,9 @@ care_dest|> nrow()
 
 all_cats <- left_join(HAM_census_21 |> select(c(GeoUID)), all_cats, by=c("GeoUID"))
 ```
-
-```{r message=FALSE}
+<!--
+SUPERCEEDED BY THE PLOTS IN 03-CLUSTERING..qmd
+```{r message=FALSE, eval=FALSE}
 #tmap_mode("plot")
 all_cats_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
@@ -439,7 +442,7 @@ all_cats_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons
 tmap_save(all_cats_copp_plot, file= file.path(here("figures/all_cats_copp_plot.tiff")), dpi=600)
 ```
 
-```{r}
+```{r, eval=FALSE}
 all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
   tm_shape(all_cats) +
@@ -462,8 +465,9 @@ all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_
 
 tmap_save(all_cats_entropy_copp_plot, file= file.path(here("figures/all_cats_entropy_copp_plot.tiff")), dpi=600)
 ```
+--->
 
-```{r}
+```{r, eval=FALSE}
 all_cats_vvi_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
   tm_shape(all_cats) +
@@ -523,7 +527,7 @@ all_cats <- all_cats |>
                        
 ```
 
-```{r}
+```{r, eval=FALSE}
 all_cats_bivariate_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
   tm_shape(all_cats) +
@@ -545,11 +549,11 @@ all_cats_bivariate_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundar
             legend.width = 12)
 
 tmap_save(all_cats_bivariate_entropy_copp_plot, 
-          file= file.path(here("figures/all_cats_bivariate_entropy_copp_plot.tiff")),
-          dpi=600)
+          file= file.path(here("figures/all_cats_bivariate_entropy_copp_plot.png")),
+          dpi=300)
 ```
 
-```{r}
+```{r, eval=FALSE}
 care_categories_plot <- 
  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
@@ -567,57 +571,60 @@ care_categories_plot <-
             panel.label.size = 0.8) 
 
 tmap_save(care_categories_plot, 
-          file= file.path(here("figures/care_categories_plot.tiff")),
-          dpi=600)
+          file= file.path(here("figures/care_categories_plot.png")),
+          dpi=300)
 ```
+
 ```{r}
-parcels_DA_plot <- 
- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
-  tm_polygons("parcel_count",
-              border.alpha = 0.2,
-              palette = "Reds",style = "quantile", n=4,
-              title = "Count of residential parcels",
-              legend.is.portrait = TRUE) +
-  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
-  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
-  tm_compass(position = c("left", "top"), size=1.0)+
-   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+## SUPERCEDED
 
-poprate_DA_plot <- 
- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA |> mutate(popden = Population/Dwellings)) +
-  tm_polygons("popden",
-              border.alpha = 0.2,
-              palette = "Purples", style = "quantile", n=4,
-              title = "Population per dwelling",
-              legend.is.portrait = TRUE) +
-  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
-  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
-  tm_compass(position = c("left", "top"), size=1.0)+
-   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
-
-LICOAT_DA_plot <- 
- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
-  tm_polygons("LICO_AT_TOTAL",
-              border.alpha = 0.2,
-              palette = "Oranges", style = "quantile", n=4,
-              title = "Prevalance of household LICO-AT",
-              legend.is.portrait = TRUE) +
-  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
-  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
-  tm_compass(position = c("left", "top"), size=1.0)+
-   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
-
-pop_descriptive_plots <- tmap_arrange(parcels_DA_plot, poprate_DA_plot, LICOAT_DA_plot, nrow=3)
-
-tmap_save(pop_descriptive_plots, 
-          file= file.path(here("figures/pop_descriptive_plots.tiff")) , asp = 1/0.6,
-          dpi=600)
+# parcels_DA_plot <- 
+#  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+#   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+#   tm_shape(access_15_DA_2) +
+#   tm_polygons("parcel_count",
+#               border.alpha = 0.2,
+#               palette = "Reds",style = "quantile", n=4,
+#               title = "Count of residential parcels",
+#               legend.is.portrait = TRUE) +
+#   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+#   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+#   tm_compass(position = c("left", "top"), size=1.0)+
+#    tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+# 
+# poprate_DA_plot <- 
+#  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+#   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+#   tm_shape(access_15_DA_2 |> mutate(popden = Population/Dwellings)) +
+#   tm_polygons("popden",
+#               border.alpha = 0.2,
+#               palette = "Purples", style = "quantile", n=4,
+#               title = "Population per dwelling",
+#               legend.is.portrait = TRUE) +
+#   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+#   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+#   tm_compass(position = c("left", "top"), size=1.0)+
+#    tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+# 
+# LICOAT_DA_plot <- 
+#  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+#   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+#   tm_shape(access_15_DA_2) +
+#   tm_polygons("LICO_AT_TOTAL",
+#               border.alpha = 0.2,
+#               palette = "Oranges", style = "quantile", n=4,
+#               title = "Prevalance of household LICO-AT",
+#               legend.is.portrait = TRUE) +
+#   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+#   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+#   tm_compass(position = c("left", "top"), size=1.0)+
+#    tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+# 
+# pop_descriptive_plots <- tmap_arrange(parcels_DA_plot, poprate_DA_plot, nrow=2)
+# 
+# tmap_save(pop_descriptive_plots, 
+#           file= file.path(here("figures/pop_descriptive_plots.tiff")) , asp = 1/0.6,
+#           dpi=600)
 ```
 
 

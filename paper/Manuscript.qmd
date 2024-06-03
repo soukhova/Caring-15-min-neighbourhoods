@@ -96,6 +96,7 @@ word_comment <- function(comment, highlight = "") {
 ```{r library-setup}
 library(biscale)
 library(cowplot)
+library(magick)
 library(dplyr)
 library(flextable)
 library(ftExtra)
@@ -162,6 +163,8 @@ Taken together, this study provides a theoretical bridge to connect 15-Minute Ci
 
 # Introduction
 
+`r word_comment("We should focus this discussion on: defining mobility of care and connecting it to the 15-minute neighbourhoods, the importance of walk-accessibility, and socio-demographic/economic characteristics associated with this overlap (esp. single parent households, areas with a high proportion of children, low-income prevalence).", " ")`
+
 Caring is one of the most fundamental activities in societies, which has allowed humanity to survive and evolve. It involves activities targeted to meet physical, psychological, and emotional needs of others [@ilo_care_2018]. Yet, it is one of the worst devalued, underpaid, and unequal activities worldwide. Traditionally, caring activities have remained on women’s shoulders. Even though the society has evolved, and nowadays women attain higher educational levels and tend to work out of home more than ever before, the bulk of care remains (at any stage of her lifecourse) heavily on her shoulders. The Second Job or the Second Shift remains in all industrial societies, mostly women’s work (Hayden, 1982 (?Citation)) [@hochschild_second_2012]. 
 
 This unequal share of caring responsibilities leads to gendered differences in among others, career development, differences in contract types and decision-making positions, unbalanced share of women in certain professions, gender pay gap, time poverty, as recognised by different international organisations (European Institute for Gender Equality, 2016 (?Citation)) [@ilo_care_2018]. In fact, already the first feminists in the United States observed that domestic labor was the most relevant basic cause of women’s inequality [@gordon_womans_1976] (Hayden, 1982 (?Citation)).
@@ -219,30 +222,38 @@ Taken together, there appears to be a preference for travel by car for mobility 
 
 RESEARCH OBJECTIVES: 
 
-1)	15 minute cities stem from conventional methods that ignore mobility of care perspectives. There is an applied way of doing this, 
+1)	15 minute cities stem from conventional methods that ignore mobility of care perspectives. There is an applied way of doing this.
 2)	Use of the innovative destination dataset
-3)	Mid-size typical Canadian city, how frequently do we find these caring neighbourhoods (potential - accessibility). 
-4)	Who enjoys them and who does not? Clustering methodology. 
-a.	Types of profiles will emerge – i.e. with LICO > X + Prevalence of children >Y + walking accessibility score > U + diversity score > W = “caring neighbourhood” 
-
+3)	Mid-size typical Canadian city case study. How frequently do we find these caring neighbourhoods (potential - accessibility)? Clustering methodology to determine this.
+4)	Who enjoys them and who does not? Clustering methodology to determine these profiles.
+  - i.e. with LICO > X + Prevalence of children >Y + walking accessibility score > U + diversity score > W = “caring neighbourhood”
 
 # Data and Methods
 
 ## Case study context
 In Canada, women have become more educated and have an achieved an increased participation in the labour market [@government_of_canada_gender_2023]. In fact, the educational level of women has surpassed most men [@government_of_canada_women_2023]. Reports observe that the gender pay gap has narrowed but disparities persist [@drolet_intersectional_2023;@pay_equity_office_gender_2023]. According to the statistics, in Ontario between 1998 to 2022 the gender gap narrowed but still women make 87 cents on average for every dollar made by a man [@pay_equity_office_gender_2023]. All reports observe that it affects women differently, women with disabilities, immigrants, indigenous or racialized suffer especially from the gender pay gap. Similarly to other countries worldwide, the occupational segregation remains and women are segregated into lower paid job classes and there is a dominance of women in minimum wage jobs [@drolet_intersectional_2023]. Furthermore, women are underemployed, and make up most part-time work. In this respect, the lack of childcare alternatives enforces this obligatory part-time work [@equal_pay_coalition_myths_2022]. All researchers and organisations agree that an intersectional approach is of utmost importance to better plan policies to enforce gender equality. 
 
-- Next: describe hamilton's land-use context; communities which are urban, rural, suburban. Also describe the residential parcels summary statistics, ~140,000 points, aggregated at the level of Canadian Census DA. See population descriptive plots in @fig-Fig1:
+- Next: we describe Hamilton's land-use context; communities which are urban, rural, suburban. Also describe the residential parcels summary statistics, ~140,000 points, aggregated at the level of Canadian Census DA. See parcel, population and population per parcel plots in @fig-Fig1:
 ```{r plot-figure1, out.width=600, out.height=600}
 #| label: fig-Fig1
-#| fig-cap: "The number of residential parcels per DA in 2020 (top) and the rate of population per dwelling per DA (middle) and prevalence of Low-income cut-offs after-tax (LICO-AT) per DA (bottom) retrieved from the 2021 Canadian Census. All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/figures/pop_descriptive_plots.tiff"))
+#| fig-cap: "The number of residential parcels per DA in 2020 (top), the population (middle) retrieved from the 2021 Canadian Census, and the rate of population per parcel per DA (bottom). All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/pop_descriptive_plots_1.png"))
+```
+Some of the socio-economic and demographic variables that characterise accessibility and the diversity of accessibility to care destinations are pictured in @fig-Fig2:
+
+```{r plot-figure2, out.width=600, out.height=600}
+#| label: fig-Fig2
+#| fig-cap: "Socio-economic and demographic variables that characterise accessibility to care destinations retrieved from the 2021 Canadian Census. All scales in quartiles. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/pop_descriptive_plots_2.png"))
 ```
 
 ## Estimated travel times
-- Next: describe the estimated 15-minute walk travel times using {r5r}, from all residential parcel points to all care destinations assuming default walking speed and OSM road network for Hamilton. Provide summary statistics.
+
+Here we will describe the estimated 15-minute walk travel times using {r5r}, from all residential parcel points to all care destinations assuming default walking speed (3.6km/hr) and OSM road network for Hamilton. Provide summary statistics.
 
 ## Care destination dataset
-A spatial dataset of care destinations for Hamilton was compiled; sources include provincial and municipal open data portals [@governmentofontarioOntarioDataCatalogue2023; @cityofhamiltonOpenData2023], Data Axle, a consumer dataset compiled of businesses and companies within Canada [@axledataConsumerData2023] and manual retrieved through Google Maps. Each destination was categorized based on the specific type of care being accessed following the mobility of care research by Sanchez de Madariaga & Zucchini (2019) [@sanchezdemadariagaMeasuringMobilitiesCare2019]. Initial categories include child, elder,  grocery, health, and errand -centric destinations. For the purpose of this study, child- and elder- centric are combined to represent a 'dependent-centric' category. Category sources of data and preparation notes are detailed in @tbl-Tbl1. Their spatial distribution and sub-categories are visualised in @fig-Fig2.
+
+A spatial dataset of care destinations for Hamilton was compiled; sources include provincial and municipal open data portals [@governmentofontarioOntarioDataCatalogue2023; @cityofhamiltonOpenData2023], Data Axle, a consumer dataset compiled of businesses and companies within Canada [@axledataConsumerData2023] and manual retrieved through Google Maps. Each destination was categorized based on the specific type of care being accessed following the mobility of care research by @sanchezdemadariagaMeasuringMobilitiesCare2019. Initial categories include child, elder,  grocery, health, and errand -centric destinations. For the purpose of this study, child- and elder- centric are combined to represent a 'dependent-centric' category. Category sources of data and preparation notes are detailed in @tbl-Tbl1. Their spatial distribution and sub-categories are visualised in @fig-Fig3.
 
 ```{r creating-table-content}
 dat <- data.frame(matrix(c("Child-centric",
@@ -280,18 +291,16 @@ flextable(dat) %>%
   width(j = 3, width = 11, unit = "cm")
 ```
 
-```{r plot-figure2, out.width=600, out.height=600}
-#| label: fig-Fig2
+```{r plot-figure3, out.width=600, out.height=600}
+#| label: fig-Fig3
 #| fig-cap: "The locations of care destinations in Hamilton separated by the author-generated categories of: dependent-, errand-, grocery- and health- centric care categories. Basemap shapefiles are sourced from the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/figures/care_categories_plot.tiff"))
+knitr::include_graphics(glue::glue(here::here(), "/figures/care_categories_plot.png"))
 ```
 
 ## Methods
-Cumulative opportunity method; 15-minute normative catchment for walk mode (and cycling, travel time matrix already calculated but to be added later) is used to represent the 15-minute neighbourhood concept. This has been done in previous literature such as @vale2023accessibility, @graellsCityCitiesMeasuring2021 and @gaglioneUrbanAccessibility15minute2022.
+Cumulative opportunity method; 15-minute normative catchment for walk mode is used to represent the 15-minute neighbourhood concept. This has been done in previous literature such as @vale2023accessibility, @graellsCityCitiesMeasuring2021 and @gaglioneUrbanAccessibility15minute2022.
 
-In this work, the cumulative opportunity score is calculated for each parcel and aggregated by care category at the DA level. The Q3 number of opportunities accessibility in a 15 minute walk per care category in retained for each DA. So in this analysis, $i$ is both the parcel and DA spatial unit. To the author's this is one of the first 15-minute neighbourhood analyse with a focus on care destinations. 
-
-**Cumulative opportunity accessibility** takes the following form:
+In this work, the cumulative opportunity score is calculated for each parcel $i$ and aggregated by care category $c$ and takes following mathetical form:
 $$
 S^c_i=\sum_{j}W_j^{c}\cdot f(c_{ij})
 $$
@@ -305,52 +314,92 @@ $$
 - $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value [@handyMeasuringAccessibilityExploration1997].
 - $S_{i}^c$ is the unconstrained accessibility, the sum of weighted opportunities reachable within $f(\cdot)$, at each $i$ for each $c$.
 
-Next, the Q3 (median + standard deviation) of all $\sum_{c}S_i^c$ values for each DA are taken and represented as $S^{c}_{DA}$. $S^{c}_{DA}$ is the upper quartile number of weighted care destinations that can be potentially interacted with within a 15 minute walk by parcels within a DA: an optimistic perspective on how many opportunities can be potentially reached. 
-
 *Entropy* measure has been widely used to characterise the diversity of land-use mix in early work by @frankLinkingObjectivelyMeasured2005 based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence (this measure among other species diversity indices of the time are reviewed in @whittaker1972evolution). In the realm of urban studies and planning literature, it has since been widely used to characterise the diversity in land-use mix [@ewingTravelBuiltEnvironment2010a], especially in the context of active modes [@luUrbanDensityDiversity2017; @mavoaIdentifyingAppropriateLanduse2018] and suburban sprawl [@randallGISBasedLand2015]. Work that has used diversity indices alongside accessibility analysis are scarce, though examples of its use as parameters within accessibility scores in the case of employment opportunities [@chengMeasuringUrbanJob2013; @daiIncorporatingJobDiversity2018] and more recently to describe the diversity in transit facilities [@yinIncorporatingFacilityDiversity2024] are present. To the authors knowledge, the use of an entropy measure to reflect the diversity in care destination amenity types and in context within a 15-minute neighbourhood, has yet to be done. 
 
-In our work, each destination is a specific type $st$ (i.e., `r care_dest$Care_Category_Specific |> unique()`) as well as a care category $c$. When $S_i^c$ is aggregated for each category at the $DA$ it reflects how all opportunities from all four care categories can be reached. The four care categories have meaning to the mobility of care conceptualisation. However, it doesn't explicitly reflect the specific type of destination. In our work, the diversity of the specific type of destination is of interest, we calculate $S^{st}_i$ for each parcel $i$ for each $st$ type following the equation for $S^{st}_i$. This upper quartile is aggregated at the $DA$ to come up with a $S^{st}_{DA}$. <!--AS NOTE: potentially remove 'st' and just have diveristy be based on 'c'. For now, let's keep as is.. -->
-
-As such, the entropy measure is used to reflect the diversity of specific type of care destinations. The value ranges from 0 to 1, with 1 representing total evenness in the number of (weighted) specific type $st$ care opportunities can be reached at the aggregated spatial unit $DA$:
+As such, the entropy measure is used to reflect the diversity of care destinations categories. The value ranges from 0 to 1, with 1 representing total evenness in the number of care opportunities in each category that can be reached. $i$ is a parcel, $c$ is the category of care destinations, $n_c$ is the count of care destination categories (in this work 4), $S_i^c$ is the spatial accessibility of care destinations within a 15-minute walk for a parcel, and $D_i$ is the diversity. As $D_i$ represents evenness in categories, a parcel $i$ can be assigned a diversity of 1 if it has $S_i^c$=1 of each category or if it has $S_i^c$=100 of each category. Contrariwise, it can be assigned a low score if it has low but different scores for each category as well as if it has high but different scores for each category. 
 
 $$
-D^{st}_{DA} = \frac{-\sum_{c} S_i^{st} / S^{st}_{DA} \times ln(S_i^{st} / S^{st}_{DA} )}{ln(ST)}
+D_{i} = \frac{-\sum_{c} S_i^{c} / \sum_{c}S^{c}_{i} \times ln(S_i^{c} / \sum_{c}S^{c}_{i} )}{ln(n_c)}
 $$
-\noindent Where:
 
-- $i$ is a set of parcel point origin locations.
-- $st$ is a set of specific type care categories. In our work they are `r care_dest$Care_Category_Specific |> unique()`.
-- $DA$ is a set of DA spatial units (to aggregate parcel point data).
-- $S_{i}^{st}$ is the unconstrained accessibility, the sum of opportunities reachable within $f(\cdot)$, at each $i$ for each $st$.
-- $S^{st}_{DA}$ is the aggregated unconstrained accessibility at each $DA$. In our work, it is the upper quartile of $S_i^{st}$ values in a $DA$. 
-- $ST$ is the total sum of categories. In our work, this is equal to 14. 
-- $D^{st}_{DA}$ is the entropy index.
+Self organizing map (**SOM**) is used to cluster the types of neighbourhoods by their magnitude in 15-minute walking accessibility to caring opportunities and diversity in these opportunities and profile these clusters based on their socio-economic characteristics. SOM is a type of artificial neural network (ANN) trained using unsupervised learning that produces a two-dimensional representation of the input space. It is a dimensionality reduction method as it applies competitive learning by way of a neighbourhood function thereby preserving the topological properties of the input space and producing combinations of the input space that we intuitively profile. It has been used in transportation related research, e.g., @victorianoTimeSpaceMoney2020. 
 
-Self organizing map (**SOM**) is used to profile the types of neighbourhoods by their magnitude in 15-minute walking accessibility to caring opportunities, diversity in these opportunities and socio-economic characteristics. SOM is a type of artificial neural network (ANN) trained using unsupervised learning that produces a two-dimensional representation of the input space. It is a dimensionality reduction method as it applies competitive learning by way of a neighbourhood function thereby preserving the topological properties of the input space and producing combinations of the input space that we intuitively profile.  
+The SOM procedure is broken into 2 steps: first, five superclusters of the four $S_i^c$ scores and the diversity score $D_i$ are identified. The number of superclusters strike a balance between variance explained and supercluster interpretation in what we define as ranging from "not caring" to "very caring" and "not complete" to "complete". Second, the superclusters are profiled using a variety of socio-economic and demographic indicators that the mobility of care literature finds significant (@fig-Fig2).
 
 # Results
-<!--Initial thoughts on results:
--Initial results seem optimistic. With SOM , method will classify neighbourhoods into these clusters we then tag/name. 
-- A part of this - spatial knowledge of people doesn't match the dataset. i.e. all stores are not equal, they have qualities that make them less/more accessibly. 
-- But we can speak in potentials. They facilities are there and they could potentially be improved. -->
-```{r plot-figure3, out.width=600, out.height=600}
-#| label: fig-Fig3
-#| fig-cap: "The cumulative opportunity measure. The number of care destinations that can be reached, per DA, within 15 min walk. Visualised as 'caring' (based on the opportunity reachable number; Caring is approximately the median) and if complete (if all care categories can be reached; this is an arbitrary selection). Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_copp_plot.tiff"))
-```
 
+Accessibility per category @fig-Fig4:
 ```{r plot-figure4, out.width=600, out.height=600}
 #| label: fig-Fig4
-#| fig-cap: "The diversity measure based on the _specific type_ of destination cumulative opportunity DA measure. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.tiff"))
+#| fig-cap: "The number of care destinations that can be reached within 15 min walk per care category for a median parcel in each DA. Scales are in quartiles. These are four of five inputs into the superclusters. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/percats_copp_plot.png"))
 ```
 
+Diversity @fig-Fig5:
 ```{r plot-figure5, out.width=600, out.height=600}
 #| label: fig-Fig5
-#| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA - fig3) and the diversity measure (fig 4). Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
-knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_bivariate_entropy_copp_plot.tiff"))
+#| fig-cap: "The diversity measure based on the proportion of care category spatial accessibility (figure 4). Scale is in tertiles. The fifth input into the superclusters. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.png")) 
 ```
- 
+
+Superclusters based on accessibility per category and diversity (the two above figures). 5 clusters are identified, see their dendrogram (right) and grid map (left) in @fig-Fig6 :
+
+```{r plot-figure6-create, eval=FALSE}
+plot1 <- ggdraw() + draw_image(glue::glue(here::here(), "/figures/access_sc_plot_2.png"))
+plot2 <- ggdraw() + draw_image(glue::glue(here::here(), "/figures/access_sc_plot_1.png"))
+plot3 <- plot_grid(plot1, plot2)
+
+ggsave(glue::glue(here::here(), "/figures/access_sc_plot_combo.png"), dpi=300)
+```
+
+```{r plot-figure6, out.width=800, out.height=800}
+#| label: fig-Fig6
+#| fig-cap: "The 5 resulting superclusters from the SOM output (left) and the associated dendrogram structure (right)."
+#| 
+knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_plot_combo.png")) 
+```
+
+The constitution of the superclusters in shown in the decision tree diagram in @fig-Fig7. Decision trees area a supervised learning technique, which can use the results of the clustering algorithm as labels, and the input variables as features. The clustering algorithm performed well as class membership is relatively homogeneous as the majority of bar plots consist of a supermajority of one type of supercluster class membership, i.e., supercluster 5 are parcels that have an Errand-centric access of less than 0.5 opportunities (bottom quartile), a diversity score of less than 0.277 (bottom tertile), and any Dependent-centric access score of greater than 0.5 (and can take on any value of the remaining input variables). This technique provides a data-driven approach to supercluster formation which we then attribute meaning to.
+
+```{r plot-figure7, out.width=600, out.height=600}
+#| label: fig-Fig7
+#| fig-cap: "The decision tree profiles of the SOM output."
+knitr::include_graphics(glue::glue(here::here(), "/figures/decision_tree_profiles_sc.png"))
+```
+
+
+The dendrogram demonstrating the supercluster class membership of each parcel in @fig-Fig7 is summarized, with our interpretation, as follows:
+- Very caring (mean category accessibility between 4 to 18.6 and total accessibility median of 46) - very complete (diversity index of mean 0.9 and median 0.90) (SCluster 2)
+- Caring (mean category accessibility between 2.1 to 9 and total accessibility median of 18) -  complete (div index of mean 0.81 and median 0.82) (SCluster 1)
+- Somewhat caring (mean category accessibility between 0.2 to 6 and total accessibility median of 13) - complete div index of mean 0.71 and median 0.74) (SCluster 4)
+- Somewhat caring (mean category accessibility between 0.2 to 6 and total accessibility median 7) - not complete (div index of mean 0.36 and median 0.40) (SCluster 3)
+- Not caring (mean category accessibility between 0 to 4.7 and total accessibility median of 3) - not complete (div index of mean 0.02 and median 0) (SCluster 5)
+
+To further visualize supercluster membership, we spatially demonstrate which supercluster best describes each parcel in @fig-Fig8 (top plot): the median parcel's supercluster membership per DA is tabulated and the majority membership is represented. Visually, the super clusters closely follow the quartile split of the accessibility to care destinations (all categories combined) and tertile split of the diversity scores (visualised in @fig-Fig5).
+
+```{r plot-figure8, out.width=600, out.height=600}
+#| label: fig-Fig8
+#| fig-cap: "The median parcel supercluster membership (top). The parcel median total accessibility (bottom). The parcel m Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/SCLab_and_total_copp_plot.png"))
+```
+To enhance the meaning of the superclusters beyond a spatial conceptualisation of "caring" and "complete", was _who?_ resides there. We implement another decision tree in which the population-weighted socio-demographic characteristics of the parcels (retrieved from the 2021 Canadian Census) are input variables and the resulting output are 'socio-domographic superclusters' of the caring/complete superclusters. The input variables included: % households below median household after-tax income, LICO prevalence, average number of children per household, % not in the labour force, Gini index on adjusted household after-tax income, % visible minority, % population aged 0 to 14, % single parent household, % who walk to work (relative to bike, care/truck/van, public transit and 'other'), % of owner household in core housing need (i.e., inadequate housing structure or paying higher than 30% income on housing), % of owner households with a mortgage, % of tenant households in subsidized housing, % of tenant households in core housing need, % no certification, diploma or degree (relative to population with high school, college, or university certificate, diploma or degree).
+
+Of all the variables, those that proved to be significant in profiling the five superclusters were only four variables: % households below median household after-tax income (bottom income), % population aged 0 to 14, % single parent household, and LICO. See @fig-Fig9 that provides the splits. Unfortunately, the supercluster membership is not as homogeneous as the caring/complete supercluster dendrogram (@fig-Fig7). However, we can interpret the socio-demographic superclusters (five that result) as labels to tell a narrative of who may reside in what caring/complete supercluster. 
+
+```{r plot-figure9, out.width=600, out.height=300}
+#| label: fig-Fig9
+#| fig-cap: "The dendrogram of the supercluster demographic profiles.."
+knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles.png"))
+```
+(NOTE: for reference, see the old bivariate map in the appendix for comparison)
+
+In @fig-Fig9, discussing from right-to-left, parcels in DAs with 45% of the population below the median or lower (richer) are often classified with poor accessibility: either "Somewhat caring and not complete" SC3 or "Not caring and not complete" SC5, where parcels within DAs with a higher proportion of single parent households (13% and above) are most often SC3 and below are most often SC5. For parcels with higher than 45% of bottom-income (poorer), those with a high proportion of children (age 0 to 14) are also likely to be within the "Somewhat caring and not complete" SC3 - just like parcels in richer and more-single-parent DA counterparts. 
+
+These findings related to potential child-care access are notable: single parents provide more care and hence may be more likely to choose, if they are able, more accessible neighbourhoods than the rest of the population in the same household income grouping. In a Canadian and U.S. context, households with children may locate to catchments with 'better' schools, often more suburban with lower potential access scores overall. 
+
+Interestingly, parcels in DAs with lower than 13% children population demonstrate a better accessibility to care destination story. Parcels within DAs that constitute more than 45% population below median household income (poorer) - especially above 9.8% LICO (low income cut-off prevalence - likely to be the poorest) are often within "Very caring and very complete" SC1. Parcels located in DAs with the same lower median income and child population but have _lower_ than 9.8% LICO (not the poorest) also have good accessibility, as they are most often in "Caring and complete" SC1 as well as being in most often in the "Somewhat caring and complete" SC4 relative to other parcels.
+
+Our findings illustrate differences in patterns of 15-minute walk accessibility to care destinations most prominently profiled by income, low-income prevalence, children and single-parent status.
 
 # References
 
@@ -358,3 +407,11 @@ knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_bivariate_en
 :::
 
 <!-- `r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")` -->
+
+# Appendix
+
+```{r plot-figure10, out.width=600, out.height=600}
+#| label: fig-Fig10
+#| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA) and the diversity measure. Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_bivariate_entropy_copp_plot.png"))
+```

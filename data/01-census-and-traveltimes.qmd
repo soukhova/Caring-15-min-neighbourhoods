@@ -87,7 +87,16 @@ HAM_census_21 <- get_census(dataset='CA21',
                                       "v_CA21_7635", # % total - drove or was driven to work
                                       "v_CA21_7644", # % total - used transit to get to work
                                       "v_CA21_7650", # % total - biked to work
-                                      "v_CA21_7653" # % total - used some other mode to get to work
+                                      "v_CA21_7653", # % total - used some other mode to get to work
+                                      
+                                      "v_CA21_4306", # % of owner households with a mortgage,
+                                      "v_CA21_4307", # % of owner households spending 30% or more of its income on shelter costs,
+                                      "v_CA21_4308", # % of owner households in core housing need
+                                      "v_CA21_4314", # % of tenant households in subsidized housing
+                                      "v_CA21_4315", # % of tenant households spending 30% or more of its income on shelter costs,
+                                      "v_CA21_4316" # % in core housing need
+                                      
+                                      
                                       ), 
                                       level='DA', use_cache = FALSE, geo_format = 'sf', quiet = TRUE)
 

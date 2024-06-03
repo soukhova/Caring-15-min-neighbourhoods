@@ -1,10 +1,10 @@
 ---
-title: "Clustering"
+title: "Clustering, profiling and plots"
 author: "Antonio Paez & Anastasia Soukhov"
 format: html
 ---
 
-## Quarto
+## Setting up table
 
 Lets begin by loading the packages used for this:
 ```{r message = FALSE}
@@ -20,20 +20,40 @@ library(skimr) # Compact and Flexible Summaries of Data
 library(sf) # Simple Features for R
 library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
 library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(tmap)
+library(here)
+library(parsnip)
 ```
 
-Read od table:
+Read od table and the census:
 ```{r}
 load("access_15.rda")
+load("HAM_census_21.rda")
 ```
 
-Aggregate by Care Category:
+Loading boundaries for mapping:
+```{r}
+Community_Boundaries <- st_read("data-raw/boundaries/Community_Boundaries.shp") |> mutate(COMMUNITY_ = ifelse(COMMUNITY_ == "Hamilton", "Hamilton-Central", COMMUNITY_))|> st_transform(crs=4326)
+City_Boundary <- st_read("data-raw/boundaries/City_Boundary.shp") |> st_transform(crs=4326)
+hydro_p_LakeOntario <- st_read("data-raw/boundaries/hydro_p_LakeOntario.shp") |> st_transform(crs=4326)
+ham_bay <- st_read("data-raw/boundaries/Waterbodies.shp") |> st_transform(crs=4326) |> filter(FEATURE_TY == "Lake")
+ham_bay_cropped<-st_crop(ham_bay$geometry, Community_Boundaries$geometry)
+hydro_p_LakeOntario_cropped<-st_crop(hydro_p_LakeOntario$geometry, Community_Boundaries$geometry)
+```
+
+Aggregate by Care Category (dependent, errand, health, and grocery centric):
 ```{r}
 access_15_aggregated <- access_15 |>
   group_by(from_id,
            Care_Category) |>
-  summarize(copp_isc = sum(copp_isc),
-            .groups = "drop")
+  summarize(GeoUID = first(GeoUID),
+            copp_isc = sum(copp_isc),
+            .groups = "drop") |> 
+  left_join(HAM_census_21 |> # and dssociate with census data and drop parcels in DAs with 0 population:
+              st_drop_geometry(),
+            by = "GeoUID")
+
+access_15_aggregated <- access_15_aggregated |> filter(Population >= 0 | !is.na(Population))
 ```
 
 Calculate total Care Category opportunities by parcel:
@@ -144,7 +164,305 @@ Summary of this table:
 summary(access_15_wide)
 ```
 
-Now this table can be used for the clustering analysis.
+## Plotting population descriptions, DA
+
+For plotting, create a spatial DA sf object that summarizes these inputs:
+```{r}
+access_15_DA <- left_join(access_15_wide, 
+                          access_15_aggregated |> group_by(from_id) |>
+  summarise(GeoUID = first(GeoUID),
+            tot_copp_isc = first(tot_copp_isc),
+            Population = first(Population),
+            LICO = first(`v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`),
+            Income_bottom_n = first( `v_CA21_1103: In bottom half of the distribution`),
+            Income_top_n = first(`v_CA21_1121: In top half of the distribution`),
+            Age_0to14_n = first(`v_CA21_11: 0 to 14 years`),
+            Age_15to64_n = first(`v_CA21_68: 15 to 64 years`),   
+            Age_65plus_n = first(`v_CA21_251: 65 years and over`),
+            One_parent_families_n = first(`v_CA21_507: Total one-parent families`),
+            Couple_families_n = first(`v_CA21_500: Total couple families`)),
+            by=c("from_id")) |>
+  group_by(GeoUID)|>
+  summarise(Population = first(Population),
+            parcel_count = n(),
+            LICO = first(LICO),
+            Income_bottom_n = first(Income_bottom_n),
+            Income_top_n = first(Income_top_n),
+            Age_0to14_n = first(Age_0to14_n),
+            Age_15to64_n = first(Age_15to64_n),   
+            Age_65plus_n = first(Age_65plus_n),
+            One_parent_families_n = first(One_parent_families_n),
+            Couple_families_n = first(Couple_families_n),
+            
+            med_tot_copp_isc = median(tot_copp_isc),
+            med_div = median(div),
+            med_dep_copp = median(total_Dependent_centric),
+            med_err_copp = median(total_Errand_centric),
+            med_groc_copp = median(total_Grocery_centric),
+            med_health_copp = median(total_Health_centric)) |>
+  left_join(HAM_census_21 |> select(c(GeoUID)), by=c("GeoUID")) |> st_as_sf() |> st_make_valid()
+
+access_15_DA <- access_15_DA |> mutate(Populationparcel = Population/parcel_count,
+                                       Income_bottom = Income_bottom_n / (Income_bottom_n + Income_top_n),
+                                       Age_0to14 = Age_0to14_n / (Age_0to14_n + Age_15to64_n + Age_65plus_n),
+                                       One_parent_families = One_parent_families_n / (One_parent_families_n + Couple_families_n))
+                                       
+access_15_DA$parcel_count |> sum() #a check
+```
+
+```{r, eval=FALSE}
+parcels_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("parcel_count",
+              border.alpha = 0.2,
+              palette = "Reds",style = "quantile", n=4,
+              title = "Count of residential parcels",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+pop_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("Population",
+              border.alpha = 0.2,
+              palette = "Greens", style = "quantile", n=4,
+              title = "Population",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+poprate_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("Populationparcel",
+              border.alpha = 0.2,
+              palette = "Purples", style = "quantile", n=4,
+              title = "Population per residential parcel rate",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+pop_descriptive_plots_1 <- tmap_arrange(parcels_DA_plot, pop_DA_plot, poprate_DA_plot, nrow=3)
+tmap_save(pop_descriptive_plots_1,
+          file= file.path(here("figures/pop_descriptive_plots_1.png")) , asp = 1/0.6,
+          dpi=300)
+```
+
+
+```{r, eval=FALSE}
+INCOME_B_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("Income_bottom",
+              border.alpha = 0.2,
+              palette = "Greens", style = "quantile", n=4,
+              title = "% hld below AT median income",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+AGE014_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("Age_0to14",
+              border.alpha = 0.2,
+              palette = "Oranges", style = "quantile", n=4,
+              title = "% population aged 0 to 14",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+ONE_PARENT_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("One_parent_families",
+              border.alpha = 0.2,
+              palette = "Reds", style = "quantile", n=4,
+              title = "% one parent hlds",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+LICOAT_DA_plot <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("LICO",
+              border.alpha = 0.2,
+              palette = "Purples", style = "quantile", n=4,
+              title = "Prevalance of household LICO-AT",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.title.size = 0.7, legend.bg.color = "white", legend.bg.alpha = 0.4)
+
+pop_descriptive_plots_2 <- tmap_arrange(INCOME_B_DA_plot,AGE014_DA_plot, ONE_PARENT_DA_plot, LICOAT_DA_plot, ncol=2)
+
+tmap_save(pop_descriptive_plots_2,
+          file= file.path(here("figures/pop_descriptive_plots_2.png")) , asp = 1/1,
+          dpi=300)
+```
+
+## Plotting accessibility and diversity index, DA
+
+```{r, eval=FALSE}
+all_cats_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_tot_copp_isc",
+              border.alpha = 0.2,
+              palette = c("darkred", "orangered", "forestgreen", "lightgreen"),
+              style = "quantile", n=4,
+              #breaks = c(0,5,14,27,108),
+              title = "The number of care destinations within a 15 min. walk for a median parcel",
+              label = c("[0 to 5) Not caring",
+                        "[5 to 14) Somewhat caring",
+                        "[14 to 27) Caring",
+                        "[27 to 108] Very caring"),  #these are for quantiles, the clusters p50 seem to roughly follows these.
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12
+            # legend.title.size = 0.7,
+            # legend.text.size = 0.6
+            )
+tmap_save(all_cats_copp_plot, file= file.path(here("figures/all_cats_copp_plot.png")), dpi=300)
+```
+
+```{r, eval=FALSE}
+dep_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_dep_copp",
+              border.alpha = 0.2,
+              style = "quantile", n=4,
+              palette = "Oranges",
+              title = "Dependent-centric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+health_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_health_copp",
+              border.alpha = 0.2,
+              style = "quantile", n=4,
+              palette = "Purples",
+              title = "Health-centric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+groc_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_groc_copp",
+              border.alpha = 0.2,
+              style = "quantile", n=4,
+              palette = "Greens",
+              title = "Grocery-centric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+err_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_err_copp",
+              border.alpha = 0.2,
+              style = "quantile", n=4,
+              palette = "Reds",
+              title = "Errand-centric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+percats_copp_plot <- tmap_arrange(dep_copp_plot, err_copp_plot, groc_copp_plot, health_copp_plot, nrow=2)
+
+tmap_save(percats_copp_plot, 
+          file= file.path(here("figures/percats_copp_plot.png")),
+          dpi=300)
+```
+
+```{r}
+# very caring (mean 4 to 18.6; total p50 46) - very complete (div=0.9; p50 0.90) (Cluster 2)
+# caring (mean 2.1 to 9; total p50 18) -  complete (div=0.81; p50 0.82) (Cluster 1)
+# somewhat caring (0.2 to 6; total p50 13) - complete (div=0.71; p50 0.74) (Cluster 4)
+# somewhat caring (0.2 to 6; total p50 7) - not complete (div=0.36; p50 0.40) (Cluster 3)
+# not caring (0 to 4.7; total p50 3) - not complete (div=0.02; p50 0) (Cluster 5)
+```
+
+```{r, eval=FALSE}
+all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("med_div",
+              border.alpha = 0.2,
+              style = "quantile", n=3, #are the quantiles, but are also similar to the clustered profiles
+              label = c("[0 to 0.49) Not complete", "[0.49 to 0.85) Complete", "[0.85 to 1] Very complete"),
+              palette = "Greys",
+              title = "Diversity of care destinations within a 15-minute walk for a median parcel",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+  tm_layout(bg.color = "grey",
+            panel.label.bg.color = "white",
+            panel.label.color = "black",
+            legend.outside = TRUE,
+            legend.position = c("center", "bottom"),
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.2,
+            legend.width = 12)
+
+tmap_save(all_cats_entropy_copp_plot, file= file.path(here("figures/all_cats_entropy_copp_plot.png")), dpi=300)
+```
+
+## Creating clusters (from parcels)
+
+Now access_15_wide can be used for the clustering analysis.
 
 Given these normalized attributes, a SOM can be trained using the function `trainSOM` from `SOMbrero`. Only one argument is needed, the input data `x.data`. Other arguments can be assigned by default. In what follows the dimension of the map is given as 5-by-5, and I request that 100 intermediate steps be saved. 
 ```{r}
@@ -242,9 +560,7 @@ plot(access.som,
      main="Diversity")
 ```
 
-The lower left corner of the map concentrates monsters with high speed, high special attack, and high special attack. the upper left corner concentrates high defense and high special defense. High hit points are towards the center of the map.
-
-Two additional way of visualizing the characteristics of the clusters are as follows.
+The lower right corner of the map concentrates monsters has low levels of all variables. The high concentration of all variables is found in the upper left corner. Two additional way of visualizing the characteristics of the clusters are as follows.
 
 This creates barplots:
 ```{r}
@@ -273,22 +589,33 @@ plot(access.som,
 Super clusters:
 ```{r}
 access.sc <- superClass(access.som,
-                        k = 6)
+                        k = 5)
 summary(access.sc)
 ```
-
-This is a dendogram with the super-clusters:
-```{r}
+The combined dendogram and grid-map of the super-clusters. Turned off the variance explained plot:
+```{r, eval=FALSE}
+png(file= file.path(here("figures/access_sc_plot_1.png")), width= 2404, height= 1600, units="px",  res=300)
 plot(access.sc, 
-     plot.var = TRUE)
+     type= c("dendrogram"),
+     plot.var = FALSE,
+     show.names = TRUE,
+     main = " ",
+     ylab="Dissimilarity Index",
+     xlab= " ")
+dev.off()
 ```
 
-And the map with the superclusters:
-```{r}
-plot(access.sc, 
+
+```{r, eval=FALSE}
+png(file= file.path(here("figures/access_sc_plot_2.png")), width= 2404, height= 1600, units="px",  res=300)
+plot(access.sc,
      type = "grid", 
+     plot.var = FALSE,
+     main = " ",
      plot.legend = TRUE)
+dev.off()
 ```
+
 
 ## Profile the superclusters
 
@@ -331,7 +658,6 @@ Select data for classification:
 ```{r}
 df <- access_15_wide |>
   select(-c(cluster,
-            from_id, 
             starts_with("prop"), 
             starts_with("norm"))) |>
   rename(Dependent = total_Dependent_centric,
@@ -340,12 +666,93 @@ df <- access_15_wide |>
          Health = total_Health_centric) |>
   mutate(scluster = factor(scluster),
          div = round(div, digits = 3))
+
+df <- df |> 
+  mutate(Total_copp = Dependent + Grocery + Errand + Health)
 ```
 
 Train a decision tree using the data:
 ```{r}
-classmod.som <- rpart(scluster ~ ., 
-                      data = df)
+classmod.som <- rpart(data = df,
+                      formula = scluster ~ (Dependent + Grocery + Errand + Health + div))
+
+# Predict the labels and add them to the dataset
+predicted_labels <- predict(classmod.som, df) |> as.data.frame()
+
+df$SC1 <- predicted_labels$`1`
+df$SC2 <- predicted_labels$`2`
+df$SC3 <- predicted_labels$`3`
+df$SC4 <- predicted_labels$`4`
+df$SC5 <- predicted_labels$`5`
+
+# df <- df |> mutate(max_label_val = pmax(predicted_labels$`1`, predicted_labels$`2`, predicted_labels$`3`, predicted_labels$`4`, predicted_labels$`5`),
+#                    max_label = case_when(max_label_val == predicted_labels$`1` ~ "SC1",
+#                                          max_label_val == predicted_labels$`2` ~ "SC2",
+#                                          max_label_val == predicted_labels$`3` ~ "SC3",
+#                                          max_label_val == predicted_labels$`4` ~ "SC4",
+#                                          max_label_val == predicted_labels$`5` ~ "SC5"))
+
+
+df_DA <- df |> left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by = "from_id") |> 
+  group_by(GeoUID) |> 
+  summarise(
+    SC1 = median(SC1),
+    SC2 = median(SC2),
+    SC3 = median(SC3),
+    SC4 = median(SC4),
+    SC5 = median(SC5),
+    max_label_val = pmax(SC1, SC2, SC3, SC4, SC5),
+            med_tot_copp_isc = median(Total_copp),
+            med_div = median(div),
+            med_dep_copp = median(Dependent),
+            med_err_copp = median(Errand),
+            med_groc_copp = median(Grocery),
+            med_health_copp = median(Health)) |>
+  mutate(max_label = case_when(max_label_val == SC1 ~ "b. Caring - complete (SC1)",
+                               max_label_val == SC2 ~ "a. Very caring - very complete (SC2)",
+                               max_label_val == SC3 ~ "d. Somewhat caring - not complete (SC3)",
+                               max_label_val == SC4 ~ "c. Somewhat caring - complete (SC4)",
+                               max_label_val == SC5 ~ "d. not caring - not complete (SC5)")) |>
+  left_join(HAM_census_21 |> select(c(GeoUID)), by=c("GeoUID")) |> st_as_sf() |> st_make_valid() 
+```
+```{r, eval=FALSE}
+total_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(df_DA) +
+  tm_polygons("med_tot_copp_isc",
+              border.alpha = 0.2,
+              style = "quantile", n=4,
+              palette = "Purples",
+              title = "Total access to care destinations",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+SClabel_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(df_DA) +
+  tm_polygons("max_label",
+              border.alpha = 0.2,
+              palette = c("darkolivegreen","red", "dodgerblue", "darkorchid","darkgreen"),
+              labels = (c("Very caring - very complete (SC2)","Caring - Complete (SC1)",
+              "Somewhat caring - complete (SC4)","Somewhat caring - somewhat complete (SC5)", 
+              "Somewhat caring - somewhat complete (SC3)")),
+              title = "Prevelant supercluster") +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+SClabel_copp_plot
+SCLab_and_total_copp_plot <- tmap_arrange(SClabel_copp_plot, total_copp_plot, nrow=2)
+
+tmap_save(SCLab_and_total_copp_plot, 
+          file= file.path(here("figures/SCLab_and_total_copp_plot.png")),
+          dpi=300)
 ```
 
 Visualize the decision tree:
@@ -370,7 +777,7 @@ freq_sc <- ggplot(access_15_wide |>
   geom_bar(aes(x = "", 
                group = scluster, 
                fill = scluster)) +
-  scale_fill_discrete(name = "super cluster") #+
+  scale_fill_discrete(name = "Supercluster") #+
   #theme_void() +
   #guides(fill = guide_legend(nrow = 1)) +
   #theme(legend.position = "bottom")
@@ -389,7 +796,7 @@ Make a prettier plot:
 ```{r}
 party_plot <- ggparty(classmod.sompar) +
   geom_edge() +
-  geom_edge_label(size = 1.8) +
+  geom_edge_label(size = 1.6) +
   geom_node_label(aes(label = splitvar),
                   id = "inner", 
                   size = 2, nudge_y = -0.022) +
@@ -401,19 +808,14 @@ party_plot <- ggparty(classmod.sompar) +
                                ylab(""),
                                theme_void(),
                                theme(axis.text = element_blank())))
-```
-
-
-Plot the tree:
-```{r}
 party_plot
 ```
 
+Plot the tree:
 ```{r}
-library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2' # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
-
+png(file= file.path(here("figures/decision_tree_profiles_sc.png")),width= 2404, height= 1600, units="px",  res=300)
 plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
-
+dev.off()
 ```
 
 Cluster 6 is high in suckitude: low in diversity, with 4.6 Dependent Centric destinations on average, and typically no other destinations: zero Errand centric destinations, and only about 3.5% of parcels have access to Grocery-centric destinations.
@@ -421,102 +823,85 @@ Cluster 6 is high in suckitude: low in diversity, with 4.6 Dependent Centric des
 access_15_wide |>
   select(scluster, starts_with("total_"), div) |>
   rename_with(.fn = ~str_replace(.x, "total_", "")) |>
-  filter(scluster == 6) |>
+  filter(scluster == 1) |>
   skim()
 ```
 
+What I've deduced from these superclusters:
+
+very caring (mean 4 to 18.6; total p50 46) - very complete (div=0.9; p50 0.90) (Cluster 2)
+caring (mean 2.1 to 9; total p50 18) - complete (div=0.81; p50 0.82) (Cluster 1)
+somewhat caring (0.2 to 6; total p50 13) - complete (div=0.71; p50 0.74) (Cluster 4)
+somewhat caring (0.2 to 6; total p50 7) - not complete (div=0.36; p50 0.40) (Cluster 3)
+not caring (0 to 4.7; total p50 3) - not complete (div=0.02; p50 0) (Cluster 5)
+
 ## Demographic profile of clusters
-
-```{r}
-load("HAM_census_21.rda")
-```
-
-```{r}
-access_15_wide <- access_15_wide |>
-  left_join(access_15 |>
-              ungroup() |>
-              distinct(from_id, 
-                       .keep_all = TRUE) |>
-              select(from_id, 
-                     GeoUID),
-            by = "from_id") |>
-  left_join(HAM_census_21 |>
-              st_drop_geometry(),
-            by = "GeoUID")
-```
-
 
 Select data for classification:
 ```{r}
 df <- access_15_wide |>
   transmute(scluster = factor(scluster),
+            Income_bottom = `v_CA21_1103: In bottom half of the distribution`/(`v_CA21_1103: In bottom half of the distribution` + `v_CA21_1121: In top half of the distribution`),
             LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
-            Unemployed = `v_CA21_6501: Unemployed`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Avg_numb_of_kids = `v_CA21_498: Average number of children in census families with children`,
+            Not_in_labforce = `v_CA21_6504: Not in the labour force`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
             Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income`,
             Vis_minority = `v_CA21_4875: Total visible minority population`/ (`v_CA21_4914: Not a visible minority`+ `v_CA21_4875: Total visible minority population`),
-            Age_0to14_and_Age_65plus =( `v_CA21_11: 0 to 14 years` + `v_CA21_251: 65 years and over`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`),
-            One_parent_families = `v_CA21_507: Total one-parent families` / (`v_CA21_507: Total one-parent families` + `v_CA21_500: Total couple families`) )
+            Age_0to14 =(`v_CA21_11: 0 to 14 years`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`),
+            One_parent_families = `v_CA21_507: Total one-parent families` / (`v_CA21_507: Total one-parent families` + `v_CA21_500: Total couple families`),
+            walk_towork =  `v_CA21_7647: Walked` / (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            Owner_hld_CHN = `v_CA21_4308: % in core housing need (57)`,
+            Hld_ownership = `v_CA21_4306: % of owner households with a mortgage (58)`,
+            Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)`,
+            Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)`,
+            Population,
+            Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`)
+            )
 
-# # examining correlations
-# cor(df |> select(-c("scluster")), use = "complete.obs")
+# examining correlations
+cor(df |> select(-c("scluster")), use = "complete.obs")
+
+#Train a decision tree using the data:
+classdemo.som <- rpart(data = df,
+                      formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH),
+                      weights = Population
+                      )
+# # Visualize the decision tree:
+# rpart.plot(classdemo.som, cex = 0.5, type = 0, varlen = 8)
 ```
 
-Train a decision tree using the data:
 ```{r}
-classdemo.som <- rpart(scluster ~ ., 
-                      data = df)
-```
-
-Visualize the decision tree:
-```{r}
-rpart.plot(classdemo.som, cex = 0.5, type = 0, varlen = 8)
-```
-
-convert the rpart object to a party object:
-```{r}
+# convert the rpart object to a party object:
 classdemo.sompar <- as.party(classdemo.som)
-```
 
-Make a prettier plot:
-```{r}
+#Make a prettier plot:
 party_plot <- ggparty(classdemo.sompar) +
   geom_edge() +
-  geom_edge_label(size = 1.8) +
-  geom_node_label(aes(label = splitvar),
-                  id = "inner", 
-                  size = 2, nudge_y = -0.022) +
-  # pass list to gglist containing all ggplot components we want to plot for each
-  # (default: terminal) node
+  #geom_edge_label(size = 1.8) +
+  geom_edge_label(mapping = aes(label = paste(substr(breaks_label, start = 1, stop = 15))), size = 3.5) +
+  geom_node_splitvar(id = "inner", size = 4) +
+  #geom_edge_label(mapping = aes(label = prettyNum(breaks_label, digits = 1)), size = 1.8) +
+
+  # # pass list to gglist containing all ggplot components we want to plot for each
+  # # (default: terminal) node
   geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
                                         position = position_fill()),
                                xlab(""),
                                ylab(""),
                                theme_void(),
                                theme(axis.text = element_blank())))
-```
-
-
-Plot the tree:
-```{r}
-party_plot
+legd <- cowplot::get_legend(freq_sc)
 ```
 
 ```{r}
-library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2' # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
-
+#plot and save
+png(file= file.path(here("figures/access_sc_profiles.png")),width= 2404, height= 1600, units="px",  res=300)
 plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
-
+dev.off()
 ```
 
-Notice that super cluster 3 () makes most of the node with the highest prevalence of poverty (LICO > 10.9%). What is the accessibility profile of this cluster?
+This is interesting! So for parcels with less than 45% of bottom-income people (richer) -- parcels with higher proportion of 1 parent households (13% and above) are more likely to have bad care/incomplete access (c3) than _really_ bad care/very incomplete access (c5). 
 
-It is high diversity, with multiple Grocery with multiple Grocery- and Dependant-centric opportunities, and at least some Errand-centric opportunities:
-```{r}
-access_15_wide |>
-  select(scluster, starts_with("total_"), div) |>
-  rename_with(.fn = ~str_replace(.x, "total_", "")) |>
-  filter(scluster == 3) |>
-  skim()
-```
+For parcels with higher than 45% of bottom-income (poorer), those with high a high proportion of children (age 0 to 14) are likely to have bad care/incomplete acces (c3). But those with a lower proportion of children - especially 9.8% LICO and above are going to have _super high_ care/complete (c1) or under 9.8% LICO will have _high_ care/complete (c2)
+For less than 63%, it's a different story. If between 45% and 63%, they are described by cluster 1 (caring and complete). 
 
-It is clear that LICO alone is not sufficient to sharply profile the clusters. Ask Anastasia to choose other variables. 
