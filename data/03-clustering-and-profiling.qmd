@@ -656,6 +656,8 @@ One possibility is to analyze the results of the clustering algorithm by means o
 
 Select data for classification:
 ```{r}
+
+
 df <- access_15_wide |>
   select(-c(cluster,
             starts_with("prop"), 
@@ -838,8 +840,9 @@ not caring (0 to 4.7; total p50 3) - not complete (div=0.02; p50 0) (Cluster 5)
 ## Demographic profile of clusters
 
 Select data for classification:
-```{r}
-df <- access_15_wide |>
+```{r}      
+
+df <- access_15_wide |> left_join(access_15_aggregated, by = "from_id") |> 
   transmute(scluster = factor(scluster),
             Income_bottom = `v_CA21_1103: In bottom half of the distribution`/(`v_CA21_1103: In bottom half of the distribution` + `v_CA21_1121: In top half of the distribution`),
             LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
@@ -855,15 +858,14 @@ df <- access_15_wide |>
             Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)`,
             Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)`,
             Population,
-            Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`)
-            )
-
+            Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`))
+          
 # examining correlations
 cor(df |> select(-c("scluster")), use = "complete.obs")
 
 #Train a decision tree using the data:
 classdemo.som <- rpart(data = df,
-                      formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH),
+                      formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH+LICO),
                       weights = Population
                       )
 # # Visualize the decision tree:
