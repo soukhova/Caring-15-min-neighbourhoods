@@ -1,7 +1,9 @@
 .Rproj.user
+.Rproj.user/
 .Rproj.user/*
 .Rhistory
 .RData
 .Ruserdata
+data/data-raw/tt
 data/data-raw/parcels
 data/parcel-ttm/processing

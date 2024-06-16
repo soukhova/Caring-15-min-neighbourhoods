@@ -738,7 +738,7 @@ SClabel_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(
   tm_shape(df_DA) +
   tm_polygons("max_label",
               border.alpha = 0.2,
-              palette = c("darkolivegreen","red", "dodgerblue", "darkorchid","darkgreen"),
+              palette = c("#44ce1b","#bbdb44", "#f7e379", "#f2a134","#e51f1f"),
               labels = (c("Very caring - very complete (SC2)","Caring - Complete (SC1)",
               "Somewhat caring - complete (SC4)","Somewhat caring - somewhat complete (SC5)", 
               "Somewhat caring - somewhat complete (SC3)")),
