@@ -13,9 +13,9 @@ Load the libraries used in this notebook:
 ```{r load-libraries, include = FALSE}
 library(readxl) # Read Excel Files
 library(tidyverse) # Easily Install and Load the 'Tidyverse'
-library(rgdal) # Bindings for the 'Geospatial' Data Abstraction Library
+#library(rgdal) # Bindings for the 'Geospatial' Data Abstraction Library
 library(spdep) # Spatial Dependence: Weighting Schemes, Statistics
-library(rgeos) # Interface to Geometry Engine - Open Source ('GEOS')
+#library(rgeos) # Interface to Geometry Engine - Open Source ('GEOS')
 library(dplyr) # A Grammar of Data Manipulation
 library(tmap) # Thematic Maps
 library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
