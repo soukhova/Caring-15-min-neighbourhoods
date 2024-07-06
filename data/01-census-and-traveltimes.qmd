@@ -779,9 +779,18 @@ save("ttm_care_bike_parcel4", file = "parcel-ttm/ttm_care_bike_parcel4.rda")
 rm("ttm_care_bike_parcel4")
 ```
 
-## Transit travel times
+##Transit travel times
 
 Calculate **Transit** travel times from centroids of parcels (from_ids) to destination points (to_ids). 30 min max travel time. 
+
+```{r}
+load("parcel-ttm/ttm_care_TRANSIT_parcel1_1.rda")
+load("parcel-ttm/ttm_care_TRANSIT_parcel1.rda")
+
+ttm_care_TRANSIT_parcel1|> summary()
+ttm_care_TRANSIT_parcel1_1 |> summary()
+```
+
 
 ```{r Transit travel time 1}
 # set up batching according to how many origin rows to process at one time
@@ -802,7 +811,8 @@ for (i in 1:num_chunks){
   ttm_chunk <- travel_time_matrix(r5r_core = r5_HAM,
                           origins = Orig_chunk,
                           destinations = dest,
-                          mode = c("TRANSIT"),
+                          mode = c("TRANSIT","WALK"),
+                          max_walk_time = 15,
                           departure_datetime = as.POSIXct(strptime("08-06-2023 08:00:00", # 12 GMT is 8am in Toronto (EDT)
                                  format = "%d-%m-%Y %H:%M:%S")),
                           max_trip_duration = 30)
@@ -821,8 +831,8 @@ print(paste0("OD matrix calculation took ", round(difftime(end.time, start.time,
 #"OD matrix calculation took 6.78 minutes..."
 ttm_care_TRANSIT_parcel1 <- as.data.frame(output_df)
 
-save("ttm_care_TRANSIT_parcel1", file = "parcel-ttm/ttm_care_TRANSIT_parcel1.rda")
-rm("ttm_care_TRANSIT_parcel1")
+save("ttm_care_TRANSIT_parcel1", file = "parcel-ttm/ttm_care_TRANSIT_parcel1_1.rda")
+rm("ttm_care_TRANSIT_parcel1_1")
 ```
 
 ```{r TRANSIT travel time 2}
