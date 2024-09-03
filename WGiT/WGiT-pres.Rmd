@@ -1,0 +1,326 @@
+---
+title: "Towards caring 15-minute neighbourhoods"
+subtitle: "Proximity Planning Congress 2024"
+author: "Anastasia Soukhov, Léa Ravensbergen, Lucía Mejía Dorantes, Antonio Páez"
+date: "09-10-2024"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: xaringan-themer.css
+    nature:
+      slideNumberFormat: "%current% / 10" 
+      highlightStyle: github
+      highlightLines: true
+      ratio: '16:9'
+      countIncrementalSlides: false
+      beforeInit: "macros.js"
+---
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+#this themer package allows us to change the .css themes through this chunk. Easier than changing the .css directly.
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#7A003C", #maroon
+  link_color = "#5E6A71", #grey
+  text_bold_color = "#FDBF57", #gold
+  text_slide_number_color = "#FDBF57", #gold
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+
+```{r load-packages, include=FALSE, cache=FALSE}
+options(htmltools.dir.version = FALSE)
+library(RefManageR)
+
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(tidyverse)
+library(units)
+library(patchwork)
+library(ggspatial)
+library(ggforce)
+# library(geomtextpath)
+library(knitr)
+library(kableExtra)
+library(here)
+#install.packages("emo")
+library(emo)
+options(scipen = 999)
+```
+
+```{r bib-setup, include=FALSE, cache=FALSE}
+BibOptions(check.entries = FALSE, bib.style = "authoryear", style = "markdown",
+           dashed = TRUE, max.names = 1)
+bib <- ReadBib(paste0(here(), "/bibliography/bibliography.bib"))
+```
+
+```{r sp_avail-function,include=FALSE}
+#defining the spatial availability function, this prints all the intermediates
+sp_avail_detailed <- function(x, o_id, d_id, pop, opp, r, f, alpha = 1){
+  
+  o_id <- rlang::enquo(o_id)
+  d_id <- rlang::enquo(d_id)
+  pop <- rlang::enquo(pop)
+  opp <- rlang::enquo(opp)
+  r <- rlang::enquo(r)
+  f <- rlang::enquo(f)
+  
+  sum_pop <- x %>%
+    dplyr::distinct(!!o_id,
+                    .keep_all = TRUE) %>%
+    dplyr::mutate(sum_pop = !!r*(!!pop)^alpha) %>%
+    dplyr::pull(sum_pop) %>%
+    sum()
+  
+  f_p <- dplyr::pull(x, !!r) * dplyr::pull(x, !!pop)^alpha / sum_pop
+  
+  sum_impedance <- x %>%
+    dplyr::group_by(!!d_id) %>%
+    dplyr::summarize(sum_impedance = sum(!!f))
+  
+  x <- x %>%
+    dplyr::left_join(sum_impedance,
+                     by = rlang::as_name(d_id))
+  
+  f_c <- dplyr::pull(x, !!f) / x$sum_impedance
+  
+  x$f_c <- f_c
+  x$f_p <- f_p
+  
+  sum_pa <- x %>%
+    dplyr::group_by(!!d_id) %>%
+    dplyr::summarize(sum_pa= sum(f_p * f_c))
+  
+  x <- x %>%
+    dplyr::left_join(sum_pa,
+                     by = rlang::as_name(d_id))
+  f_t <- (f_p * f_c) / dplyr::pull(x, sum_pa)
+  
+  x %>%
+    dplyr::mutate(V_ij = !!opp * !!f_t)
+}
+```
+
+class: center
+
+# Towards caring 15-minute neighbourhoods
+
+```{r, echo=FALSE, out.width='30%', fig.align='center'}
+knitr::include_graphics(here("figures/mobility-of-care.png"))
+```
+
+
+#### Anastasia Soukhov (McMaster University)
+#### Léa Ravensbergen (McMaster University), Lucía Mejía Dorantes (Karlsruhe, Germany), Antonio Páez (McMaster University)
+
+#### _7th TRB International Conference on Women and Gender in Transportation: 10 September, 2024_
+
+---
+
+### The 15-Minute City
+
+- a normative conceptualisation gaining ground in urban planning: reaching daily necessities/activities within 15\* minutes by walk, bike\*, and transit\*. `r Citep(bib, c("Allam2022","moreno_introducing_2021"))`
+
+- Practical challenges:
+  - Non-specific: 15-minutes? By which travel modes?
+  - **For whom? To what destination?**
+
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics(here("figures/15-m-city.jpg"))
+```
+_Shutterstock; Getty | Aerial views of Glasgow, Paris and Melbourne. Retrieved from Financial Times article "Welcome to the 15 Minute City" by N. Whittle in 2020_
+
+???
+
+Let's apply a gendered lens. The research objective: answering **For whom? To what destination?** with Mobility of Care
+
+---
+
+### The 15-Minute City and Mobility of Care
+
+- Mobility of Care is _also_ a normative conceptualisation; coined in `r Citep(bib, c("sanchezdemadariagaMobilityCareIntroducing2013"))`, emphasizes all travel needed to sustain yourself and the household, i.e., all non-paid work related travel. 
+
+- Mobility of Care trips are often: under 15 minutes, proximate to home, and more frequently conducted by non-car modes (than work trips). Pair well with the 15-Minute City conceptualisation
+
+- **Guiding research aim**: a method to identify what neighbourhoods are, are somewhat, and are not 15-minute _caring_ neighbourhoods
+
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics(here("figures/graphs-trips-by-purpose.webp"))
+```
+_image from `r Citep(bib, c("sanchezdemadariagaMeasuringMobilitiesofCare2019"))`_ 
+
+
+???
+
+Mobility of Care... concerns everyone But as it stands, concerns women most.
+
+- This type of travel has been traditionally understudied: 1) travel from home-to-work is often the focus of transportation planning, 2) travel surveys to inform this planning often obscure and other mobility of care travel. 
+
+
+---
+### Case study: Hamilton, Canada
+
+Research question: what neighbourhoods are, are somewhat, and are not 15-minute _caring_ neighbourhoods?
+
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics(here("figures/pop_descriptive_plot_onlypop.png"))
+```
+
+
+---
+### Case study: Hamilton, Canada
+
+Research question: what neighbourhoods are, are somewhat, and are not 15-minute _caring_ neighbourhoods?
+
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics(here("figures/care_categories_plot.png"))
+```
+
+---
+
+### Quantifying 15-minute caring neighbourhoods
+
+.pull-left[
+
+#### A) Spatial accessibility of care destinations
+
+How _many_ care destinations can be reached within a 15 minute walk? The _potential of opportunities for interaction_ `r Citep(bib, "hansenHowAccessibilityShapes1959")`.
+
+  - Dependent-centric care destinations
+  - Errand-centric care destinations
+  - Grocery-centric care destinations
+  - Health-centric care destinations
+
+$S_i = \sum_j O_j f(c_{ij})$
+
+] 
+
+.pull-right[
+
+#### B) The diversity of categories
+
+What is the _mix_ of care destination types within a 15 minute walk? The entropy measure:
+
+$D_{i} = \frac{-\sum_{c} S_i^{c} / \sum_{c}S^{c}_{i} \times ln(S_i^{c} / \sum_{c}S^{c}_{i} )}{ln(n_c)}$
+
+] 
+
+- $i$ is a set of parcel point origin locations; $j$ is a set of destination locations.
+- $O^_j$ is a number of opportunities at $j$.
+- $c_{ij}$ is the travel cost between $i$ and $j$.
+- $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value
+
+???
+
+---
+
+### Quantifying 15-minute caring neighbourhoods
+
+.pull-left[
+
+#### A) Spatial accessibility of care destinations
+
+```{r, echo=FALSE, out.width='90%',fig.align='center'}
+knitr::include_graphics(glue::glue(here::here(), "/figures/percats_copp_plot.png"))
+```
+
+] 
+
+.pull-right[
+
+#### B) The diversity of categories
+
+```{r, echo=FALSE, out.width='90%',fig.align='center'}
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.png"))
+```
+
+] 
+
+
+???
+
+### Typology and Profiles of 15-minute caring neighbourhoods: clustering via Self Organizing Maps
+
+- To combine the Spatial Accessibility measures and the Diversity measure, and to profile the neighbourhoods, SOM is implemented.
+
+- SOM is a pattern recognition method which reduces the dimensionality of the data into clusters without relying on any assumptions about the data structure. 
+
+The SOM procedure:
+1 ) five superclusters of the four $S_i^c$ scores and the diversity score $D_i$ are identified. The number of superclusters strike a balance between variance explained and supercluster interpretation in what we define as ranging from "not caring" to "very caring" and "not complete" to "complete". 
+
+2) The superclusters are profiled using a variety of socio-economic and demographic indicators that the mobility of care literature finds significant.
+
+---
+
+### Typologies of 15-minute caring neighbourhoods
+
+
+```{r, echo=FALSE, out.width='55%',fig.align='center'}
+knitr::include_graphics(glue::glue(here::here(), "/figures/SClabel_copp_plot.png"))
+```
+
+
+???
+
+very caring (mean 4 to 18.6; total p50 46) - very complete (div=0.9; p50 0.90) (Cluster 2)
+caring (mean 2.1 to 9; total p50 18) - complete (div=0.81; p50 0.82) (Cluster 1)
+somewhat caring (0.2 to 6; total p50 13) - complete (div=0.71; p50 0.74) (Cluster 4)
+somewhat caring (0.2 to 6; total p50 7) - not complete (div=0.36; p50 0.40) (Cluster 3)
+not caring (0 to 4.7; total p50 3) - not complete (div=0.02; p50 0) (Cluster 5)
+
+---
+
+### Profiles of 15-minute caring neighbourhoods typologies
+
+```{r, echo=FALSE, out.width='60%',fig.align='center'}
+knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles_renamed.png"))
+```
+
+- Lower income households tend to reside in $\color{Green}{\text{very completely caring}}$ or $\color{GreenYellow}{\text{completely caring}}$ neighbourhoods; 
+- Those with a `r emo::ji("up_arrow")` proportion of children tend to reside in $\color{orange}{\text{somewhat caring - not complete}}$ neighbourhoods;
+- Higher income households in DAs with a `r emo::ji("down_arrow")` of single-parent households tend to reside in $\color{red}{\text{not caring - not complete}}$ neighbourhoods.
+
+
+???
+
+All variables that are tested:  Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+ walk_towork+ Owner_hld_CHN+ Hld_ownership+ Tenant_subsi_hld+ Tenant_hld_CHH+ LICO
+
+
+Of a list of socio-economic variables, ones that characterise the 5 typologies the most are: 1) % in bottom half of the household income distribution, 2) children population (0 to 14) %, 3) single-parent household %, and 4) Low Income Cutoff (LICO) % 
+
+Who has resides in $\color{Green}{\text{very completely caring}$ or $\color{GreenYellow}{\text{completely caring}$ neighbourhoods?  (maybe people who cannot afford cars???)
+- DAs that have lower median household incomes and a smaller children population (lower than 24% of the population are children 14 and under).
+- and DAs which have especially high LICO are often in $\color{Green}{\text{very completely caring}$ neighbourhoods.
+
+Who more often resides in $\color{BurntOrange}{\text{somewhat caring - not complete}$ neighbourhoods?  
+- Of bottom income DAs, DAs with a high proportion of children population (higher than 24% of the population are children 14 and under).
+
+Who more often resides in $\color{BrickRed}{\text{not caring - not complete}$ neighbourhoods?  
+- DAs of higher income DAs and with lower proportion of single-parent households (13% or lower)
+
+---
+
+### Conclusions: classifying and profiling caring 15-minute neighbourhoods
+
+.pull-left[
+
+#### What we did:
+
+- 15 minute-city is bridged with "Mobility of Care": 15-minute caring neighbourhoods.
+- A data-driven pattern recognition method (Self-organizing maps) to create **15-minute caring neighbourhood** typologies using **accessibility** and **diversity** indicators is presented.
+- Using Self-Organizing Maps again; each parcel tagged with a neighbourhood typology was profiled based on all relevant census variables.
+]
+
+.pull-right[
+
+#### What we found and future considerations:
+
+- **Gentrification concerns**: populations residing in completely caring neighbourhoods are often lower-income and vice-versa.
+
+- **Concerning caring for children and children's self-care**: Lower-income DAs with a `r emo::ji("up_arrow")` proportion of children, and DAs with `r emo::ji("up_arrow")` proportion single-parent households have medium complete care access, why?
+
+]
+
+???

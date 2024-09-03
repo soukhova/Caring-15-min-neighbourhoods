@@ -136,13 +136,13 @@ DA_centroids <- HAM_census_21 |> st_centroid()
 ```{r reformat care-dest specific categories}
 care_dest <- care_dest |> 
   mutate(Care_Category_Specific = case_when(
-    Care_Category_Specific  == "Daycare_EarlyON" ~ "Daycare or EarlyON",
-    Care_Category_Specific == "Community_Centre" ~ "Community or Recreation Centre",
-    Care_Category_Specific == "Daycare_Centre" ~ "Daycare or EarlyON",
-    Care_Category_Specific == "Recreation_Centre" ~ "Community or Recreation Centre",
+    Care_Category_Specific  == "Daycare_EarlyON" ~ "Daycare | EarlyON",
+    Care_Category_Specific == "Community_Centre" ~ "Community | Rec. Centre",
+    Care_Category_Specific == "Daycare_Centre" ~ "Daycare | EarlyON",
+    Care_Category_Specific == "Recreation_Centre" ~ "Community | Rec. Centre",
     Care_Category_Specific == "School" ~ "School",
-    Care_Category_Specific == "Long-Term_Care_Home" ~ "Long-Term Care or Retirement Home",
-    Care_Category_Specific == "Retirement_Home" ~ "Long-Term Care or Retirement Home",
+    Care_Category_Specific == "Long-Term_Care_Home" ~ "LTC | Ret. Home",
+    Care_Category_Specific == "Retirement_Home" ~ "LTC | Ret. Home",
     Care_Category_Specific == "Senior_Centre" ~ "Senior Centre",
     Care_Category_Specific == "Seniors_Active_Living_Centre" ~ "Senior Centre",
     Care_Category_Specific == "Post_Office" ~ "Post Office",
@@ -220,7 +220,7 @@ test_all <- ttm_care_walk_15 |>
 
 access_15 <- access_15 |> left_join(test_all, by=c("from_id", "Care_Category", "Care_Category_Specific")) |> ungroup()
 rm(test_all)
-access_15$V_isc |> sum(na.rm = TRUE) #sums to 2206 opportunities -- out of 2225 total opportunities. some opportunities canot be reached wtihin 15 min walk! 
+access_15$V_isc |> sum(na.rm = TRUE) #sums to 2206 opportunities -- out of 2225 total opportunities. some opportunities cannot be reached within 15 min walk! 
 ```
 
 ```{r, eval=FALSE}
@@ -234,31 +234,31 @@ access_15_zeros <-
                                  "Health-centric", "Errand-centric",
                                  "Dependent-centric", "Health-centric"), length(R_PARCELS_CENTS_2020$ID)),
            
-           Care_Category_Specific = rep(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
-                                          "Long-Term Care or Retirement Home", "Senior Centre",
+           Care_Category_Specific = rep(c("Park", "Daycare | EarlyON", "Convenience Store", "School",
+                                          "LTC | Ret. Home", "Senior Centre",
                                           "Bank or ATM", "Library", 
                                           "Grocer", "Dentist", 
                                           "Pharmacy", "Post Office",
-                                          "Community or Recreation Centre", "Hospital or Clinic"), length(R_PARCELS_CENTS_2020$ID)),
-           copp_isc = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
-                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Community | Rec. Centre", "Hospital or Clinic"), length(R_PARCELS_CENTS_2020$ID)),
+           copp_isc = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare | EarlyON", "Convenience Store", "School",
+                                          "LTC | Ret. Home", "Senior Centre",
                                           "Bank or ATM", "Library", 
                                           "Grocer", "Dentist", 
                                           "Pharmacy", "Post Office",
-                                          "Community or Recreation Centre", "Hospital or Clinic"))),
-           copp_isc_w = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
-                                          "Long-Term Care or Retirement Home", "Senior Centre",
+                                          "Community | Rec. Centre", "Hospital or Clinic"))),
+           copp_isc_w = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare | EarlyON", "Convenience Store", "School",
+                                          "LTC | Ret. Home", "Senior Centre",
                                           "Bank or ATM", "Library", 
                                           "Grocer", "Dentist", 
                                           "Pharmacy", "Post Office",
-                                          "Community or Recreation Centre", "Hospital or Clinic"))),
+                                          "Community | Rec. Centre", "Hospital or Clinic"))),
            
-           V_isc = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare or EarlyON", "Convenience Store", "School",
-                                          "Long-Term Care or Retirement Home", "Senior Centre",
+           V_isc = rep(0, length(R_PARCELS_CENTS_2020$ID)*length(c("Park", "Daycare | EarlyON", "Convenience Store", "School",
+                                          "LTC | Ret. Home", "Senior Centre",
                                           "Bank or ATM", "Library", 
                                           "Grocer", "Dentist", 
                                           "Pharmacy", "Post Office",
-                                          "Community or Recreation Centre", "Hospital or Clinic")))) |>
+                                          "Community | Rec. Centre", "Hospital or Clinic")))) |>
   mutate(from_id = as.character(from_id))
 
 access_15_zeros <- left_join(access_15_zeros, R_PARCELS_CENTS_GeoUIDs_IDs, by=c("from_id" = "ID"))
@@ -351,7 +351,7 @@ access_15_bycategory_DA$V_ic |> sum(na.rm=T)
 access_15_byspecificcategory_DA$V_isc |> sum(na.rm=T)
 
 #RECALL, categories are either 
-# - "Dependent-centric" and include "Community or Recreation Centre", "Daycare or EarlyON", "Long-Term Care or Retirement Home", "Park", "School", "Senior Centre"
+# - "Dependent-centric" and include "Community | Rec. Centre", "Daycare | EarlyON", "LTC | Ret. Home", "Park", "School", "Senior Centre"
 # - "Errand-centric" and include: "Bank or ATM", "Library", "Post Office"
 # - "Grocery-centric" and include: "Convenience Store", "Grocer"
 # - "Health-centric" and include: "Dentist", "Hospital or Clinic", "Pharmacy"
@@ -563,12 +563,12 @@ care_categories_plot <-
   tm_facets("Care_Category", nrow = 2, free.scales= TRUE)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 20)) +
   tm_compass(position = c("left", "top"), size=0.9) +
-  tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5, legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 1, legend.bg.color = "white", legend.bg.alpha = 0.4,
             panel.labels = c("1,265 Dependent-centric destinations", 
                              "158 Errand-centric destinations", 
                              "381 Grocery-centric destinations", 
                              "421 Health-centric destinations"),
-            panel.label.size = 0.8) 
+            panel.label.size = 1.1) 
 
 tmap_save(care_categories_plot, 
           file= file.path(here("figures/care_categories_plot.png")),

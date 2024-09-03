@@ -253,9 +253,28 @@ poprate_DA_plot <-
   tm_compass(position = c("left", "top"), size=1.0)+
    tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 0.5,legend.title.size = 0.7,  legend.bg.color = "white", legend.bg.alpha = 0.4)
 
+
+pop_DA_plot_2 <-
+ tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(access_15_DA) +
+  tm_polygons("Population",
+              border.alpha = 0.2,
+              palette = "Greens", style = "quantile", n=4,
+              title = "Population",
+              legend.is.portrait = TRUE) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"))+
+   tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.bg.color = "white", legend.bg.alpha = 0.4)
+
 pop_descriptive_plots_1 <- tmap_arrange(parcels_DA_plot, pop_DA_plot, poprate_DA_plot, nrow=3)
 tmap_save(pop_descriptive_plots_1,
           file= file.path(here("figures/pop_descriptive_plots_1.png")) , asp = 1/0.6,
+          dpi=300)
+
+tmap_save(pop_DA_plot_2,
+          file= file.path(here("figures/pop_descriptive_plot_onlypop.png")),
           dpi=300)
 ```
 
@@ -739,10 +758,12 @@ SClabel_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(
   tm_polygons("max_label",
               border.alpha = 0.2,
               palette = c("#44ce1b","#bbdb44", "#f7e379", "#f2a134","#e51f1f"),
-              labels = (c("Very caring - very complete (SC2)","Caring - Complete (SC1)",
-              "Somewhat caring - complete (SC4)","Somewhat caring - somewhat complete (SC5)", 
-              "Somewhat caring - somewhat complete (SC3)")),
-              title = "Prevelant supercluster") +
+              labels = (c("Very caring - very complete",
+                          "Caring - Complete",
+              "Somewhat caring - complete",
+              "Somewhat caring - somewhat complete", 
+              "Somewhat caring - somewhat complete")),
+              title = "Neighbourhood typology") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
@@ -754,6 +775,10 @@ SCLab_and_total_copp_plot <- tmap_arrange(SClabel_copp_plot, total_copp_plot, nr
 
 tmap_save(SCLab_and_total_copp_plot, 
           file= file.path(here("figures/SCLab_and_total_copp_plot.png")),
+          dpi=300)
+
+tmap_save(SClabel_copp_plot, 
+          file= file.path(here("figures/SClabel_copp_plot.png")),
           dpi=300)
 ```
 
@@ -785,6 +810,16 @@ freq_sc <- ggplot(access_15_wide |>
   #theme(legend.position = "bottom")
 
 freq_sc
+
+#with new names and colours
+freq_sc_renamed <- ggplot(access_15_wide |> 
+         mutate(scluster = factor(scluster))) +
+  geom_bar(aes(x = "", 
+               group = scluster, 
+               fill = scluster)) +
+  scale_fill_manual(name = "Neighbourhood typologies",
+                    values = c("#44ce1b","#bbdb44", "#f7e379", "#f2a134","#e51f1f"),
+                    labels = c("Very caring - very complete","Caring - complete","Somewhat caring - not complete","Somewhat caring - complete","Not caring - not complete"))
 ```
 
 Extract the legend:
@@ -859,11 +894,12 @@ df <- access_15_wide |> left_join(access_15_aggregated, by = "from_id") |>
             Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)`,
             Population,
             Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`))
+
           
 # examining correlations
 cor(df |> select(-c("scluster")), use = "complete.obs")
 
-#Train a decision tree using the data:
+#Train a decision tree using the data (renamed!):
 classdemo.som <- rpart(data = df,
                       formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH+LICO),
                       weights = Population
@@ -888,17 +924,21 @@ party_plot <- ggparty(classdemo.sompar) +
   # # (default: terminal) node
   geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
                                         position = position_fill()),
-                               xlab(""),
-                               ylab(""),
+                               #xlab(""),
+                               #ylab(""),
                                theme_void(),
+                               scale_fill_manual(values = c("#bbdb44","#44ce1b",  "#f2a134", "#f7e379","#e51f1f")),
                                theme(axis.text = element_blank())))
-legd <- cowplot::get_legend(freq_sc)
+
+legd_renamed <- cowplot::get_legend(freq_sc_renamed)
+party_plot
 ```
 
-```{r}
+```{r, eval=FALSE}
 #plot and save
-png(file= file.path(here("figures/access_sc_profiles.png")),width= 2404, height= 1600, units="px",  res=300)
-plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
+# NOTE: edited this in paint.. be careful saving over
+png(file= file.path(here("figures/access_sc_profiles_renamed.png")),width= 2600, height= 1600, units="px",  res=300)
+plot_grid(party_plot, legd_renamed, nrow = 1, rel_widths = c(1, 0.3))
 dev.off()
 ```
 
