@@ -8,7 +8,7 @@ output:
     seal: false
     css: xaringan-themer.css
     nature:
-      slideNumberFormat: "%current% / 10" 
+      slideNumberFormat: "%current% / 11" 
       highlightStyle: github
       highlightLines: true
       ratio: '16:9'
@@ -208,7 +208,7 @@ $D_{i} = \frac{-\sum_{c} S_i^{c} / \sum_{c}S^{c}_{i} \times ln(S_i^{c} / \sum_{c
 ] 
 
 - $i$ is a set of parcel point origin locations; $j$ is a set of destination locations.
-- $O^_j$ is a number of opportunities at $j$.
+- $O_j$ is a number of opportunities at $j$.
 - $c_{ij}$ is the travel cost between $i$ and $j$.
 - $f(\cdot)$ is an impedance function of $c_{ij}$; within the cumulative opportunity approach, it is a binary function that takes the value of 1 if $c_{ij}$ is less than a selected value
 
@@ -254,8 +254,7 @@ The SOM procedure:
 
 ---
 
-### Typologies of 15-minute caring neighbourhoods
-
+### "Self Organinzing Maps" typologies: 15-min caring neighbourhoods 
 
 ```{r, echo=FALSE, out.width='55%',fig.align='center'}
 knitr::include_graphics(glue::glue(here::here(), "/figures/SClabel_copp_plot.png"))
@@ -278,7 +277,7 @@ not caring (0 to 4.7; total p50 3) - not complete (div=0.02; p50 0) (Cluster 5)
 knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles_renamed.png"))
 ```
 
-- Lower income households tend to reside in $\color{Green}{\text{very completely caring}}$ or $\color{GreenYellow}{\text{completely caring}}$ neighbourhoods; 
+- Lower income households tend to reside in $\color{Forestgreen}{\text{very completely caring}}$ or $\color{GreenYellow}{\text{completely caring}}$ neighbourhoods; 
 - Those with a `r emo::ji("up_arrow")` proportion of children tend to reside in $\color{orange}{\text{somewhat caring - not complete}}$ neighbourhoods;
 - Higher income households in DAs with a `r emo::ji("down_arrow")` of single-parent households tend to reside in $\color{red}{\text{not caring - not complete}}$ neighbourhoods.
 
@@ -290,37 +289,54 @@ All variables that are tested:  Income_bottom + Age_0to14 + One_parent_families 
 
 Of a list of socio-economic variables, ones that characterise the 5 typologies the most are: 1) % in bottom half of the household income distribution, 2) children population (0 to 14) %, 3) single-parent household %, and 4) Low Income Cutoff (LICO) % 
 
-Who has resides in $\color{Green}{\text{very completely caring}$ or $\color{GreenYellow}{\text{completely caring}$ neighbourhoods?  (maybe people who cannot afford cars???)
+Who has resides in $\color{Forestgreen}{\text{very completely caring}}$ or $\color{GreenYellow}{\text{completely caring}}$ neighbourhoods?  (maybe people who cannot afford cars???)
 - DAs that have lower median household incomes and a smaller children population (lower than 24% of the population are children 14 and under).
-- and DAs which have especially high LICO are often in $\color{Green}{\text{very completely caring}$ neighbourhoods.
+- and DAs which have especially high LICO are often in $\color{Forestgreen}{\text{very completely caring}}$ neighbourhoods.
 
-Who more often resides in $\color{BurntOrange}{\text{somewhat caring - not complete}$ neighbourhoods?  
+Who more often resides in $\color{BurntOrange}{\text{somewhat caring - not complete}}$ neighbourhoods?  
 - Of bottom income DAs, DAs with a high proportion of children population (higher than 24% of the population are children 14 and under).
 
-Who more often resides in $\color{BrickRed}{\text{not caring - not complete}$ neighbourhoods?  
+Who more often resides in $\color{BrickRed}{\text{not caring - not complete}}$ neighbourhoods?  
 - DAs of higher income DAs and with lower proportion of single-parent households (13% or lower)
 
 ---
 
-### Conclusions: classifying and profiling caring 15-minute neighbourhoods
+### Conclusions
 
 .pull-left[
 
-#### What we did:
+#### Implications of findings and future considerations:
 
-- 15 minute-city is bridged with "Mobility of Care": 15-minute caring neighbourhoods.
-- A data-driven pattern recognition method (Self-organizing maps) to create **15-minute caring neighbourhood** typologies using **accessibility** and **diversity** indicators is presented.
-- Using Self-Organizing Maps again; each parcel tagged with a neighbourhood typology was profiled based on all relevant census variables.
+- **Gentrification concerns**: populations residing in $\color{Forestgreen}{\text{very completely caring}}$  neighbourhoods are often lower-income and those in $\color{red}{\text{not caring - not complete}}$ neighbourhoods are better-off. 
+
+- **Potential to improve caring for children and children's self-maintenance**: 
+  - Why do lower-income DAs with a `r emo::ji("up_arrow")` proportion of children, and DAs with `r emo::ji("up_arrow")` proportion single-parent households have (medium) $\color{orange}{\text{somewhat caring - not complete}}$ access? 
+  - What barriers are they facing?
 ]
 
 .pull-right[
 
-#### What we found and future considerations:
+#### Recap:
 
-- **Gentrification concerns**: populations residing in completely caring neighbourhoods are often lower-income and vice-versa.
+- **15 minute-city** is bridged with **Mobility of Care**: 15-minute caring neighbourhoods.
+- A data-driven pattern recognition method (i.e., self-organizing maps) is used to create **15-minute caring neighbourhood typologies** using **accessibility** and **diversity** indicators.
+- Used Self-Organizing Maps again to **profile** these typologies based on relevant **census variables**.
+- Discussed implications: concerns about gentrification and mobility of care children's trips
 
-- **Concerning caring for children and children's self-care**: Lower-income DAs with a `r emo::ji("up_arrow")` proportion of children, and DAs with `r emo::ji("up_arrow")` proportion single-parent households have medium complete care access, why?
 
 ]
+
+---
+class: center, middle, inverse
+
+## Thank you for listening! `r emo::ji("smile")`
+
+### Any questions? Remarks?
+
+-
+
+#### Anastasia Soukhov, **soukhoa@mcmaster.ca** 
+#### Léa Ravensbergen, Lucía Mejía Dorantes, Antonio Páez
+
 
 ???
