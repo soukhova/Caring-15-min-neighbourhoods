@@ -803,6 +803,15 @@ dev.off()
 ## Maps
 OKAY! SO LET"S MAKE SOME VISUAL PLOTS:
 
+Not caring - not complete (C7)
+Somewhat caring - not complete (C4)
+Somewhat caring - complete (C5)
+Caring - somewhat complete (C3)
+Caring - very complete (C6)
+Very caring - complete (C2)
+Very caring - very complete (C1)
+
+
 ```{r}
 df_DA <- df |> left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by = "from_id") |> 
   group_by(GeoUID) |> 
@@ -825,8 +834,8 @@ df_DA <- df |> left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by =
                                max_label_val == SC2 ~ "b. Very caring - mostly complete (SC2)",
                                max_label_val == SC3 ~ "d. Somewhat caring - mostly complete (SC3)",
                                max_label_val == SC4 ~ "c. Very caring - mostly complete (SC4)",
-                               max_label_val == SC5 ~ "j. not caring - somewhat complete (SC5)",
-                               max_label_val == SC6 ~ "e. Somewhat caring - mostly complete (SC6)",
+                               max_label_val == SC5 ~ "j. Somewhat caring - somewhat complete (SC5)",
+                               max_label_val == SC6 ~ "e. Somewhat caring - not complete (SC6)",
                                max_label_val == SC7 ~ "f. not caring - not complete (SC7)"))
 
                     labels = c("Not caring - not complete (C2)",
