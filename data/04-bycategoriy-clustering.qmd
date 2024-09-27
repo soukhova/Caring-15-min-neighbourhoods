@@ -1,0 +1,1109 @@
+---
+title: "Clustering by category and plots"
+author: "Antonio Paez & Anastasia Soukhov"
+format: html
+---
+
+# Setting up table
+
+Lets begin by loading the packages used for this:
+```{r message = FALSE}
+library(AppliedPredictiveModeling) # Functions and Data Sets for 'Applied Predictive Modeling'
+library(caret) # Classification and Regression Training
+library(cowplot) # Streamlined Plot Theme and Plot Annotations for 'ggplot2'
+library(ggparty) # 'ggplot' Visualizations for the 'partykit' Package
+library(party) # A Laboratory for Recursive Partytioning
+library(plotly) # Create Interactive Web Graphics via 'plotly.js'
+library(rpart) # Recursive Partitioning and Regression Trees
+library(rpart.plot) # Plot 'rpart' Models: An Enhanced Version of 'plot.rpart'
+library(skimr) # Compact and Flexible Summaries of Data
+library(sf) # Simple Features for R
+library(SOMbrero) # SOM Bound to Realize Euclidean and Relational Outputs
+library(tidyverse) # Easily Install and Load the 'Tidyverse'
+library(tmap)
+library(here)
+library(parsnip)
+```
+
+Read od table and the census:
+```{r}
+load("access_15.rda")
+load("HAM_census_21.rda")
+```
+
+# Care Category superclusters
+
+Filter by Care Category: first dependent, then  errand, health, and grocery centric:
+
+
+## Dependent centric supercluster
+```{r}
+access_15_dep <- access_15 |>  filter(Care_Category == "Dependent-centric") |> 
+  left_join(HAM_census_21 |> select(c(GeoUID, Population)) |> # and dssociate with census data and drop parcels in DAs with 0 population:
+              st_drop_geometry(),
+            by = "GeoUID")
+
+access_15_dep <- access_15_dep |> filter(Population >= 0 | !is.na(Population))
+```
+
+Calculate total "Dependent" Specific Care Category opportunities by parcel, proportion, and normalized number of opportunities to min-max range:
+```{r}
+access_15_dep_total <- access_15_dep |>
+  group_by(from_id) |>
+  summarize(tot_copp_isc = sum(copp_isc),
+            .groups = "drop")
+
+#Join total opportunities to table:
+access_15_dep <- access_15_dep |>
+  left_join(access_15_dep_total,
+            by = "from_id")
+
+# proportion of opportunities by class (use a zero for the parcels that have accessibility zero):
+access_15_dep <- access_15_dep |>
+  mutate(prop_copp_isc = ifelse(tot_copp_isc > 0, copp_isc/tot_copp_isc, 0))  
+
+# Normalize number of opportunities to min-max range:
+max_tot <- max(access_15_dep$copp_isc)
+min_tot <- min(access_15_dep$copp_isc)
+
+max_tot_2 <- max(access_15_dep$tot_copp_isc) #max number of category opportunities reached (e.g., for dep, includes all parks, rec centres, schools etc. reached)
+min_tot_2 <- min(access_15_dep$tot_copp_isc)
+         
+access_15_dep <- access_15_dep |>
+  mutate(copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (copp_isc - min_tot)/(max_tot - min_tot),0),
+         tot_copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (tot_copp_isc - min_tot_2)/(max_tot_2 - min_tot_2),0))
+```
+
+Calculate diversity index:
+```{r}
+no_specific_care_categories <- access_15_dep$Care_Category_Specific |> unique() |> length()
+
+access_15_dep_div <- access_15_dep |>
+  group_by(from_id) |>
+  summarize(div_dep = -sum(prop_copp_isc * log(prop_copp_isc), na.rm = TRUE)/log(no_specific_care_categories),
+            .groups = "drop") #
+```
+
+Pivot od table wider so that each parcel has a column for the proportion of opportunities by each Specific Care Category:
+```{r}
+access_15_dep_prop_wide <- access_15_dep |>
+  select(from_id, Care_Category_Specific, prop_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "prop_copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("prop_",
+                            str_replace(.x, "-","_"))) 
+```
+
+Pivot od table wider so that each parcel has a column for the normalized number of opportunities by each Specific Care Category:
+```{r}
+access_15_dep_norm_wide <- access_15_dep |>
+  select(from_id, Care_Category_Specific, copp_isc_norm,tot_copp_isc_norm) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc_norm") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("norm_", str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the total number of opportunities by each Specific Care Category:
+```{r}
+access_15_dep_total_wide <- access_15_dep |>
+  select(from_id, Care_Category_Specific, copp_isc, tot_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("total_", str_replace(.x, "-","_")))
+```
+
+Join the tables:
+```{r}
+access_15_dep_wide <- access_15_dep_total_wide |>
+  left_join(access_15_dep_norm_wide,
+            by = "from_id") |>
+  left_join(access_15_dep_prop_wide,
+            by = "from_id") |>
+  left_join(access_15_dep_div,
+            by = "from_id") |>
+  rename("total_tot_copp_isc_dep" = "total_tot_copp_isc",
+         "norm_tot_copp_isc_norm_dep" = "norm_tot_copp_isc_norm")
+
+input.dep <- access_15_dep_wide |> ungroup() |> select(-c(from_id, 
+                                                          #starts_with("total_"), 
+                                                          total_Care_Category, norm_Care_Category, prop_Care_Category)) 
+  # Remove the non-normalized and proportional accessibility scores, as well as the Care Category character names. We are only clustering on the normalized accessibility scores (how many of this type of opportunity can you reach, normalized for the region) and the diversity (the evenness of type of opportunities that can be reached).
+
+#rm(access_15_dep, access_15_dep_div, access_15_dep_norm_wide, access_15_dep_prop_wide, access_15_dep_total, access_15_dep_total_wide, access_15_dep_wide)
+```
+
+Now let's repeat for the other three categories. 
+
+## Errand-centric
+
+```{r}
+access_15_err <- access_15 |>  filter(Care_Category == "Errand-centric") |> 
+  left_join(HAM_census_21 |> select(c(GeoUID, Population)) |> # and dssociate with census data and drop parcels in DAs with 0 population:
+              st_drop_geometry(),
+            by = "GeoUID")
+
+access_15_err <- access_15_err |> filter(Population >= 0 | !is.na(Population))
+```
+
+Calculate total err Specific Care Category opportunities by parcel, proportion, and normalized number of opportunities to min-max range:
+```{r}
+access_15_err_total <- access_15_err |>
+  group_by(from_id) |>
+  summarize(tot_copp_isc = sum(copp_isc),
+            .groups = "drop")
+
+#Join total opportunities to table:
+access_15_err <- access_15_err |>
+  left_join(access_15_err_total,
+            by = "from_id")
+
+# proportion of opportunities by class (use a zero for the parcels that have accessibility zero):
+access_15_err <- access_15_err |>
+  mutate(prop_copp_isc = ifelse(tot_copp_isc > 0, copp_isc/tot_copp_isc, 0))  
+
+# Normalize number of opportunities to min-max range:
+max_tot <- max(access_15_err$copp_isc)
+min_tot <- min(access_15_err$copp_isc)
+         
+max_tot_2 <- max(access_15_err$tot_copp_isc) #max number of category opportunities reached (e.g., for dep, includes all parks, rec centres, schools etc. reached)
+min_tot_2 <- min(access_15_err$tot_copp_isc)
+         
+access_15_err <- access_15_err |>
+  mutate(copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (copp_isc - min_tot)/(max_tot - min_tot),0),
+         tot_copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (tot_copp_isc - min_tot_2)/(max_tot_2 - min_tot_2),0))
+```
+
+Calculate diversity index:
+```{r}
+no_specific_care_categories <- access_15_err$Care_Category_Specific |> unique() |> length()
+
+access_15_err_div <- access_15_err |>
+  group_by(from_id) |>
+  summarize(div_err = -sum(prop_copp_isc * log(prop_copp_isc), na.rm = TRUE)/log(no_specific_care_categories),
+            .groups = "drop") #
+```
+
+Pivot od table wider so that each parcel has a column for the proportion of opportunities by each Specific Care Category:
+```{r}
+access_15_err_prop_wide <- access_15_err |>
+  select(from_id, Care_Category_Specific, prop_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "prop_copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("prop_",
+                            str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the normalized number of opportunities by each Specific Care Category:
+```{r}
+access_15_err_norm_wide <- access_15_err |>
+  select(from_id, Care_Category_Specific, copp_isc_norm, tot_copp_isc_norm) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc_norm") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("norm_", str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the total number of opportunities by each Specific Care Category:
+```{r}
+access_15_err_total_wide <- access_15_err |>
+  select(from_id, Care_Category_Specific, copp_isc, tot_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("total_", str_replace(.x, "-","_")))
+```
+
+Join the tables:
+```{r}
+access_15_err_wide <- access_15_err_total_wide |>
+  left_join(access_15_err_norm_wide,
+            by = "from_id") |>
+  left_join(access_15_err_prop_wide,
+            by = "from_id") |>
+  left_join(access_15_err_div,
+            by = "from_id")|>
+  rename("total_tot_copp_isc_err" = "total_tot_copp_isc",
+         "norm_tot_copp_isc_norm_err" = "norm_tot_copp_isc_norm")
+
+input.err <- access_15_err_wide |> ungroup() |> select(-c(from_id, 
+                                                          #starts_with("total_"), 
+                                                          total_Care_Category, norm_Care_Category, prop_Care_Category)) # Remove the non-normalized and proportional accessibility scores, as well as the Care Category character names. We are only clustering on the normalized accessibility scores (how many of this type of opportunity can you reach, normalized for the region) and the diversity (the evenness of type of opportunities that can be reached).
+
+#rm(access_15_err, access_15_err_div, access_15_err_norm_wide, access_15_err_prop_wide, access_15_err_total, access_15_err_total_wide, access_15_err_wide)
+```
+
+## Health-centric
+
+```{r}
+access_15_health <- access_15 |>  filter(Care_Category == "Health-centric") |> 
+  left_join(HAM_census_21 |> select(c(GeoUID, Population)) |> # and associate with census data and drop parcels in DAs with 0 population:
+              st_drop_geometry(),
+            by = "GeoUID")
+
+access_15_health <- access_15_health |> filter(Population >= 0 | !is.na(Population))
+```
+
+Calculate total health Specific Care Category opportunities by parcel, proportion, and normalized number of opportunities to min-max range:
+```{r}
+access_15_health_total <- access_15_health |>
+  group_by(from_id) |>
+  summarize(tot_copp_isc = sum(copp_isc),
+            .groups = "drop")
+
+#Join total opportunities to table:
+access_15_health <- access_15_health |>
+  left_join(access_15_health_total,
+            by = "from_id")
+
+# proportion of opportunities by class (use a zero for the parcels that have accessibility zero):
+access_15_health <- access_15_health |>
+  mutate(prop_copp_isc = ifelse(tot_copp_isc > 0, copp_isc/tot_copp_isc, 0))  
+
+# Normalize number of opportunities to min-max range:
+max_tot <- max(access_15_health$copp_isc)
+min_tot <- min(access_15_health$copp_isc)
+         
+max_tot_2 <- max(access_15_health$tot_copp_isc) #max number of category opportunities reached (e.g., for dep, includes all parks, rec centres, schools etc. reached)
+min_tot_2 <- min(access_15_health$tot_copp_isc)
+         
+access_15_health <- access_15_health |>
+  mutate(copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (copp_isc - min_tot)/(max_tot - min_tot),0),
+         tot_copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (tot_copp_isc - min_tot_2)/(max_tot_2 - min_tot_2),0))
+```
+
+Calculate diversity index:
+```{r}
+no_specific_care_categories <- access_15_health$Care_Category_Specific |> unique() |> length()
+
+access_15_health_div <- access_15_health |>
+  group_by(from_id) |>
+  summarize(div_health = -sum(prop_copp_isc * log(prop_copp_isc), na.rm = TRUE)/log(no_specific_care_categories),
+            .groups = "drop") #
+```
+
+Pivot od table wider so that each parcel has a column for the proportion of opportunities by each Specific Care Category:
+```{r}
+access_15_health_prop_wide <- access_15_health |>
+  select(from_id, Care_Category_Specific, prop_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "prop_copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("prop_",
+                            str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the normalized number of opportunities by each Specific Care Category:
+```{r}
+access_15_health_norm_wide <- access_15_health |>
+  select(from_id, Care_Category_Specific, copp_isc_norm, tot_copp_isc_norm) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc_norm") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("norm_", str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the total number of opportunities by each Specific Care Category:
+```{r}
+access_15_health_total_wide <- access_15_health |>
+  select(from_id, Care_Category_Specific, copp_isc, tot_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("total_", str_replace(.x, "-","_")))
+```
+
+Join the tables:
+```{r}
+access_15_health_wide <- access_15_health_total_wide |>
+  left_join(access_15_health_norm_wide,
+            by = "from_id") |>
+  left_join(access_15_health_prop_wide,
+            by = "from_id") |>
+  left_join(access_15_health_div,
+            by = "from_id") |>
+  rename("total_tot_copp_isc_health" = "total_tot_copp_isc",
+         "norm_tot_copp_isc_norm_health" = "norm_tot_copp_isc_norm")
+
+input.health <- access_15_health_wide |> ungroup() |> select(-c(from_id, 
+                                                                #starts_with("total_"), 
+                                                                total_Care_Category, norm_Care_Category, prop_Care_Category)) # Remove the non-normalized and proportional accessibility scores, as well as the Care Category character names. We are only clustering on the normalized accessibility scores (how many of this type of opportunity can you reach, normalized for the region) and the diversity (the evenness of type of opportunities that can be reached).
+
+#rm(access_15_health, access_15_health_div, access_15_health_norm_wide, access_15_health_prop_wide, access_15_health_total, access_15_health_total_wide, access_15_health_wide)
+```
+
+## Grocery-centric
+
+
+```{r}
+access_15_groc <- access_15 |>  filter(Care_Category == "Grocery-centric") |> 
+  left_join(HAM_census_21 |> select(c(GeoUID, Population)) |> # and associate with census data and drop parcels in DAs with 0 population:
+              st_drop_geometry(),
+            by = "GeoUID")
+
+access_15_groc <- access_15_groc |> filter(Population >= 0 | !is.na(Population))
+```
+
+Calculate total groc Specific Care Category opportunities by parcel, proportion, and normalized number of opportunities to min-max range:
+```{r}
+access_15_groc_total <- access_15_groc |>
+  group_by(from_id) |>
+  summarize(tot_copp_isc = sum(copp_isc),
+            .groups = "drop")
+
+#Join total opportunities to table:
+access_15_groc <- access_15_groc |>
+  left_join(access_15_groc_total,
+            by = "from_id")
+
+# proportion of opportunities by class (use a zero for the parcels that have accessibility zero):
+access_15_groc <- access_15_groc |>
+  mutate(prop_copp_isc = ifelse(tot_copp_isc > 0, copp_isc/tot_copp_isc, 0))  
+
+# Normalize number of opportunities to min-max range:
+max_tot <- max(access_15_groc$copp_isc)
+min_tot <- min(access_15_groc$copp_isc)
+         
+max_tot_2 <- max(access_15_groc$tot_copp_isc) #max number of category opportunities reached (e.g., for dep, includes all parks, rec centres, schools etc. reached)
+min_tot_2 <- min(access_15_groc$tot_copp_isc)
+         
+access_15_groc <- access_15_groc |>
+  mutate(copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (copp_isc - min_tot)/(max_tot - min_tot),0),
+         tot_copp_isc_norm = ifelse(tot_copp_isc != 0,
+                                (tot_copp_isc - min_tot_2)/(max_tot_2 - min_tot_2),0))
+```
+
+Calculate diversity index:
+```{r}
+no_specific_care_categories <- access_15_groc$Care_Category_Specific |> unique() |> length()
+
+access_15_groc_div <- access_15_groc |>
+  group_by(from_id) |>
+  summarize(div_groc = -sum(prop_copp_isc * log(prop_copp_isc), na.rm = TRUE)/log(no_specific_care_categories),
+            .groups = "drop") #
+```
+
+Pivot od table wider so that each parcel has a column for the proportion of opportunities by each Specific Care Category:
+```{r}
+access_15_groc_prop_wide <- access_15_groc |>
+  select(from_id, Care_Category_Specific, prop_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "prop_copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("prop_",
+                            str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the normalized number of opportunities by each Specific Care Category:
+```{r}
+access_15_groc_norm_wide <- access_15_groc |>
+  select(from_id, Care_Category_Specific, copp_isc_norm, tot_copp_isc_norm) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc_norm") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("norm_", str_replace(.x, "-","_")))
+```
+
+Pivot od table wider so that each parcel has a column for the total number of opportunities by each Specific Care Category:
+```{r}
+access_15_groc_total_wide <- access_15_groc |>
+  select(from_id, Care_Category_Specific, copp_isc, tot_copp_isc) |>
+  pivot_wider(names_from = "Care_Category_Specific", 
+              values_from = "copp_isc") |>
+  rename_with(-from_id, 
+              .fn = ~paste0("total_", str_replace(.x, "-","_")))
+```
+
+Join the tables:
+```{r}
+access_15_groc_wide <- access_15_groc_total_wide |>
+  left_join(access_15_groc_norm_wide,
+            by = "from_id") |>
+  left_join(access_15_groc_prop_wide,
+            by = "from_id") |>
+  left_join(access_15_groc_div,
+            by = "from_id") |>
+  rename("total_tot_copp_isc_groc" = "total_tot_copp_isc",
+         "norm_tot_copp_isc_norm_groc" = "norm_tot_copp_isc_norm")
+
+input.groc <- access_15_groc_wide |> ungroup() |> select(-c( #from_id, 
+  #starts_with("total_"), 
+  total_Care_Category, 
+  norm_Care_Category, prop_Care_Category)) # Remove the non-normalized and proportional accessibility scores, as well as the Care Category character names. We are only clustering on the normalized accessibility scores (how many of this type of opportunity can you reach, normalized for the region) and the diversity (the evenness of type of opportunities that can be reached).
+
+#rm(access_15_groc, access_15_groc_div, access_15_groc_norm_wide, access_15_groc_prop_wide, access_15_groc_total, access_15_groc_total_wide, access_15_groc_wide)
+```
+
+
+# Creating clusters (from parcels)
+
+Now let's create the input data! To be used for the clustering analysis.
+```{r}
+input.data <- cbind(input.dep,input.err,input.groc,input.health)
+
+input.data <- input.data |>
+  mutate(
+    prop_dep = ifelse(
+    (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health) > 0,
+    total_tot_copp_isc_dep / (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health), 0),
+    
+    prop_groc = ifelse(
+    (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health) > 0,
+    total_tot_copp_isc_groc / (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health), 0),
+    
+    prop_err = ifelse(
+    (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health) > 0,
+    total_tot_copp_isc_err / (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health), 0),
+    
+    prop_health = ifelse(
+    (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health) > 0,
+    total_tot_copp_isc_health / (total_tot_copp_isc_dep + total_tot_copp_isc_err + total_tot_copp_isc_groc + total_tot_copp_isc_health), 0),
+    
+    div_allcats = -(prop_dep*log(prop_dep) + prop_groc*log(prop_groc) +
+                     prop_err*log(prop_err) + prop_health*log(prop_health))/log(4),
+    div_allcats = ifelse(is.na(div_allcats) | is.nan(div_allcats), 0, div_allcats)
+    
+         )
+
+input.data <- input.data |> select(-c( from_id, 
+                                       starts_with("total_"), 
+                                       starts_with("prop_"), 
+                                       "div_err","div_groc","div_health","div_dep", 
+                                       "norm_tot_copp_isc_norm_dep", "norm_tot_copp_isc_norm_err", "norm_tot_copp_isc_norm_groc", "norm_tot_copp_isc_norm_health")) 
+```
+
+
+Given these normalized attributes, a SOM can be trained using the function `trainSOM` from `SOMbrero`. Only one argument is needed, the input data `x.data`. Other arguments can be assigned by default. In what follows the dimension of the map is given as 5-by-5, and I request that 100 intermediate steps be saved. 
+```{r}
+set.seed(2024)
+
+# run the SOM algorithm, saving 10 steps
+# access.som <- trainSOM(x.data = input.data,
+#                        nb.save=10, 
+#                        #maxit=2000, 
+#                        scaling="none", 
+#                        radius.type="letremy", 
+#                        topo="hexagonal",
+#                        dimension=c(43,43), #notably, I tested grid sizes larger then this -- https://stackoverflow.com/questions/19163214/kohonen-self-organizing-maps-determining-the-number-of-neurons-and-grid-size
+#                       verbose = TRUE)
+# 
+# 
+# plot(access.som, #make sure very few nodes have no observations
+#      what = "obs",
+#      type = "hitmap")
+# 
+# table(access.som$clustering) #make sure very few nodes have no observations
+# 
+# save(access.som, file = "access_som.RData")
+# # 43*43 = 1849
+# # 5*sqrt(143882) = 1896.589
+
+access.som_small <- trainSOM(x.data = input.data,
+                             #topo="hexagonal",
+                             #dimension=c(5,5),
+                             verbose = TRUE)
+```
+
+Plot super clusters and variance not explained:
+```{r, eval=FALSE}
+access.sc <- superClass(access.som_small,
+                        k = 7)
+# summary(access.sc)
+
+png(file= file.path(here("figures/all_access_sc_plot_small.png")), width= 2404, height= 1600, units="px", res=300)
+
+plot(access.sc, 
+     type= c("dendrogram"),
+     #col = c("#FC8D59","#D73027","#FFFFBF", "#FEE08B","#91CF60","#D9EF8B", "#1A9850"),
+     plot.var = TRUE,
+     show.names = TRUE,
+     main = " ",
+     ylab="Dissimilarity index",
+     xlab= " "
+     )
+dev.off()
+
+# Not caring - not complete (C2)
+# Somewhat caring - not complete (C1)
+# Somewhat caring - complete (C4)
+# Caring - somewhat complete (C3)
+# Caring - very complete (C6)
+# Very caring - complete (C5)
+# Very caring - very complete (C7)
+```
+```{r}
+#par(mfrow=c(3,2))
+plot(access.som_small, 
+     what = "obs", 
+     type = "color", 
+     variable = 14, 
+     show.names=TRUE, 
+     main="norm_Dependent_centric")
+plot(access.som_small, 
+     what = "obs", 
+     type = "color", 
+     variable = 17, 
+     show.names = TRUE, 
+     main = "norm_Errand_centric")
+# plot(access.som_small, 
+#      what = "obs", 
+#      type = "color", 
+#      variable = 3,
+#      show.names = TRUE, 
+#      main="norm_Grocery_centric")
+# plot(access.som_small, 
+#      what="obs", 
+#      type="color", 
+#      variable=4, 
+#      show.names = TRUE, 
+#      main="norm_Health_centric")
+# plot(access.som_small, 
+#      what="obs", 
+#      type="color",
+#      variable = 9, 
+#      show.names = TRUE, 
+#      main="Diversity")
+
+access.som_small$data |> colnames()
+```
+
+## Exploring results
+
+First append the results of the cluster and super cluster analysis to dataframe:
+```{r}
+access_15_wide <- cbind(
+  access_15_groc_wide |> ungroup() |> select(-c(starts_with("prop_"),
+                                                total_Care_Category, 
+                                                norm_Care_Category,
+                                                prop_Care_Category)),
+  access_15_dep_wide |> ungroup() |> select(-c(from_id,
+                                                starts_with("prop_"),
+                                                total_Care_Category, 
+                                                norm_Care_Category,
+                                                prop_Care_Category)),
+  access_15_health_wide |> ungroup() |> select(-c(from_id,
+                                                starts_with("prop_"),
+                                                total_Care_Category, 
+                                                norm_Care_Category,
+                                                prop_Care_Category)),
+  access_15_err_wide |> ungroup() |> select(-c(from_id,
+                                                starts_with("prop_"),
+                                                total_Care_Category, 
+                                                norm_Care_Category,
+                                                prop_Care_Category)),
+  data.frame(div_allcats = input.data$div_allcats))
+
+access_15_wide$cluster <- access.som_small$clustering
+access_15_wide$scluster <- access.sc$cluster[access.som_small$clustering]
+#save(access_15_wide, file = "access_15_wide.RData")
+```
+
+```{r}
+access_15_wide |> select(total_tot_copp_isc_groc,total_tot_copp_isc_dep,total_tot_copp_isc_health,total_tot_copp_isc_err,div_allcats) |> summary()
+access_15_wide |> group_by(scluster) |> summarise(total_tot_copp_isc_groc = median(total_tot_copp_isc_groc),
+                                                  total_tot_copp_isc_dep = median(total_tot_copp_isc_dep),
+                                                  total_tot_copp_isc_health = median(total_tot_copp_isc_health),
+                                                  total_tot_copp_isc_err = median(total_tot_copp_isc_err),
+                                                  div_allcats = median(div_allcats),
+                                                  pc = n()/143882)
+```
+
+
+How many parcels are in each cluster? with their %
+
+The low diversities - low accessibility
+C7 - the WORST - below Q3 in everything
+
+Mixed diversities - Higher accessibility for some stuff
+C4 - above median dependent-centric - but low diversity and low everything else (THESE AREAS HAVE POTENTIAL! the need more GROC, HEALTH, and ERRs) 
+C5 - like medium - about median everything with slightly lower HIGH diversity
+C3 - exceptionally high dependent-centric, and high everything else but low diversity
+
+High diversities and high accessibility
+C6 - medium - about median everything with the highest diversity
+C2 - better than medium - slightly above median everything with high diversity
+C1 - the best - above Q3 everything
+
+THE LABELS:
+Not caring - not complete (C7)
+Somewhat caring - not complete (C4)
+Somewhat caring - complete (C5)
+Caring - somewhat complete (C3)
+Caring - very complete (C6)
+Very caring - complete (C2)
+Very caring - very complete (C1)
+
+
+## Profiling the super clusters
+
+One possibility is to analyze the results of the SOM algorithm by means of a classification technique. This is illustrated here by means of a decision tree. A decision tree is a supervised learning technique, which in this case can use the results of the clustering algorithm as labels, and the input variables as features. If the clustering algorithm performed well, class membership must be relatively homogeneous.
+
+Select data for classification:
+```{r}
+df <- access_15_wide |> ungroup() |>
+  select(-c(cluster,
+            starts_with("prop"))) |>
+  rename(Convience = "total_Convenience Store",
+         Grocer ="total_Grocer",
+         Rec = "total_Community or Recreation Centre",
+         Daycare = "total_Daycare or EarlyON",
+         LTC = "total_Long_Term Care or Retirement Home",
+         Park = "total_Park",
+         School = "total_School",
+         Senior = "total_Senior Centre",
+         Dentist = "total_Dentist",
+         Hos_clinc = "total_Hospital or Clinic",
+         Pharmacy = "total_Pharmacy",
+         Bank_ATM = "total_Bank or ATM",
+         Library = "total_Library",
+         PostOff = "total_Post Office",
+         
+         norm_Convience = "norm_Convenience Store",
+         norm_Grocer ="norm_Grocer",
+         norm_Rec = "norm_Community or Recreation Centre",
+         norm_Daycare = "norm_Daycare or EarlyON",
+         norm_LTC = "norm_Long_Term Care or Retirement Home",
+         norm_Park = "norm_Park",
+         norm_School = "norm_School",
+         norm_Senior = "norm_Senior Centre",
+         norm_Dentist = "norm_Dentist",
+         norm_Hos_clinc = "norm_Hospital or Clinic",
+         norm_Pharmacy = "norm_Pharmacy",
+         norm_Bank_ATM = "norm_Bank or ATM",
+         norm_Library = "norm_Library",
+         norm_PostOff = "norm_Post Office") |>
+  mutate(scluster = factor(scluster),
+         div_groc = round(div_groc, digits = 3),
+         div_dep = round(div_dep, digits = 3),
+         div_health = round(div_health, digits = 3),
+         div_err = round(div_err, digits = 3),
+         div_allcats = round(div_allcats, digits = 3))
+
+df <- df |> 
+  mutate(Total_copp_groc = Convience +Grocer,
+         Total_copp_dep = Rec + Daycare + LTC + Park + School + Senior,
+         Total_copp_health = Hos_clinc+Dentist,
+         Total_copp_err = PostOff +Library+Bank_ATM + Pharmacy)
+```
+
+Train a decision tree using the input SOM input variables:
+```{r}
+# classmod.som <- rpart(data = df,
+#                       formula = scluster ~ (Convience + Grocer + div_groc +
+#                                               Rec + Daycare + LTC + Park + School + Senior + div_dep +
+#                                               Dentist + Hos_clinc + div_health +
+#                                               PostOff +Library+Bank_ATM + Pharmacy + div_err))
+classmod.som <- rpart(data = df,
+                      formula = scluster ~ (norm_tot_copp_isc_norm_groc + norm_Convience + norm_Grocer + #div_allcats +
+                                              norm_tot_copp_isc_norm_dep + norm_Rec + norm_Daycare + norm_LTC + norm_Park + norm_School + norm_Senior + #div_dep +
+                                              norm_tot_copp_isc_norm_health + norm_Pharmacy + norm_Dentist + norm_Hos_clinc + #div_health +
+                                              norm_tot_copp_isc_norm_err + norm_PostOff + norm_Library+ norm_Bank_ATM + div_allcats#+ div_err
+                                            ))
+
+# Predict the labels and add them to the dataset
+predicted_labels <- predict(classmod.som, df) |> as.data.frame()
+
+df$SC1 <- predicted_labels$`1`
+df$SC2 <- predicted_labels$`2`
+df$SC3 <- predicted_labels$`3`
+df$SC4 <- predicted_labels$`4`
+df$SC5 <- predicted_labels$`5`
+df$SC6 <- predicted_labels$`6`
+df$SC7 <- predicted_labels$`7`
+# df$SC8 <- predicted_labels$`8`
+# df$SC9 <- predicted_labels$`9`
+
+
+```
+
+Trying ggparty to visualise, but first convert the rpart object to a party object:
+```{r}
+classmod.sompar <- as.party(classmod.som)
+
+#Autoplot as ggplot:
+autoplot(classmod.sompar)
+```
+
+
+Frequency of parcels in the super clusters:
+```{r}
+freq_sc <- ggplot(access_15_wide |> 
+         mutate(scluster = factor(scluster))) +
+  geom_bar(aes(x = "", 
+               group = scluster, 
+               fill = scluster)) +
+  scale_fill_discrete(name = "Supercluster") #+
+  #theme_void() +
+  #guides(fill = guide_legend(nrow = 1)) +
+  #theme(legend.position = "bottom")
+
+#with new names and colours
+freq_sc_renamed <- ggplot(access_15_wide |> 
+         mutate(scluster = factor(scluster))) +
+  geom_bar(aes(x = "", 
+               group = scluster, 
+               fill = scluster)) +
+  scale_fill_manual(name = "Neighbourhood typologies",
+                    values = c( "#1A9850","#91CF60", "#D9EF8B", "#FFFFBF","#FEE08B","#FC8D59","#D73027"),
+                    labels = c("Not caring - not complete (C2)",
+                               "Somewhat caring - not complete (C1)",
+                               "Somewhat caring - complete (C4)",
+                               "Caring - somewhat complete (C3)",
+                               "Caring - very complete (C6)",
+                               "Very caring - complete (C5)",
+                               "Very caring - very complete (C7)"))
+
+```
+
+Extract the legend:
+```{r}
+legd <- cowplot::get_legend(freq_sc)
+
+legd
+```
+
+Make a prettier plot:
+```{r}
+party_plot <- ggparty(classmod.sompar) +
+  geom_edge() +
+  geom_edge_label(size = 1.6) +
+  geom_node_label(aes(label = splitvar),
+                  id = "inner", 
+                  size = 2, nudge_y = -0.022) +
+  # pass list to gglist containing all ggplot components we want to plot for each
+  # (default: terminal) node
+  geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
+                                        position = position_fill()),
+                               xlab(""),
+                               ylab(""),
+                               theme_void()
+                               #theme(axis.text = element_blank())
+                               ))
+party_plot
+```
+
+Plot the tree:
+```{r}
+png(file= file.path(here("figures/decision_tree_profiles_sc.png")),width= 2404, height= 1600, units="px",  res=300)
+plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
+dev.off()
+```
+
+
+## Maps
+OKAY! SO LET"S MAKE SOME VISUAL PLOTS:
+
+```{r}
+df_DA <- df |> left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by = "from_id") |> 
+  group_by(GeoUID) |> 
+  summarise(
+    SC1 = median(SC1),
+    SC2 = median(SC2),
+    SC3 = median(SC3),
+    SC4 = median(SC4),
+    SC5 = median(SC5),
+    SC6 = median(SC6),
+    SC7 = median(SC7),
+    parcel_count = n_distinct(from_id),
+    max_label_val = pmax(SC1, SC2, SC3, SC4, SC5, SC6, SC7),
+    div_allcats = median(div_allcats),
+    Total_copp_groc = median(Total_copp_groc),
+    Total_copp_dep = median(Total_copp_dep),
+    Total_copp_health = median(Total_copp_health),
+    Total_copp_err = median(Total_copp_err)) |>
+  mutate(max_label = case_when(max_label_val == SC1 ~ "a. Very caring - very complete (SC1)",
+                               max_label_val == SC2 ~ "b. Very caring - mostly complete (SC2)",
+                               max_label_val == SC3 ~ "d. Somewhat caring - mostly complete (SC3)",
+                               max_label_val == SC4 ~ "c. Very caring - mostly complete (SC4)",
+                               max_label_val == SC5 ~ "j. not caring - somewhat complete (SC5)",
+                               max_label_val == SC6 ~ "e. Somewhat caring - mostly complete (SC6)",
+                               max_label_val == SC7 ~ "f. not caring - not complete (SC7)"))
+
+                    labels = c("Not caring - not complete (C2)",
+                               "Somewhat caring - not complete (C1)",
+                               "Somewhat caring - complete (C4)",
+                               "Caring - somewhat complete (C3)",
+                               "Caring - very complete (C6)",
+                               "Very caring - complete (C5)",
+                               "Very caring - very complete (C7)"))
+
+
+df_DA <- df_DA |> left_join(HAM_census_21, by=c("GeoUID")) |>
+  rename( 
+    LICO =`v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
+            Income_bottom_n = `v_CA21_1103: In bottom half of the distribution`,
+            Income_top_n =`v_CA21_1121: In top half of the distribution`,
+            Age_0to14_n = `v_CA21_11: 0 to 14 years`,
+            Age_15to64_n = `v_CA21_68: 15 to 64 years`,   
+            Age_65plus_n = `v_CA21_251: 65 years and over`,
+            One_parent_families_n = `v_CA21_507: Total one-parent families`,
+            Couple_families_n = `v_CA21_500: Total couple families`) |>
+  mutate(Populationparcel = Population/parcel_count,
+         Income_bottom = Income_bottom_n / (Income_bottom_n + Income_top_n),
+         Age_0to14 = Age_0to14_n / (Age_0to14_n + Age_15to64_n + Age_65plus_n),
+         One_parent_families = One_parent_families_n / (One_parent_families_n + Couple_families_n)) |>
+  st_as_sf() |> st_make_valid()
+
+
+df_DA$parcel_count |> sum() #a check
+```
+Loading boundaries for mapping:
+```{r}
+Community_Boundaries <- st_read("data-raw/boundaries/Community_Boundaries.shp") |> mutate(COMMUNITY_ = ifelse(COMMUNITY_ == "Hamilton", "Hamilton-Central", COMMUNITY_))|> st_transform(crs=4326)
+City_Boundary <- st_read("data-raw/boundaries/City_Boundary.shp") |> st_transform(crs=4326)
+hydro_p_LakeOntario <- st_read("data-raw/boundaries/hydro_p_LakeOntario.shp") |> st_transform(crs=4326)
+ham_bay <- st_read("data-raw/boundaries/Waterbodies.shp") |> st_transform(crs=4326) |> filter(FEATURE_TY == "Lake")
+ham_bay_cropped<-st_crop(ham_bay$geometry, Community_Boundaries$geometry)
+hydro_p_LakeOntario_cropped<-st_crop(hydro_p_LakeOntario$geometry, Community_Boundaries$geometry)
+```
+
+```{r, eval=FALSE}
+dep_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(Community_Boundaries) + tm_polygons(col= "white", border.alpha=0)+
+  tm_shape(df_DA |> filter(Total_copp_dep >0)) +
+  tm_polygons("Total_copp_dep",
+              border.alpha = 0,
+              n=10,
+              palette = "Oranges",
+              title = "Dependent-\ncentric") +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4, 
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+health_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+    tm_shape(Community_Boundaries) + tm_polygons(col= "white", border.alpha=0)+
+  tm_shape(df_DA|> filter(Total_copp_health >0)) +
+  tm_polygons("Total_copp_health",
+              border.alpha = 0,
+              n=10,
+              palette = "Purples",
+              title = "Health-\ncentric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+groc_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+    tm_shape(Community_Boundaries) + tm_polygons(col= "white", border.alpha=0)+
+  tm_shape(df_DA|> filter(Total_copp_groc >0)) +
+  tm_polygons("Total_copp_groc",
+              border.alpha = 0,
+              n=10,
+              palette = "Greens",
+              title = "Grocery-\ncentric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+err_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+    tm_shape(Community_Boundaries) + tm_polygons(col= "white", border.alpha=0)+
+  tm_shape(df_DA|> filter(Total_copp_err >0)) +
+  tm_polygons("Total_copp_err",
+              border.alpha = 0,
+              n=10,
+              palette = "Reds",
+              title = "Errand-\ncentric",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+percats_copp_plot <- tmap_arrange(dep_copp_plot, err_copp_plot, groc_copp_plot, health_copp_plot, nrow=2)
+
+tmap_save(percats_copp_plot, 
+          file= file.path(here("figures/percats_copp_plot.png")),
+          dpi=300)
+```
+
+
+```{r, eval=FALSE}
+all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+      tm_shape(Community_Boundaries) + tm_polygons(col= "white", border.alpha=0)+
+  tm_shape(df_DA) +
+  tm_polygons("div_allcats",
+              border.alpha = 0.1,
+              n=10, 
+              #label = c("[0 to 0.49) Not complete", "[0.49 to 0.85) Complete", "[0.85 to 1] Very complete"),
+              palette = "Greys",
+              title = "Diversity") +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
+    tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+tmap_save(all_cats_entropy_copp_plot, file= file.path(here("figures/all_cats_entropy_copp_plot.png")), dpi=300)
+```
+
+```{r, eval=FALSE}
+total_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(df_DA) +
+  tm_polygons("Total_copp_groc",
+              border.alpha = 0.2,
+              #style = "quantile", n=4,
+              palette = "Purples",
+              title = "Total access to care destinations",) +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+
+total_copp_plot
+```
+
+```{r, eval=FALSE}
+SClabel_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
+  tm_shape(df_DA) +
+  tm_polygons("max_label",
+              border.alpha = 0.2,
+              # palette = c("#44ce1b","#bbdb44", "#f7e379", "#f2a134","#e51f1f"),
+              # labels = (c("Very caring - very complete",
+              #             "Caring - Complete",
+              # "Somewhat caring - complete",
+              # "Somewhat caring - somewhat complete", 
+              # "Somewhat caring - somewhat complete")),
+              title = "Neighbourhood typology") +
+  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
+  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+            bg.color = "grey",
+            legend.position = c("right","top"))
+SClabel_copp_plot
+
+SCLab_and_total_copp_plot <- tmap_arrange(SClabel_copp_plot, total_copp_plot, nrow=2)
+```
+
+
+```{r, eval=FALSE}
+SCLab_and_total_copp_plot
+```
+
+
+```{r, eval=FALSE}
+tmap_save(SCLab_and_total_copp_plot, 
+          file= file.path(here("figures/SCLab_and_total_copp_plot.png")),
+          dpi=300)
+
+tmap_save(SClabel_copp_plot, 
+          file= file.path(here("figures/SClabel_copp_plot.png")),
+          dpi=300)
+```
+
+
+
+## Demographic profile of clusters
+
+Select data for classification:
+```{r}      
+
+df <- access_15_wide |> left_join(access_15_aggregated, by = "from_id") |> 
+  transmute(scluster = factor(scluster),
+            Income_bottom = `v_CA21_1103: In bottom half of the distribution`/(`v_CA21_1103: In bottom half of the distribution` + `v_CA21_1121: In top half of the distribution`),
+            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
+            Avg_numb_of_kids = `v_CA21_498: Average number of children in census families with children`,
+            Not_in_labforce = `v_CA21_6504: Not in the labour force`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income`,
+            Vis_minority = `v_CA21_4875: Total visible minority population`/ (`v_CA21_4914: Not a visible minority`+ `v_CA21_4875: Total visible minority population`),
+            Age_0to14 =(`v_CA21_11: 0 to 14 years`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`),
+            One_parent_families = `v_CA21_507: Total one-parent families` / (`v_CA21_507: Total one-parent families` + `v_CA21_500: Total couple families`),
+            walk_towork =  `v_CA21_7647: Walked` / (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            Owner_hld_CHN = `v_CA21_4308: % in core housing need (57)`,
+            Hld_ownership = `v_CA21_4306: % of owner households with a mortgage (58)`,
+            Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)`,
+            Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)`,
+            Population,
+            Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`))
+
+          
+# examining correlations
+cor(df |> select(-c("scluster")), use = "complete.obs")
+
+#Train a decision tree using the data (renamed!):
+classdemo.som <- rpart(data = df,
+                      formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH+LICO),
+                      weights = Population
+                      )
+# # Visualize the decision tree:
+# rpart.plot(classdemo.som, cex = 0.5, type = 0, varlen = 8)
+```
+
+```{r}
+# convert the rpart object to a party object:
+classdemo.sompar <- as.party(classdemo.som)
+
+#Make a prettier plot:
+party_plot <- ggparty(classdemo.sompar) +
+  geom_edge() +
+  #geom_edge_label(size = 1.8) +
+  geom_edge_label(mapping = aes(label = paste(substr(breaks_label, start = 1, stop = 15))), size = 3.5) +
+  geom_node_splitvar(id = "inner", size = 4) +
+  #geom_edge_label(mapping = aes(label = prettyNum(breaks_label, digits = 1)), size = 1.8) +
+
+  # # pass list to gglist containing all ggplot components we want to plot for each
+  # # (default: terminal) node
+  geom_node_plot(gglist = list(geom_bar(aes(x = "", fill = scluster),
+                                        position = position_fill()),
+                               #xlab(""),
+                               #ylab(""),
+                               theme_void(),
+                               scale_fill_manual(values = c("#bbdb44","#44ce1b",  "#f2a134", "#f7e379","#e51f1f")),
+                               theme(axis.text = element_blank())))
+
+legd_renamed <- cowplot::get_legend(freq_sc_renamed)
+party_plot
+```
+
+```{r, eval=FALSE}
+#plot and save
+# NOTE: edited this in paint.. be careful saving over
+png(file= file.path(here("figures/access_sc_profiles_renamed.png")),width= 2600, height= 1600, units="px",  res=300)
+plot_grid(party_plot, legd_renamed, nrow = 1, rel_widths = c(1, 0.3))
+dev.off()
+```
+
+This is interesting! So for parcels with less than 45% of bottom-income people (richer) -- parcels with higher proportion of 1 parent households (13% and above) are more likely to have bad care/incomplete access (c3) than _really_ bad care/very incomplete access (c5). 
+
+For parcels with higher than 45% of bottom-income (poorer), those with high a high proportion of children (age 0 to 14) are likely to have bad care/incomplete acces (c3). But those with a lower proportion of children - especially 9.8% LICO and above are going to have _super high_ care/complete (c1) or under 9.8% LICO will have _high_ care/complete (c2)
+For less than 63%, it's a different story. If between 45% and 63%, they are described by cluster 1 (caring and complete). 
+

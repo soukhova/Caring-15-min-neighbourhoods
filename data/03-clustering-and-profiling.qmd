@@ -98,6 +98,7 @@ access_15_aggregated |>
 ```
 
 Normalize number of opportunities to min-max range:
+*MAYBE FIX THIS?? See 04*
 ```{r}
 access_15_aggregated <- access_15_aggregated |>
   mutate(copp_isc_norm = ifelse(tot_copp_isc != 0, (copp_isc - min(tot_copp_isc))/(max(tot_copp_isc) - min(tot_copp_isc)), 0))
