@@ -96,11 +96,14 @@ library(sf)
 library(tmap)
 library(tmaptools)
 library(gt)
+#install.packages("gtExtras")
+library(gtExtras)
 ```
 
 ```{r}
 load(glue::glue(here::here(), "/data/care_dest.rda"))
 load(glue::glue(here::here(), "/data/access_15_wide.RData"))
+load(glue::glue(here::here(), "/data/df_DA.RData"))
 ```
 
 ```{r reformat care-dest specific categories}
@@ -137,31 +140,178 @@ care_dest <- care_dest |> rename("care_ID" = "ID") |> mutate(care_ID = as.charac
 # care_dest|> st_drop_geometry() |> group_by(Care_Category) |> summarise(count = n())
 ```
 
+
+```{r creating boxplot, eval=FALSE}
+summary_boxplots <- access_15_wide |> select(c(scluster, starts_with("norm_"), div_allcats)) |>
+  mutate(scluster = case_when(scluster == 1 ~ "A+",
+                              scluster == 2 ~ "A",
+                              scluster == 3 ~ "A-",
+                              scluster == 4 ~ "B-",
+                              scluster == 5 ~ "B",
+                              scluster == 6 ~ "B+",
+                              scluster == 7 ~ "D"),
+         scluster = factor(scluster, ordered = TRUE,
+                           levels = c("A+", "A", "A-","B+","B","B-","D")))
+
+# summary_boxplots_Aplus <- summary_boxplots |> filter(scluster == "A+") |> select(-c("scluster"))
+# summary_boxplots_A <- summary_boxplots |> filter(scluster == "A") |> select(-c("scluster"))
+# summary_boxplots_Aminus <- summary_boxplots |> filter(scluster == "A-") |> select(-c("scluster"))
+# summary_boxplots_Bplus <- summary_boxplots |> filter(scluster == "B+") |> select(-c("scluster"))
+# summary_boxplots_B <- summary_boxplots |> filter(scluster == "B") |> select(-c("scluster"))
+# summary_boxplots_Bminus <- summary_boxplots |> filter(scluster == "B-") |> select(-c("scluster"))
+# summary_boxplots_D <- summary_boxplots |> filter(scluster == "D") |> select(-c("scluster"))
+
+summary_boxplots_tidy <- summary_boxplots |>
+  select(c("scluster","div_allcats",
+           "norm_tot_copp_isc_norm_dep", "norm_tot_copp_isc_norm_err",
+           "norm_tot_copp_isc_norm_groc", "norm_tot_copp_isc_norm_health")) |>
+  rename("1"="div_allcats",
+         "4"="norm_tot_copp_isc_norm_dep", 
+         "2"="norm_tot_copp_isc_norm_err",
+         "5"="norm_tot_copp_isc_norm_groc", 
+         "3"="norm_tot_copp_isc_norm_health") |>
+  pivot_longer(!scluster, names_to="variables", values_to = "normalized")
+```
+
+```{r, eval=FALSE}
+box_plot <- ggplot(summary_boxplots_tidy, 
+       aes(x=variables, y=normalized, fill=scluster)) +
+  geom_boxplot(outlier.shape = NA,
+               linewidth = 0.1) +
+  scale_fill_manual(values=c("A+" = "#1A9850",
+                               "A" = "#91CF60", 
+                               "A-" = "#D9EF8B", 
+                               "B+" = "#FEE08B",
+                               "B" = "#FDAE61",
+                               "B-" = "#F46D43",
+                               "D" = "#D73027"),
+                    name = " ") +
+    scale_x_discrete(labels = c("1" = "Category Totals",
+                                "2" = "ERRAND TOTALS",
+                                "3" = "HEALTH TOTALS",
+                                "4" = "DEPENDENT TOTALS",
+                                "5" = "GROCERY TOTALS")) +
+  coord_flip()+
+  theme_bw() +
+  theme(axis.title.y=element_blank()) +
+  ylab("Min-max normalized values") 
+box_plot
+ggsave(file= file.path(here("figures/box-plot.png")))
+```
+
+```{r creating-table2-pt1}
+summary_df_ALL <- access_15_wide |> select(c(starts_with("total_"), div_allcats)) |>
+  group_by() |>
+  summarise(across(everything(), list(mean = mean, sd = sd))) %>%
+ mutate_if(is.numeric, round, digits =1) |>
+  mutate_all(as.character)
+summary_df_ALL <- cbind(data.frame(scluster = "TOTAL"),summary_df_ALL)
+
+summary_df <- access_15_wide |> select(c(scluster, starts_with("total_"), div_allcats)) |>
+  mutate(scluster = case_when(scluster == 1 ~ "A+",
+                              scluster == 2 ~ "A",
+                              scluster == 3 ~ "A-",
+                              scluster == 4 ~ "B-",
+                              scluster == 5 ~ "B",
+                              scluster == 6 ~ "B+",
+                              scluster == 7 ~ "D")) |>
+  group_by(scluster) |>
+  summarise(across(everything(), list(mean = mean, sd = sd))) %>%
+ mutate_if(is.numeric, round, digits =1) |>
+  mutate_all(as.character)
+
+merge_every_two_columns <- function(df, num_rows) {
+  # Loop through every second column starting from column 2
+  for (col in seq(2, ncol(df), by = 2)) {
+    if (col < ncol(df)) {  # Ensure the column has a next one to merge with
+      for (i in 1:num_rows) {
+        df[i, col] <- paste0(df[i, col], " (", df[i, col + 1], ")")
+      }
+    }
+  }
+  return(df)
+}
+
+summary_df <- merge_every_two_columns(summary_df, 7) |>  select(-contains("sd"))
+summary_df_ALL <- merge_every_two_columns(summary_df_ALL, 1)  |>  select(-contains("sd"))
+summary_df <- rbind(summary_df, summary_df_ALL)
+
+summary_df <- summary_df |>
+  pivot_longer(!scluster) |>
+  pivot_wider(names_from =scluster )
+
+summary_df_ALL <- summary_df_ALL |>
+  pivot_longer(!scluster) |>
+  pivot_wider(names_from =scluster )
+
+
+summary_df$name <- c("GROCERY TOTALS", "Convenience Store", "Grocer",
+                     "DEPENDENT TOTALS", "Community or Rec. centre", "Daycare or EarlyON","LTC or retirment home","Park","School","Senior centre",
+                     "HEALTH TOTALS","Dentist","Hospital or clinic","Pharmacy",
+                     "ERRAND TOTALS","Bank or ATM","Library", "Post office",
+                     "Category diversity")
+
+summary_df <- summary_df[,c(1,3,2,4,6,5,7,8,9)]
+```
+
+
+```{r, echo=FALSE}
+df_DA_nogeom <- df_DA |> st_drop_geometry()
+df_DA_nogeom <- df_DA_nogeom[,30:81]
+
+df_DA_nogeom <- df_DA_nogeom |> mutate(
+  Income = `v_CA21_907: Median after-tax income of household in 2020 ($)`,
+  Avg_numb_of_kids = `v_CA21_498: Average number of children in census families with children`,
+  Not_in_labforce = `v_CA21_6504: Not in the labour force`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Unemployed = (`v_CA21_6501: Unemployed`)/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income` ,
+            Vis_minority = `v_CA21_4875: Total visible minority population`/ (`v_CA21_4914: Not a visible minority`+ `v_CA21_4875: Total visible minority population`),
+            walk_towork =  `v_CA21_7647: Walked`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            bike_towork =  `v_CA21_7650: Bicycle` / (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            pt_towork = `v_CA21_7644: Public transit`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            car_towork =  `v_CA21_7635: Car, truck or van`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            Owner_hld_CHN = `v_CA21_4308: % in core housing need (57)` ,
+            Hld_ownership = `v_CA21_4306: % of owner households with a mortgage (58)` ,
+            Hld_sheltercosts = `v_CA21_4307: % of owner households spending 30% or more of its income on shelter costs (55)` ,
+            Tenant_sheltercosts = `v_CA21_4315: % of tenant households spending 30% or more of its income on shelter costs (55)` ,
+            Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)` ,
+            Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)` ,
+            Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`))
+```
+```{r, echo=FALSE}
+cors_df_DA_nogeom <- cor(df_DA_nogeom, use = "complete.obs") |> as.data.frame()
+#cors_df_DA_nogeom[cors_df_DA_nogeom <0.7 | cors_df_DA_nogeom == 1] <- ""
+
+One_parent_family_inspect <- cors_df_DA_nogeom |> select(One_parent_families)
+LICO_inspect <- cors_df_DA_nogeom |> select(LICO)
+Income_inspect <- cors_df_DA_nogeom |> select(Income)
+```
  
 # Abstract 
 
-The "15-Minute Neighbourhood" concept has been adopted by leaders around the world as a way to promote human-scale cities. The concept emphasizes a transport and land-use mix that supports short-trips to daily necessities by foot or bicycle from ones' residence. This study adopts the 15-minute neighbourhood concept through the lens of "Mobility of Care", a framework that foregrounds travel to care destinations, travel done predominately by women, in contrast to the better-studied travel to employment and leisure. While the 15-minute neighbourhood concept is flexible enough to consider all destination types, gendered examinations are relatively lacking in the literature and no research to date has focused explicitly on care destinations. In this study, we address these gaps by identifying which areas in Hamilton, Canada have the potential to be ‘caring 15-minute neighbourhoods'. To do so, a database of care destinations was compiled and used to estimate both the number (cumulative opportunities indicator) and diversity of mix (entropy measure) of destinations reachable within a 15-minute walk from all residential parcels. Parcel-level results were classified into 'caring' (quantity of reachable opportunities) and 'complete' (diversity of care destinations) neighbourhood typologies of varying degrees using machine learning techniques (Self-Organizing Maps (SOM) and hierarchical clustering). Inequalities in the relationship between the identified caring typologies and social-economic indicators of who currently reside in the neighbourhoods were then explored. Our results suggest the majority of 'caring and complete' neighbourhoods are within the urban core where a higher proportion of lower-income and single-parent households reside. Further, certain neighbourhoods in suburban and rural communities are 'caring and somewhat complete', showing the potential to become 'complete' through possible urban policy intervention. Taken together, this study offers a theoretical bridge to connect Mobility of Care and the 15-minute neighbourhoods concept, a data-driven classification and clustering methodology to assess neighbourhoods on a 'caring and complete' continuum, and discussion of relevant gender mainstreaming policy interventions.
+The "15-Minute Neighbourhood" concept has been adopted by leaders around the world as a way to promote human-scale cities. The concept emphasizes a transport and land-use mix that supports short-trips to daily necessities by foot or bicycle from ones' residence. This study adopts the 15-minute neighbourhood concept through the lens of "Mobility of Care", a framework that foregrounds travel to care destinations, travel done predominately by women, in contrast to the better-studied travel to employment and leisure. While the 15-minute neighbourhood concept is flexible enough to consider all destination types, gendered examinations are relatively lacking in the literature and no research to date has focused explicitly on care destinations. In this study, we address these gaps by identifying which areas in Hamilton, Canada have the potential to be ‘caring 15-minute neighbourhoods'. To do so, a database of care destinations was compiled and used to estimate both the number (cumulative opportunities indicator) and diversity of mix (entropy measure) of destinations reachable within a 15-minute walk from all residential parcels. Parcel-level results were classified into 'caring' (quantity of reachable opportunities) and 'complete' (diversity of care destinations) neighbourhood typologies of varying degrees using machine learning techniques (Self-Organizing Maps (SOM) and hierarchical clustering). Inequalities in the relationship between the identified caring typologies and social-economic indicators of who currently reside in the neighbourhoods were then explored. Our results suggest the majority of 'caring and complete' neighbourhoods are within the urban core where a higher proportion of lower-income households reside. Contrawise, neighbourhoods that are 'not caring and not complete' are located in peripheral regions that tend to have higher household incomes. Further, certain neighbourhoods in suburban and rural communities are 'caring and somewhat complete', showing the potential to become 'complete' through possible urban policy intervention. Implications of neighbourhoods that have a high potential to be improved, and socio-demographic characteristics associated with income such as single-parent households and economic poverty are discussed. Taken together, this study offers a theoretical bridge to connect Mobility of Care and the 15-minute neighbourhoods concept, a data-driven classification and clustering methodology to assess neighbourhoods on a 'caring and complete' continuum, and discussion of implications relevant to gender mainstreaming within transportation planning.
 
 Keywords: Accessibility; 15-Minute Neighborhoods; Chrono-Urbanism; Cities of Proximity; Mobility of Care; Inequality; Gender Gap;
 
 # Introduction
 
-The "15-Minute City" has been recently adopted by leaders as a way to promote human-scaled cities [@teixeiraClassifying15minuteCities2024; @teixeiraClassifying15minuteCities2024]. As introduced in @moreno_introducing_2021, the 15-Minute City is a urban planning model based in chrono-urbanism, a theory that emphasizes the positive impact on quality of urban life when urban space becomes multi-rythmic, in opposition to the segregation of urban time and space for individual uses and mobility [@mulicekUrbanRhythmsChronotopic2015; @morenoVilleQuartHeure2016]. It is in opposition to the forces that supported the formation of single-use neighbourhoods such as industrial Fordism and single-use zoning [@mulicekUrbanRhythmsChronotopic2015; @morenoVilleQuartHeure2016]. The "15-Minute City" is a utopic ideal, it is a city where one that accommodates the ability for all to reach important destinations within a walkable, bikeable or transit supportive radius. This form of neighbourhood planning would allow individuals to reclaim time spent on car mobility, giving way to sustainable modes and prompting urban spaces that are responsive to human needs and environmental sensibilities [@Allam2022]. 
+The "15-Minute City" has been recently adopted by leaders as a way to promote human-scaled cities [@teixeiraClassifying15minuteCities2024]. As introduced in @moreno_introducing_2021, the 15-Minute City is a urban planning model based in chrono-urbanism, a theory that emphasizes the positive impact on quality of urban life when urban space becomes multi-rythmic, in opposition to the segregation of urban time and space for individual uses and mobility [@mulicekUrbanRhythmsChronotopic2015; @morenoVilleQuartHeure2016]. It is in opposition to the forces that supported the formation of single-use neighbourhoods such as industrial Fordism and single-use zoning [@mulicekUrbanRhythmsChronotopic2015; @morenoVilleQuartHeure2016]. The "15-Minute City" refers to a city where relevant destinations within a walkable (or bikeable or transit supportive) radius are reachable by all. This form of neighbourhood planning would allow individuals to reclaim time spent on car mobility, giving way to sustainable modes and prompting urban spaces that are responsive to human needs and environmental sensibilities [@Allam2022]. 
 
-Though the term 15-Minute City is relatively new, neighbourhood planning practice aiming to foster community and local travel to amenities is not. As recent examples, planned neighbourhoods dominated post-WWII built urban form: the Neighbourhood Unit Concept in the western world [@brodyNeighbourhoodUnitConcept2013] and a parallel concept of the “mikrorayons” neighbourhoods in the Soviet Union  [@kissfazekasCircleParadigms15minute2022]. These planning forms have also been extensively critiqued: as summarized in @talenSocialSciencePlanned2017, urban planners struggled to determine suitably universal design aspects such as neighborhood size, the type and quality of amenities, and local and regional connectivity. Social scientists also emphasized that top-down neighbourhood planning approaches overestimated the built environment's influence on social life [@talenSocialSciencePlanned2017]. Neighbourhood planning approaches such as the 15-Minute City concept are being re-embraced by some, but from bottom-up perspective. How to equitably prescribe urban form that 'enables' contact with social opportunities (instead of 'engendering it' from the top-down) is still under debate. For instance, questions such as _what_ are destinations that matter, by what mode and travel time threshold, and _for whom_ remain under discussion among proximity-based planners who frequently use accessibility-based tools [@silvaProximitycentredAccessibilityConceptual2023; @silvaRegionalAccessibilityUndermining2022; @guzmanProximityEnoughCritical2024].
+Though the term 15-Minute City is relatively new, neighbourhood planning practice aiming to foster community and local travel to amenities is not. As recent examples, planned neighbourhoods dominated post-WWII built urban form: the Neighbourhood Unit Concept in the western world [@brodyNeighbourhoodUnitConcept2013] and a parallel concept of the “mikrorayons” neighbourhoods in the Soviet Union  [@kissfazekasCircleParadigms15minute2022]. Along different dimensions, these planning forms have been extensively critiqued [@talenSocialSciencePlanned2017]. In this respect, neighbourhood planning approaches such as the 15-Minute City concept are being re-embraced by some, but from bottom-up perspective using co-creation tools and meaningful resident participation to achieve equitable and justice neighbourhood forms [@mahmoudCocreationPathwayUrban2021]. How to equitably prescribe urban form that 'enables' contact with social opportunities (instead of 'engendering it' from the top-down) is still under debate. For instance, questions such as _what_ are destinations that matter, by what mode and travel time threshold, and _for whom_ remain under discussion among proximity-based planners who frequently use accessibility-based tools [@silvaProximitycentredAccessibilityConceptual2023; @silvaRegionalAccessibilityUndermining2022; @guzmanProximityEnoughCritical2024].
+
+From another perspective, feminist geographers, urban planners and other research groups agree that urban structure influences travel, but city planning fails short when planning for a neutral identity. In contrast, cities ought to be planned according to the multiple identities of the inhabitants [@vacchelli_towards_2018; @urbandevelopmentviennaGenderMainstreamingUrban2013]. Researchers have demonstrated how mobility patterns differ according to gender [@lawWomenTransportNew1999; @cresswell_gendered_2008; @levy2013travel; @little_gender_1994; @tronto_toward_1990]. Gender and social norms and cultural factors play a role in how, where, with whom, what for, and how far we move. Women have higher activities related to care [@ilo_care_2018], no matter at what life stage they are [@garciaromanGenderDifferencesTime2022]. For all these reasons the spatial organization of activities has a different impact according to gender, the 15-Minute City concept cannot be gender blind.  
 
 To clarify questions surrounding the 15-Minute City concept of what destinations matter and for whom, this work builds a theoretical bridge to "Mobility of Care". The Mobility of Care term was coined in @sanchezdemadariagaMobilityCareIntroducing2013; it refers to all travel required to sustain the needs of a household, such as grocery shopping, escorting children, travelling to health appointments, and running errands.  While decades of research have examined types of household-serving trips (e.g., shopping trips, escorting to school), @sanchezdemadariagaMobilityCareIntroducing2013 was the first to consider them all as one category. In doing so, Mobility of Care is shown to be a significant proportion of daily travel, characterizing the trip purpose of approximately 30% of adults’ trips [@sanchezdemadariagaMobilityCareIntroducing2013; @sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory]. We argue Mobility of Care is especially relevant to the 15-Minute City, as care trips are necessary for _all_ people and they most often occur at the local level. Moreover, care trips take on tremendous gendered and socio-economic importance, as women, and especially those from lower income households, complete the majority of care trips [@ravensbergen2023exploratory]. Despite care travel's importance in advancing gender equality and equity broadly, the examination of mobility of care and access to care destinations have been under-examined relative to employment destinations. This is especially pertinent in accessibility research that has largely focused on employment points of interest e.g., [@farberOntarioLineSocioeconomic2019; @duarteInfluenceJobAccessibility2023; @ryanAccessibilitySpaceTime2023].
 
-The objectives of this research are two-fold. First, we aim to theoretically bridge Mobility of Care with the 15-Minute City concept to to re-imagine what local amenities matter and define an associated accessibility and diversity of accessibility measure. Second, taking a bottom-up data-driven approach, we apply a classification and clustering machine learning methodologies to support the bottom-up identification of _15-minute caring neighbourhoods_  through an empirical examination of the mid-cited city of Hamilton, Canada. These neighbourhoods are then interpreted on the continuum of having (and not having) the region-relative land-use and transportation infrastructure to support _completely caring_ access. Who currently resides in which neighbourhood is examined, and ways to further expand the care accessibility story are discussed.
+The objectives of this research are two-fold. First, we aim to theoretically bridge Mobility of Care with the 15-Minute City concept to to re-imagine what local amenities matter and define an associated accessibility and diversity of accessibility measure. Second, taking a bottom-up data-driven approach, we apply a classification and clustering machine learning methodologies to support the bottom-up identification of _15-minute caring neighbourhoods_ through an empirical examination of the mid-cited city of Hamilton, Canada. These neighbourhoods are then interpreted on the continuum of having (and not having) the region-relative land-use and transportation infrastructure to support _completely caring_ access. Who currently resides in which neighbourhood is examined, and ways to further expand the care accessibility story are discussed.
 
 # Review of neighbourhood planning literature
 
 ## From the 15-Minute City to the NUC
 
-In the last decades, the need for more sustainable, healthier, and liveable cities have received signficant attention. Planners and decision-makers have proposed alternatives to mobility-based neighbourhood planning principles to ones that center proximity to urban functions [@pozoukidou15MinuteCityDecomposing2021]. In this context, the 15-Minute City is now in the public spotlight [@logan_xminute_2022; @moreno_introducing_2021]. In @moreno_introducing_2021 where the 15-Minute City concept was introduced, four universal dimensions are outlined: density (in terms of people per km$^2$), diversity (including mixed-land use and diversity of people), the temporal and spatial proximity to essential services, <!-- (residential areas, work, commercial areas, education centres, health facilities and other basic institutions)--> and digitalisation. However, the framework presented has been criticized within academic and planning circles [@guzmanProximityEnoughCritical2024]. Critiques highlight the concept falls short in addressing the  pre-existing structural forces and individual characteristics that drive inequalities, influencing who benefits or could benefit the most from such a paradigm [@dimarino15minuteCityConcept2023; @willberg15minuteCityAll2023]. A 15-Minute City for all people is an aspirational ideal, but how will existing mobility and accessibility inequalities be addressed. Without directed and context-specific solutions, this increasingly popular concept risks becoming a place-branding slogan [@pozoukidou15MinuteCityDecomposing2021].
+In the last decades, the need for more sustainable, healthier, and livable cities have received significant attention. Planners and decision-makers have proposed alternatives to mobility-based neighbourhood planning principles to ones that center proximity to urban functions [@pozoukidou15MinuteCityDecomposing2021]. In this context, the 15-Minute City is now in the public spotlight [@logan_xminute_2022; @moreno_introducing_2021]. In @moreno_introducing_2021 where the 15-Minute City concept was introduced, four universal dimensions are outlined: density (in terms of people per km$^2$), diversity (including mixed-land use and diversity of people), the temporal and spatial proximity to essential services, <!-- (residential areas, work, commercial areas, education centres, health facilities and other basic institutions)--> and digitalisation. However, the framework presented has been criticized within academic and planning circles [@guzmanProximityEnoughCritical2024]. Critiques highlight the concept falls short in addressing the  pre-existing structural forces and individual characteristics that drive inequalities, influencing who benefits or could benefit the most from such a paradigm [@dimarino15minuteCityConcept2023; @willberg15minuteCityAll2023]. A 15-Minute City for all people is an aspirational ideal, but how will existing mobility and accessibility inequalities be addressed. Without directed and context-specific solutions, this increasingly popular concept risks becoming a place-branding slogan [@pozoukidou15MinuteCityDecomposing2021].
 
-`r word_comment("Lucia, do I correctly reflect the plans you reviewed?", " ")`
-Reflecting the flexible and aspirational presentation of the 15-Minute City; cities that have adopted the concept have done so using a diverse range of definitions and tools along with indistinct universal approaches. An early adopter was Portland, US in the Portland Plan [@city_of_portland_20minute_2010] of April 2012. It aims to foster an inclusive city development based on prosperity, education, health, and equity over a 30 year horizon. It promotes neighbourhood self-sufficiency and connectivity to city centers and centres of employment. The progress report describes a high-level focus on equitable service delivery to all residents with equity concerning topics related to racial equity and people with disabilities [@portland_government_portland_2017], similarly taking on an "all populations" approach. Later, other cities also incorporated proximity-based goals into their plans, adopting similar neutral entity approaches. For instance, in the plan that later catapulted the 15-Minute City into public discourse: Paris mayor Anne Hidalgo proposed a 15-minute city plan in her 2020 re-election campaign that foregrounded six social functions that should be easily accessible from any location, namely: housing, work, health care, groceries, education and leisure [@ville_de_paris_paris_2022]. These ideas inspired language in the agendas of other cities in the Western world such as Ottawa, in the Canadian context, who also adopted a 15-Minutes approach in their recent Official Plan [@ville_dottawa_quartier_2021]. From the review of worldwide practice literature in @teixeiraClassifying15minuteCities2024, the 15-Minute City concept is in early phases of implementation around the world and the diverse range of definitions, strategies, and instruments present a significant knowledge and implementation gap: the 15-Minute City is aspirational but _how do we get there and whom will benefit_?
+Reflecting the flexible and aspirational presentation of the 15-Minute City; cities that have adopted the concept have done so using a diverse range of definitions and tools along with indistinct universal approaches. A trail blazer was Portland, US in the Portland Plan [@city_of_portland_20minute_2010] of April 2012. Adopted before the '15-Minute City' concept of today, it aims to foster an inclusive city development based on prosperity, education, health, and equity over a 30 year horizon. The plan aims to promote neighbourhood self-sufficiency and connectivity to city centers and centres of employment. The progress report describes a high-level focus on equitable service delivery to all residents with equity concerning topics related to racial equity and people with disabilities [@portland_government_portland_2017], similarly taking on an "all populations" approach. Later, other cities also incorporated proximity-based goals into their plans, adopting similar neutral entity approaches. For instance, in the plan that later catapulted the 15-Minute City into public discourse: Paris mayor Anne Hidalgo proposed a 15-minute city plan in her 2020 re-election campaign that foregrounded six social functions that should be easily accessible from any location, namely: housing, work, health care, groceries, education and leisure [@ville_de_paris_paris_2022]. These ideas inspired language in the agendas of other cities in the Western world such as Ottawa, in the Canadian context, who also adopted a 15-Minutes approach in their recent Official Plan [@ville_dottawa_quartier_2021]. From the review of worldwide practice literature in @teixeiraClassifying15minuteCities2024, the 15-Minute City concept is in early phases of implementation around the world and the diverse range of definitions, strategies, and instruments present a significant knowledge and implementation gap: the 15-Minute City is aspirational but _how do we get there and whom will benefit_?
 
 The past can shed light on cautionary tales. While the 15-Minute City concept is new, neighbourhood planning to improve society outcomes is not: in fact the literature has drawn parallels from the 15-Minute City to Clarence A. Perry's Neighbourhood Unit Concept (NUC) from the 1930s [@kissfazekasCircleParadigms15minute2022]. The NUC is a socio-spatial normative scheme widely adopted by government agencies (and the real-estate community) in the Western world after the Second World War [@talenSocialSciencePlanned2017; @solow1969concept]. Pairing well with the objectives of planning agencies at the time, Perry's NUC would allow for efficient mass-building of cellular units that prioritized the perceived functional needs of women and children: each unit providing proximate access to an elementary school and supporting community facilities, shopping, parks and housing [@talenSocialSciencePlanned2017; @brodyNeighbourhoodUnitConcept2013]. The NUC primarily prioritized local service provision, though Perry had confidence in good design's contribution to 'neighbourhood spirit' [@hall2014cities]. From the NUC's conception until the end of the 1960s, planners' aspirational attempts to prescribe social meaning to the neighbourhood's physical form had been criticized to near extinction [@talenSocialSciencePlanned2017]. By social scientists, the overestimation on the impact of built environment on social life was critiqued. By other planners, the inability to agree on the specificity of the neighbourhood (i.e., population size and the type, quality, and quantity of amenity) as well as how neighbourhood units are connected to other neighbourhoods and the rest of the region.  In response to these criticisms, neighbourhood planning proponents redefined deterministic terminology; their prescriptive physical form will 'enable' social contact with opportunities rather than 'engendering' it. 
 
@@ -174,27 +324,27 @@ In examining how to enable improved quality of life through urban built environm
 Another method which compliments the assessment of the 15-Minute City as it relates to the diversity of opportunity types, is entropy. The entropy measure has been widely used to characterise the diversity of land-use mix in early work by @frankLinkingObjectivelyMeasured2005 based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence [see review in @whittaker1972evolution]. It has also been used in social sciences to comprehend the occurrence of social events in a structured manner specially with regard to life trajectories [@ritschardSequenceAnalysisRelated2018]. In the realm of urban studies and planning literature, the malleable concept of entropy has been used to characterise the diversity in land-use mix [@ewingTravelBuiltEnvironment2010a], especially in the context of active modes [@luUrbanDensityDiversity2017; @mavoaIdentifyingAppropriateLanduse2018] and suburban sprawl [@randallGISBasedLand2015]. As well, it has been used to understand mobility behaviour [@mcbride2020exploration; @montero2023applying; @montero2023role]. Work that has used diversity indices alongside accessibility analysis are scarce, though examples of its use as parameters within accessibility scores in the case of employment opportunities [@chengMeasuringUrbanJob2013; @daiIncorporatingJobDiversity2018] and more recently to describe the diversity in transit facilities [@yinIncorporatingFacilityDiversity2024] are present. To the authors knowledge, the use of an entropy measure to reflect the diversity in care destination amenity types and in context within a 15-minute neighbourhood, has yet to be done. However, entropy measures theoretically compliment the 15-Minute City concept. 
 
 `r word_comment("I am only vaguely familar with this literature as of these months - how does this sound?", " ")`
-In addition, classification algorithms have been useful tools in the identification of mobility and spatial typologies in relation to transportation planning. Machine learning approaches have often been deployed. For instance, @burkeGeospatialAnalysisFramework2022 uses spatially constrained multivariate clustering, a regionalisation technique, to develop urban form typologies related to the 15-Minute City. The k-means algorithm is another popular method; @ganUnderstandingUrbanMobility2020 applies it to analyse travel behaviour and classify metro stations based on mobility patterns. Combing classification techniques is also common; for instance, @delmelleDifferentiatingPathwaysNeighborhood2017 uses self-organizing maps (SOM) algorithm to group US neighbourhoods by minimising dissimilarity in attributes before applying k-means for further classification. Similarly, @victorianoTimeSpaceMoney2020 uses SOM to classify individuals' travel patterns according to the dissimilarity in mobility attributes and uses the decision tree algorithm to partition the data into interpretable classifications.  
+In addition, classification algorithms have been useful tools in the identification of mobility and spatial typologies in relation to transportation planning. Machine learning approaches have often been deployed. For instance, @burkeGeospatialAnalysisFramework2022 uses spatially constrained multivariate clustering, a regionalisation technique, to develop urban form typologies related to the 15-Minute City. The k-means algorithm is another popular method; @ganUnderstandingUrbanMobility2020 applies it to analyse travel behaviour and classify metro stations based on mobility patterns. Similarly, [@montero2023role; @montero2023applying] cluster travel behavior profile typologies representing different population segments and place of residence in Barcelona Metropolitan Area. Combing classification techniques is also common; for instance, @delmelleDifferentiatingPathwaysNeighborhood2017 uses self-organizing maps (SOM) algorithm to group US neighbourhoods by minimizing dissimilarity in attributes before applying k-means for further classification. Similarly, @victorianoTimeSpaceMoney2020 uses SOM to classify individuals' travel patterns according to the dissimilarity in mobility attributes and uses the decision tree algorithm to partition the data into interpretable classifications.  
 
 All-in-all, within the context of examining the 15-Minute City, a variety of tools have been applied in the literature. However, the question of _15-minute cities for whom_ sill demands further examination. This work aims to bridge the concept of the 15-Minute City with another normative framework: Mobility of Care.
 
 ## Mobility of Care and feminist 15-minute neighbourhoods
 
-Rather than focusing on _all_ destinations, it may valuable to examine those related to caring activities. This re-framing offers a feminist perspective on  _what_ urban functions matter, connecting well with the 15-Minute City concept. Caring activities, which meet the physical, psychological, and emotional needs of others, are among the most essential and fundamental activities in society [@ilo_care_2018]. Yet, they are the most unequal, undervalued, and even devalued activities worldwide. Conventionally, caring activities have been borne on women’s shoulders [@haydenGrandDomesticRevolution1982; @hochschild_second_2012]. According to @ilo_care_2018, women and girls perform more than three-quarters of the total amount of unpaid care, a gender gap that varies geographically [@RN5]. This unequal share of caring responsibilities leads to multifaceted gendered differences: in career development, profession selection, contract type, pay gap, and time poverty, as recognized by various international organisations [@EIGE2016; @ilo_care_2018]. In terms of spatial and transportation planning, almost one third of daily trips are for care purposes [@sanchezdemadariagaMobilityCareIntroducing2013; @sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory]. From this research motivation, Sánchez de Madariaga coined the term Mobility of Care in 2013 to refer to all travel required to sustain the needs of a household, such as grocery shopping, escorting children, travelling to health appointments, and running errands [@sanchezdemadariagaMobilityCareIntroducing2013]. While an undercurrent of research had examined these unique household-serving trips over the decades, her seminal work was the first to consider all these trips as one category and demonstrate how mobility of care is a significant proportion of daily travel. 
+Rather than focusing on _all_ destinations, it may valuable to examine those related to caring activities. This re-framing offers a feminist perspective on  _what_ urban functions matter, connecting well with the 15-Minute City concept. Caring activities, which meet the physical, psychological, and emotional needs of others, are among the most essential and fundamental activities in society [@ilo_care_2018]. Yet, they are the most unequal, undervalued, and even devalued activities worldwide. Conventionally, caring activities have been borne on women’s shoulders [@haydenGrandDomesticRevolution1982; @hochschild_second_2012]. According to @ilo_care_2018, women and girls perform more than three-quarters of the total amount of unpaid care worldwide, a gender gap that varies geographically [@RN5]. This unequal share of caring responsibilities leads to multifaceted gendered differences: in career development, profession selection, contract type, pay gap, and time poverty, as recognized by various international organisations [@EIGE2016; @ilo_care_2018]. In terms of spatial and transportation planning, almost one third of daily trips are for care purposes [@sanchezdemadariagaMobilityCareIntroducing2013; @sanchezdemadariagaMeasuringMobilitiesCare2019; @ravensbergen2023exploratory]. From this research motivation, Sánchez de Madariaga coined the term Mobility of Care in 2013 to refer to all travel required to sustain the needs of a household, such as grocery shopping, escorting children, travelling to health appointments, and running errands [@sanchezdemadariagaMobilityCareIntroducing2013]. While an undercurrent of research had examined these unique household-serving trips over the decades, her seminal work was the first to consider all these trips as one category and demonstrate how mobility of care is a significant proportion of daily travel. 
 
-The Mobility of Care concept also explicitly integrates inter-sectional equity considerations. In considering Mobility of Care within the 15-Minute City one could address a common criticism leveled at the 15-Minute City [@guzmanProximityEnoughCritical2024]. Perhaps unsurprisingly given the gendered division of care work discussed, women have consistently been found to complete more mobility of care trips than men. In one study, mobility of care comprised 32% of women’s daily trips compared to 28% of men’s. While this gap is significant, it was found to be far greater in lower income households where women complete 20% more care trips than men [@ravensbergen2023exploratory]. Sánchez de Madariaga not only shows how important these mobility of care trips are, but also highlights the ways in which “mobility of care is systematically under-represented in any analysis of urban transport” (p. 37). As a product of the masculinst bias in planning, transport surveys and tools do not directly capture mobility of care, which re-enforces the idea that these trips are not a significant part of daily mobility. In this respect, the feminist perspective of the cities of proximity is still underestimated with only few examples on the topic [@gil_sola_choose_2022; @macintyre_her_2022].
+The Mobility of Care concept also explicitly integrates inter-sectional equity considerations. In considering Mobility of Care within the 15-Minute City one could address a common criticism leveled at the 15-Minute City [@guzmanProximityEnoughCritical2024]. Perhaps unsurprisingly given the gendered division of care work discussed, women have consistently been found to complete more mobility of care trips than men. In one study, mobility of care comprised 32% of women’s daily trips compared to 28% of men’s. While this gap is significant, it was found to be far greater in lower income households where women complete 20% more care trips than men [@ravensbergen2023exploratory]. Sánchez de Madariaga not only shows how important these mobility of care trips are, but also highlights the ways in which “mobility of care is systematically under-represented in any analysis of urban transport” (p. 37). As a product of the masculinst bias in planning, transport surveys and tools most of the times do not directly capture mobility of care, which re-enforces the idea that these trips are not a significant part of daily mobility. In this respect, the feminist perspective of the cities of proximity is still underestimated with only few examples on the topic [@gil_sola_choose_2022; @macintyre_her_2022].
 
 Pairing well with the focus on shorter trips and the potential use of sustainable modes within the 15-Minute City, Mobility of Care trips are more local, shorter-distance and trip-chained. Compared to the trip to work, mobility of care trips are more frequently completed by foot, and less frequently by transit or bicycle [@ravensbergen2023exploratory]. However, little work to date examines walking to care destinations through the Mobility of Care framework. Though there is ample literature that examines walking to care destinations, such as schools (e.g., [@RN7;@RN8;@RN9]) and grocery stores (e.g., [@RN10;@RN11]), they tend to consider singular care destinations in research focusing on walkability. 
 
-The objectives of this research are two-fold. First, we aim to theoretically bridge Mobility of Care with the 15-Minute City concept to to re-imagine what local amenities matter and define an associated accessibility and diversity of accessibility measure. Second, taking a bottom-up data-driven approach, we apply a classification and clustering machine learning methodologies to support the bottom-up identification of _15-minute caring neighbourhoods_  through an empirical examination of the mid-cited city of Hamilton, Canada. These neighbourhoods are then interpreted on the continuum of having (and not having) the region-relative land-use and transportation infrastructure to support _completely caring_ access. Who currently resides in which neighbourhood is examined, and ways to further expand the care accessibility story are discussed.
+The objectives of this research are two-fold. 
+- First, we aim to theoretically bridge Mobility of Care with the 15-Minute City concept to re-imagine what local amenities matter and define an associated accessibility and diversity of accessibility measure.
+- Second, taking a bottom-up data-driven approach, we apply a classification and clustering machine learning methodologies to support the bottom-up identification of _15-minute caring neighbourhoods_  through an empirical examination of the mid-cited city of Hamilton, Canada. These neighbourhoods are then interpreted on the continuum of having (and not having) the region-relative land-use and transportation infrastructure to support _completely caring_ access. Who currently resides in which neighbourhood is examined, and ways to further expand the care accessibility story are discussed.
 
+<!-- In this context, we bridge the 15-Minute City with the Mobility of Care concept, to add significance to what destinations and associated trips matter for all, but especially along gendered and socio-economic lines. We apply the "Caring 15-Minute City" concept to measure what neighourhoods in the mid-size Canadian city of Hamilton have the potential to be "caring 15 minute neighbourhoods". Making use of the tools reviewed and applied in the transportation research, the objectives of the paper are completed as follows: -->
 
-`r word_comment("I need to clean this up and firmly reiterate the goals", " ")`
-Due to it's popularity, the 15-Minute Concept is moving city planning towards a more people-centered approach focusing on accessibility to basic needs. While an aspirational ideal, the concept has faced criticism as a inadequately providing a way forward to address structural inequalities.  In this context, we bridge the 15-Minute City with the Mobility of Care concept, to add significance to what destinations and associated trips matter for all, but especially along gendered and socio-economic lines. We apply the "Caring 15-Minute City" concept to measure what neighourhoods in the mid-size Canadian city of Hamilton have the potential to be "caring 15 minute neighbourhoods". Making use of the tools reviewed and applied in the transportation research, the objectives of the paper are completed as follows:
-
-1)	The cumulative accessibility measure and the entropy measure are used to quantify both the level of access and the diversity of access to care destinations within a 15-minute walk.
-2) Based on these accessibility and diversity outputs, "Completely Caring 15-Minute Neighbourhood" typologies are generated using the SOM algorithm.  
-3)	A decision tree is then applied to these typologies and socio-economic variables of populations who reside in these neighbourhoods. This is done to delineate data-driven profiles on which groups have the potential to benefit from what Completely Caring 15-Minute Neighbourhood. 
+<!-- 1)	The cumulative accessibility measure and the entropy measure are used to quantify both the level of access and the diversity of access to care destinations within a 15-minute walk. -->
+<!-- 2) Based on these accessibility and diversity outputs, "Completely Caring 15-Minute Neighbourhood" typologies are generated using the SOM algorithm.   -->
+<!-- 3)	A decision tree is then applied to these typologies and socio-economic variables of populations who reside in these neighbourhoods. This is done to delineate data-driven profiles on which groups have the potential to benefit from what Completely Caring 15-Minute Neighbourhood.  -->
 
 
 # Data
@@ -290,7 +440,7 @@ $$
 
 To represent the diversity of care destination accessibility, the entropy measure is used. A value is calculated for each parcel that ranges between 0 to 1, where 1 represents total evenness in the number of care opportunities in each category that can be reached. 
 
-The mathematical formulation of takes the following form:
+The mathematical formulation takes the following form:
 $$
 D_{i} = \frac{-\sum_{t} [S_i^{t} / \sum_{t}S^{t}_{i} \times ln(S_i^{t} / \sum_{t}S^{t}_{i} )]}{ln(n_t)}
 $$
@@ -301,248 +451,191 @@ $$
 - $t$ is a set of care destination types (e.g., school, grocery, park, etc.)
 - $n_t$ is the count of care destination types $t$. In this work, this value is 14.
 - $S_{i}^t$ is the cumulative opportunity accessibility score, the sum of weighted opportunities reachable within a 15-minute walk from $i$.
-- $D_i$ is the diversity score. As $D_i$ represents evenness in type of categories, so if a parcel has a access score of $S_i^t$=0.5 for all types of destinations it will be assigned $D_i$ = 1 in the same was as if it had a score of $S_i^1$=10 for each type of destination. Contrariwise, a parcel can be assigned a low $D_i$ score if it has low but different accessibility scores for each category as well as if it has high but different scores for each category. 
+- $D_i$ is the diversity score. As $D_i$ represents evenness in type of categories, so if a parcel has a access score of $S_i^t$ =0.5 for all types of destinations it will be assigned $D_i$ = 1 in the same was as if it had a score of $S_i^t$ =10 for each type of destination. Contrariwise, a parcel can be assigned a low $D_i$ score if it has low but different accessibility scores for each category as well as if it has high but different scores for each category. 
 
 ## Machine learning classification: self-organizing maps and decision trees
 
 In this work, we use two machine learning techniques. First, SOM is an unsupervised technique implemented to reduce the data dimensional and create interpretable clusters related to the intensity and completeness of caring access. This is done by imputing each parcel as an observation with its associated accessibility and diversity attributes, and the data being rearranged onto a two-dimensional space based on its minimizing dissimilarity in its neighbourhood. Then, a decision tree is run to characterise the socio-economic profile of who resides in neighbourhoods associated with certain (in)complete and (un)caring accessibility clusters. Together, this combined approach leverages the unsupervised data-driven classification power of the SOM with the interpretation of decision trees. The procedure used in this work is similar to the approache used in @victorianoTimeSpaceMoney2020. However, instead of each observation representing an individual's daily mobility behaviour (with associated variables), here each observation represents a parcel location with calculated care accessibility and diversity of type of care accessibility scores.
 
-For the SOM step, the SOM implementation in the function 'trainSOM()' from {SOMbrero} R package is used [@VillaVialaneix2017]. The input variables include the 143,882 parcels, each as individual observations along with 15 variables: the 14 calculated accessibility scores $S_i^$, normalized to the min-max range score within each $t$, and one diversity value $D_i$. Otherwise, defaults for all other parameters are assumed, relying on the data-driven heuristics embedded in the 'trainSOM()' function. Consequently, a 100 node (10 by 10 grid) SOM structure using euclidean distance and square topology is produced. Simply put, the SOM algorithm proceeds as follows: a 2D grid of nodes is created (in our case 100 nodes) as specified by the analyst, where each node will represent a point in the reduced-dimensional space. Upon initialization, each node is assigned a random weight vector of the same dimension as the input data (in our case, 15). From the input data, a random observation with its associated weight vector (i.e., one parcel point with 15 variables) is selected and the Euclidean distance between its weight vector and all nodes in the grid is calculated. The node with the smallest distance (i.e., the smallest dissimilarity) is labelled the 'best matching unit' as it is the node that best represents the input observation. After this best matching unit is identified, its own weight and its neighbouring nodes are updated to become more like the input observation. The process of finding best matching units and updating their weights is repeated for every observation, multiple times, until the results converge. As mentioned, this competitive learning process produces a 100 node SOM structure where each observation (parcel) is assigned to 1 node with an associated dissimilarity index. The SOM output is typically examined through a dissimilarity dendogram and an associated dissimilarity variance explained plot to select an appropriately representative 'superclusters' [@VillaVialaneix2017; @victorianoTimeSpaceMoney2020].
+For the SOM step, the SOM implementation in the function 'trainSOM()' from {SOMbrero} R package is used [@VillaVialaneix2017]. The input variables include the 143,882 parcels, each as individual observations along with 15 variables: the 14 calculated accessibility scores $S_i^t$, normalized to the min-max range score within each $t$, and one diversity value $D_i$. Otherwise, defaults for all other parameters are assumed, relying on the data-driven heuristics embedded in the 'trainSOM()' function. Consequently, a 100 node (10 by 10 grid) SOM structure using euclidean distance and square topology is produced. Simply put, the SOM algorithm proceeds as follows: a 2D grid of nodes is created (in our case 100 nodes) as specified by the analyst, where each node will represent a point in the reduced-dimensional space. Upon initialization, each node is assigned a random weight vector of the same dimension as the input data (in our case, 15). From the input data, a random observation with its associated weight vector (i.e., one parcel point with 15 variables) is selected and the Euclidean distance between its weight vector and all nodes in the grid is calculated. The node with the smallest distance (i.e., the smallest dissimilarity) is labelled the 'best matching unit' as it is the node that best represents the input observation. After this best matching unit is identified, its own weight and its neighbouring nodes are updated to become more like the input observation. The process of finding best matching units and updating their weights is repeated for every observation, multiple times, until the results converge. As mentioned, this competitive learning process produces a 100 node SOM structure where each observation (parcel) is assigned to 1 node with an associated dissimilarity index. The SOM output is typically examined through a dissimilarity dendogram and an associated dissimilarity variance explained plot to select an appropriately representative 'superclusters' [@VillaVialaneix2017; @victorianoTimeSpaceMoney2020].
 
-For the decision tree step, the supercluster-classified parcels identified in the SOM step are used as _labels_ and socio-economic and demographic indicators available from the most recent Canadian Census related to the mobility of care literature are used as _features_. This step is used to profile the superclusters so we may explore who reside in what supercluster in a data-driven way. To estimate the decision tree, the 'rpart()' function in the {rpart} R package is used [@Therneau2023]; default parameters for classification splitting along with each value being weighted by the population present in the associated DA is assumed. To summarize the decision tree algorithm, it is a supervised learning technique that begins by splitting a subset of the input data into branches based on a selected feature with the lowest impurity score (i.e., the least mixing of label membership within a branch). This process is recursively repeated for each data subset, selecting the next best features. Ultimately, the data is classified into distinct classes, with class membership explained by traversing the branches defined by the features that characterise the partitions within the decision tree. Notably, the absence of features from the decision tree does not necessarily imply they are irrelevant for classification, rather, they are just less relevant than other features. Put another way, when considering features that are highly correlated, such as income level and LICO, not all relevant variables may be present in the tree [@victorianoTimeSpaceMoney2020]. 
-
-
-<!-- # Results -->
-
-<!-- ## Overview of access to care destinations  -->
-<!-- How many care destinations can be reached within a 15-minute walk is summed for each of the four care categories defined in @bl-tbl1. The median parcel value for each DA is visualised in @fig-Fig4. Furthermore, the median parcel diversity of care destinations accessible is presented in @fig-Fig5. Together, @fig-Fig4 and @fig-Fig5 represent the 15 variables that served as inputs into the SOM algorithm.  -->
-
-<!-- ```{r plot-figure4, out.width=600, out.height=600} -->
-<!-- #| label: fig-Fig4 -->
-<!-- #| fig-cap: "The number of care destinations that can be reached within 15 min walk per care category for a median parcel in each DA. The values are a summary of the 14 acessibility scores that served as inputs into the SOM. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]." -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/percats_copp_plot.png")) -->
-<!-- ``` -->
+For the decision tree step, the supercluster-classified parcels identified in the SOM step are used as _labels_ and socio-economic and demographic indicators available from the 2021 Canadian Census [@governmentofcanadaCensusPopulation2023] related to the mobility of care literature are used as _features_. This step is used to profile the superclusters so we may explore who reside in what supercluster in a data-driven way. To estimate the decision tree, the 'rpart()' function in the {rpart} R package is used [@Therneau2023]; default parameters for classification splitting along with each value being weighted by the population present in the associated DA is assumed. To summarize the decision tree algorithm, it is a supervised learning technique that begins by splitting a subset of the input data into branches based on a selected feature with the lowest impurity score (i.e., the least mixing of label membership within a branch). This process is recursively repeated for each data subset, selecting the next best features. Ultimately, the data is classified into distinct classes, with class membership explained by traversing the branches defined by the features that characterise the partitions within the decision tree. Notably, the absence of features from the decision tree does not necessarily imply they are irrelevant for classification, rather, they are just less relevant than other features. Put another way, when considering features that are highly correlated, such as income level and LICO, not all relevant variables may be present in the tree [@victorianoTimeSpaceMoney2020]. 
 
 
-<!-- ```{r plot-figure5, out.width=600, out.height=600} -->
-<!-- #| label: fig-Fig5 -->
-<!-- #| fig-cap: "The diversity measure based on the proportion of care category spatial accessibility (figure 4). These values are a summary of the 15th input into the SOM. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]." -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.png"))  -->
-<!-- ``` -->
+# Results
 
-<!-- ## Identification of (in)completely (un)caring neighbourhoods -->
+## Overview of access to care destinations
+How many care destinations can be reached within a 15-minute walk is summed for each of the four care categories defined in @bl-tbl1. The median parcel value for each DA is visualised in @fig-Fig4. Furthermore, the median parcel diversity of care destinations accessible is presented in @fig-Fig5. Together, @fig-Fig4 and @fig-Fig5 represent the 15 variables that served as inputs into the SOM algorithm.
 
-<!-- Notably, in @fig-Fig4, the concentration of opportunities for all category types is centered in the downtown of Hamilton, with the highest concentration being in the lower city (near the lake shore) and pockets of the high concentration further from the shoreline. Grocery-centric destinations appear to be the most concentrated, followed by health-centric and dependent-centric caring destinations. Errand-centric destinations are the most sprawled. In many ways, @fig-Fig4 mirrors the spatial distribution of care destinations (@fig-Fig3) as the range of 15-minutes of travel is small. In @fig-Fig5, areas that have high care accessibility tend to have high diversity as well, though there are exceptions in pockets of the city outside the downtown core that have lower but equally low levels of accessibility for all care categories.  -->
-
-<!-- Based on the SOM classification methodology discussed and the 15 variables represented in @fig-Fig4 and @fig-Fig5, 7 superclusters are identified. As diagnostics for the selection of the number of superclusters, the dissimilarity-index-based dendrogram with the proportion of parcels represented in each supercluster alongside the variance explained plot is visualised in @fig-Fig6. -->
-<!-- ```{r plot-figure6, out.width=800, out.height=800} -->
-<!-- #| label: fig-Fig6 -->
-<!-- #| fig-cap: "The 7 resulting superclusters from the SOM the 10 by 10 grid output represented in a dendrogram (left) and the variance unexplained (right)." -->
-<!-- #|  -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/all_access_sc_plot_small.png"))  -->
-<!-- ``` -->
-
-<!-- To characterise the superclusters, a table providing summary statistics of each supercluster is detailed in @tbl-tbl2: -->
-<!-- ```{r creating-table2} -->
-<!-- summary_df_ALL <- access_15_wide |> select(c(starts_with("total_"), div_allcats)) |> -->
-<!--   group_by() |>  -->
-<!--   summarise(across(everything(), list(median = median, sd = sd))) %>%  -->
-<!--  mutate_if(is.numeric, round, digits =1) |> -->
-<!--   mutate_all(as.character)   -->
-<!-- summary_df_ALL <- cbind(data.frame(scluster = "TOTAL"),summary_df_ALL) -->
-
-<!-- summary_df <- access_15_wide |> select(c(scluster, starts_with("total_"), div_allcats)) |>  -->
-<!--   mutate(scluster = case_when(scluster == 1 ~ "A", -->
-<!--                               scluster == 2 ~ "B", -->
-<!--                               scluster == 3 ~ "D", -->
-<!--                               scluster == 4 ~ "F", -->
-<!--                               scluster == 5 ~ "E", -->
-<!--                               scluster == 6 ~ "C", -->
-<!--                               scluster == 7 ~ "G")) |> -->
-<!--   group_by(scluster) |>  -->
-<!--   summarise(across(everything(), list(median = median, sd = sd))) %>%  -->
-<!--  mutate_if(is.numeric, round, digits =1) |> -->
-<!--   mutate_all(as.character)  -->
-
-<!-- merge_every_two_columns <- function(df, num_rows) { -->
-<!--   # Loop through every second column starting from column 2 -->
-<!--   for (col in seq(2, ncol(df), by = 2)) { -->
-<!--     if (col < ncol(df)) {  # Ensure the column has a next one to merge with -->
-<!--       for (i in 1:num_rows) { -->
-<!--         df[i, col] <- paste0(df[i, col], " (", df[i, col + 1], ")") -->
-<!--       } -->
-<!--     } -->
-<!--   } -->
-<!--   return(df) -->
-<!-- } -->
-
-<!-- summary_df <- merge_every_two_columns(summary_df, 7) |>  select(-contains("sd")) -->
-<!-- summary_df_ALL <- merge_every_two_columns(summary_df_ALL, 1)  |>  select(-contains("sd")) -->
-<!-- summary_df <- rbind(summary_df, summary_df_ALL) -->
-
-<!-- summary_df <- summary_df |>  -->
-<!--   pivot_longer(!scluster) |> -->
-<!--   pivot_wider(names_from =scluster ) -->
-
-<!-- summary_df_ALL <- summary_df_ALL |>  -->
-<!--   pivot_longer(!scluster) |> -->
-<!--   pivot_wider(names_from =scluster ) -->
+```{r plot-figure4, out.width=600, out.height=600}
+#| label: fig-Fig4
+#| fig-cap: "The number of care destinations that can be reached within 15 min walk per care category for a median parcel in each DA. The values are a summary of the 14 acessibility scores that served as inputs into the SOM. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/percats_copp_plot.png"))
+```
 
 
-<!-- summary_df$name <- c("GROCERY TOTALS", "Convenience Store", "Grocer", -->
-<!--                      "DEPENDENT TOTALS", "Community or Rec. centre", "Daycare or EarlyON","LTC or retirment home","Park","School","Senior centre", -->
-<!--                      "HEALTH TOTALS","Dentist","Hospital or clinic","Pharmacy", -->
-<!--                      "ERRAND TOTALS","Bank or ATM","Library", "Post office",  -->
-<!--                      "Category diversity") -->
-<!-- ``` -->
+```{r plot-figure5, out.width=600, out.height=600}
+#| label: fig-Fig5
+#| fig-cap: "The diversity measure based on the proportion of care category spatial accessibility (figure 4). These values are a summary of the 15th input into the SOM. Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]."
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_entropy_copp_plot.png"))
+```
 
-<!-- ```{r creating-table2-pt2} -->
-<!-- #| tbl-cap: "Median and (standard deviation) of each SOM classified cluster by input variable and additional summary variables (indicated by ALL CAPITAL LETERS)." -->
-<!-- #| label: tbl-Tbl2 -->
-<!-- #|  -->
-<!-- summary_df %>% -->
-<!--   gt() %>% -->
-<!--   tab_header( -->
-<!--     title = " ", -->
-<!--   ) %>% -->
-<!--   cols_label( -->
-<!--     name = " " -->
-<!--   ) %>% -->
-<!--   tab_style( -->
-<!--     style = cell_borders( -->
-<!--       sides = c("top"), -->
-<!--       color = "black", -->
-<!--       weight = px(1.5), -->
-<!--       style = "solid" -->
-<!--     ), -->
-<!--     locations = cells_body(rows = c(1,4,11,15)) -->
-<!--   ) |> -->
-<!--   tab_options( -->
-<!--     table.font.size = 12, -->
-<!--     table.width = pct(80) -->
-<!--   ) -->
-<!-- ``` -->
+## Identification of (in)completely (un)caring neighbourhoods
+<!-- 
 
-<!-- Notably, from A to G, the superclusters are characterized by caring access and diversity of caring access (completeness). From the descriptive statistics of the superclusters, interesting trends emerge: ... parcels that have an Errand-centric access of less than 0.5 opportunities (bottom quartile), a diversity score of less than 0.277 (bottom tertile), and any Dependent-centric access score of greater than 0.5 (and can take on any value of the remaining input variables). This technique provides a data-driven approach to supercluster formation which we then attribute meaning to through the derivation of the following labels:... In sum, we intuitively derive classification labels: -->
+A+ is now A+
+A is now A
+A- is now A-
 
-<!-- G: Not caring - not complete (C7) -->
-<!-- F: Somewhat caring - not complete (C4) -->
-<!-- E: Somewhat caring - complete (C5) -->
-<!-- D: Caring - somewhat complete (C3) -->
-<!-- C: Caring - very complete (C6) -->
-<!-- B: Very caring - complete (C2) -->
-<!-- A: Very caring - very complete (C1) -->
+B+ is now B+
+B is now B
+D is now B-
 
+F is now D
 
-<!-- To further visualize supercluster membership, we spatially demonstrate which superclusters best describes each parcel in @fig-Fig8: <!-- Visually, the super clusters closely follow the quartile split of the accessibility to care destinations (all categories combined) and tertile split of the diversity scores (visualised in @fig-Fig5).  -->  -->
-<!-- <!-- `r word_comment("AN IDEA DISCUSSED: Overall, in @fig-Fig8 there are many pockets of good/great care accessibility+diversity of opportunities Hamilton. These are objectively caring neighbourhoods (BY MEASURE). However, people may subjectively disagree... Maybe they don't feel safe, that is not captured. the limitations of objective measures ", ".")`.  --> -->
-<!-- ```{r plot-figure8, out.width=600, out.height=600} -->
-<!-- #| label: fig-Fig8 -->
-<!-- #| fig-cap: "The median parcel supercluster membership." -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/SCLab_and_total_copp_plot.png")) -->
-<!-- ``` -->
+-->
 
-<!-- ## Profiling of who resides in (in)completely (un)caring neighbourhoods  -->
-<!-- To enhance the meaning of the superclusters beyond a spatial conceptualisation of "caring" and "complete", was _who?_ resides there. We implement another decision tree in which the population-weighted socio-demographic characteristics of the parcels (retrieved from the 2021 Canadian Census) are input variables and the resulting output are 'socio-domographic superclusters' of the caring/complete superclusters. The input variables included: % households below median household after-tax income, LICO prevalence, average number of children per household, % not in the labour force, Gini index on adjusted household after-tax income, % visible minority, % population aged 0 to 14, % single parent household, % who walk to work (relative to bike, care/truck/van, public transit and 'other'), % of owner household in core housing need (i.e., inadequate housing structure or paying higher than 30% income on housing), % of owner households with a mortgage, % of tenant households in subsidized housing, % of tenant households in core housing need, % no certification, diploma or degree (relative to population with high school, college, or university certificate, diploma or degree). -->
+Notably, in @fig-Fig4, the concentration of opportunities for all category types is centered in the downtown of Hamilton, with the highest concentration being in the lower city (near the lake shore) and pockets of the high concentration further from the shoreline. Grocery-centric destinations appear to be the most concentrated, followed by health-centric and dependent-centric caring destinations. Errand-centric destinations are the most sprawled. In many ways, @fig-Fig4 mirrors the spatial distribution of care destinations (@fig-Fig3) as the range of 15-minutes of travel is small. In @fig-Fig5, areas that have high care accessibility tend to have high diversity as well, though there are exceptions in pockets of the city outside the downtown core that have lower but equally low levels of accessibility for all care categories.
 
-<!-- Of all the variables, those that proved to be significant in profiling the five superclusters were only four variables: % households below median household after-tax income (bottom income), % population aged 0 to 14, % single parent household, and LICO. See @fig-Fig9 that provides the splits. Unfortunately, the supercluster membership is not as homogeneous as the caring/complete supercluster dendrogram (@fig-Fig7). However, we can interpret the socio-demographic superclusters (five that result) as labels to tell a narrative of who may reside in what caring/complete supercluster.  -->
+Based on the SOM classification methodology discussed and the 15 variables represented in @fig-Fig4 and @fig-Fig5, 7 superclusters are identified from the 10 by 10 grid of SOM nodes. As diagnostics for the selection of the number of superclusters, the dissimilarity-index-based dendrogram with the proportion of parcels represented in each supercluster alongside the variance explained plot is visualised in @fig-Fig6.
 
-<!-- ```{r plot-figure9, out.width=600, out.height=300} -->
-<!-- #| label: fig-Fig9 -->
-<!-- #| fig-cap: "The dendrogram of the supercluster demographic profiles.." -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles.png")) -->
-<!-- ``` -->
-<!-- (NOTE: for reference, see the old bivariate map in the appendix for comparison) -->
+```{r plot-figure6, out.width=800, out.height=800}
+#| label: fig-Fig6
+#| fig-cap: "The 7 resulting superclusters from the SOM the 10 by 10 grid output represented in a dendrogram (left) and the proportion of variance unexplained by cluster (right)."
+#|
+knitr::include_graphics(glue::glue(here::here(), "/figures/all_access_sc_plot_small.png"))
+```
+As seen in @fig-Fig6, the 7 superclusters are assigned labels from A to F, corresponding to their 'grade' of quantity of accessibility and diversity in accessibility per care category. What differentiates the dissimilarities in the clusters the most, i.e., nodes of grade A/A+ to everything else, is their high levels of care accessibility and often high diversity in care categories calculated for each parcel. A/A+ grades represent only 24% of the parcels, with the other grades being assigned lower accessibility and diversity of accessibility scores. To characterise the superclusters, a table providing summary statistics of each supercluster is detailed in @tbl-tbl2 and boxplots in @fig-Fig7.
 
-<!-- <!--EXPLAIN THE FOLLOWING PARAGRAPH BETTER--> -->
-<!-- In @fig-Fig9 from right-to-left, parcels in DAs with 45% of the population below the median or lower (richer) are often classified with poor accessibility: either "Somewhat caring and not complete" SC3 or "Not caring and not complete" SC5. Parcels within DAs with a higher proportion of single parent households (13% and above) are most often SC3: "Somewhat caring, not complete" and below are most often SC5: "Not caring, not complete". For parcels with higher than 45% of bottom-income (poorer), those with a high proportion of children (age 0 to 14) are also likely to be within the "Somewhat caring and not complete" SC3 - just like parcels in richer and more-single-parent DA counterparts.  -->
+```{r creating-table2-pt2}
+#| tbl-cap: "Mean and (standard deviation) of each SOM classified cluster by input variable and additional summary variables (indicated by ALL CAPITAL LETERS)."
+#| label: tbl-Tbl2
+#|
+summary_df %>%
+  gt() %>%
+  tab_header(
+    title = " ",
+  ) %>%
+  cols_label(
+    name = " "
+  ) %>%
+  gt_highlight_cols(
+    2:3, fill = "green", alpha = 0.3
+    ) %>%
+  gt_highlight_cols(
+    4, fill = "green", alpha = 0.2
+    ) %>%
+  gt_highlight_cols(
+    5:6, fill = "orange", alpha = 0.3
+    ) %>%
+    gt_highlight_cols(
+    7, fill = "orange", alpha = 0.2
+    ) %>%
+  gt_highlight_cols(
+    8, fill = "red", alpha = 0.3
+    ) %>%
+  tab_style(
+    style = cell_borders(
+      sides = c("top"),
+      color = "black",
+      weight = px(1.5),
+      style = "solid"
+    ),
+    locations = cells_body(rows = c(1,4,11,15,19))
+  ) |>
+  tab_options(
+    table.font.size = 12,
+    table.width = pct(80)
+  )
+```
 
-<!-- These findings related to potential child-care access are notable: single parents provide more care and hence may be more likely to choose, if they are able, more accessible neighbourhoods than the rest of the population in the same household income grouping. In a Canadian and U.S. context, households with children may locate to catchments with 'better' schools, often more suburban with lower potential access scores overall. Furthermore, statistics show that in the last years, the number of single parents families in Canada has increased. In 2022, there were about 1.84 million single parents compared to about 1.56 million in 2010 and 1,3 million in 2001 (https://www.statista.com/statistics/443342/single-parent-families-in-canada/ & https://www.justice.gc.ca/eng/rp-pr/jr/jr12/p5a.html#ftn4). Furthermore, Ontario is the Canadian province where most of the lone parent families live (749,769 families, https://www.statista.com/statistics/446667/lone-parent-families-in-canada-by-province/). Most lone-families are headed by female-lone parent. (AS TO ADD IN HAMILTON SPECIFIC NUMBERS) -->
+```{r plot-figure7, out.width=600, out.height=300}
+#| label: fig-Fig7
+#| fig-cap: "A boxplot demonstrating summary variables and category diversity that define the superclusters."
+knitr::include_graphics(glue::glue(here::here(), "/figures/box-plot.png"))
+```
 
-<!-- Interestingly, parcels in DAs with lower than 13% children population demonstrate a better accessibility to care destination story. <!--PERHAPS A MISMATCH ON WHO NEEDS / WHO GETS CARE ACCESSIBLE DESTINATIONS-->  -->
+The superclusters are characterized by caring access and diversity of caring access (completeness). This technique provides a data-driven approach to supercluster formation which we then attribute meaning to through the derivation of the following labels. From the descriptive statistics of the superclusters, interesting trends emerge:
 
-<!-- Parcels within DAs that constitute more than 45% population below median household income (poorer) - especially above 9.8% LICO (low income cut-off prevalence - likely to be the poorest) are often within "Very caring and very complete" SC1. <!-- -maybe people who can’t afford a car choose to live here? -->  -->
-
-<!-- Parcels located in DAs with the same lower median income and child population but have _lower_ than 9.8% LICO (not the poorest) also have good accessibility, as they are most often in "Caring and complete" SC1 as well as being in most often in the "Somewhat caring and complete" SC4 relative to other parcels. -->
-
-<!-- Our findings illustrate differences in patterns of 15-minute walk accessibility to care destinations most prominently profiled by income, low-income prevalence, children and single-parent status. -->
-
-<!--  `r word_comment("IDEAS DISCUSSED: regarding @fig-Fig9 - 1) We know that highest accessibility & complete is downtown. But people there have fewer children + lowest income are downtown.  On the horizon as rent increases,  the most precarious may be pushed out and replaced by people who can pay higher rents. ", " ")` -->
-
-<!--   `r word_comment("IDEAS DISCUSSED: regarding @fig-Fig9 - 2) The lowest accessibility & most incomplete are suburban -- they are likely higher income. Interesting to note: one-parent families are more likely to be time poor -- and leaving in low access/incomplete suburbs puts more at risk. We know a think or 2 about single parents and jobs -- access to jobs was high where single parents were not. (Catherine, farber Paez paper). ", ":")`.  -->
-
-<!--   <!--Yes: low access and more incomplete = suburban (Figure 8) AND higher income (Figure 9). Are higher income folks living in low access and low caring places, but don’t care because they can afford to drive to get to these places? This has implications for sustainability and car dependence  -->
-
-<!--   And also: poorer one parent families with children are also in these not caring/ complete places. They are who may feel it: as they likely are more time poor and have lower access to cars. This could impact their wellbeing / access to care (which is essential) --> -->
-
-<!--  `r word_comment("IDEAS DISCUSSED: regarding @fig-Fig9 - 3) Pockets of the suburbs have high access to care. The suburbs do something -- they have care amenities. ", ":")`.  -->
-
-<!-- <!--Potentially suburban have greater access to care compared to jobs. I mean people live there for a reason I guess! And they are often seen as ‘child friendly’. If these suburban areas have high access to care by foot, are they going there by foot? What can be done to get them to walk to care destinations? Or are these examples of suburban that have been designed to be walkable (which should be emulated)? --> -->
-
-<!-- # Discussion -->
-
-<!-- There seems to be a spatial mismatch where dwelling availability and affordability play an important role? Are there social housing programs for lower income households? -->
-
-<!-- Even if we are on the right direction to develop human-centred urban areas by facilitating caring activities, the chrono-urbanism needs to set the ground on aspects that specifically target caring activities, given the multiple impacts it has on everyday mobility, the unequal distribution of tasks among the population and its related socioeconomic consequences. Therefore, it is necessary to provide alternatives to measure progress on this important issue. City planning should respond to these issues to promote equity. On the other hand, an intersectional approach to understand how different personal identities interact in our daily day activities in the cities is necessary.  -->
+- A+, A, and A- all have exceptionally high or excellent caring accessibility for all destination types; all destination type and diversity scores are top quantile or above. Interestingly, A- is like A but with much higher dependent centric destinations, particularly parks, schools, and daycares, with high scores for everything else. This disbalance lowers its overall completeness score but is a supercluster that demonstrates potential in being retrofitted to provide A+ level completely caring access.  Together, these grades represent 28% of all parcels.
+- B+, B and B- superclusters present about average completely caring access. These superclusters, particuarly B, can serve as the benchmark for what 'average' completely caring access in Hamilton currently looks like. B+ access and diversity scores are above B, while B- has low values for everything with exception to above average number of dependent-centric destinations, particularly parks, daycares and schools. These three clusters represent 34% of the parcels.
+- D superclusters demonstrate the lows scores all around, presenting plenty of room for improvement in complete and caring 15-minute access. This cluster represents the 38% of all parcels.
 
 
 
-<!-- The process of gentrification and displacement are trends also occurring in Hamilton. On the horizon of rising rents, there is a risk of displacement among more vulnerable households, who may be replaced by individuals with higher incomes who can afford different transport modes, with more flexible schedules and are more likely to use ICT arrangements (including telework, e-shopping, and other online services). While, lower income households may be particularly vulnerable to locating in areas with worse accessibility to care alternatives, which could have negative consequences for these households and for the society as a whole.  -->
-<!-- Even if we are on the right direction to develop human-centred urban areas by facilitating caring activities, the chrono-urbanism needs to set the ground on aspects that specifically target caring activities, given the multiple impacts it has on everyday mobility, the unequal distribution of tasks among the population and its related socioeconomic consequences.  -->
-<!-- Therefore, it is necessary to provide alternatives to measure progress on this important issue.  -->
-<!-- This work leaves many doors open for further research. For example,  -->
-<!-- •	the role that gender plays in these households.  -->
-<!-- •	Job arrangements per type of household. Some studies observe that working from home arrangements are more likely available for higher education attainment households (likely to have higher income), and families with children, but also living in neighbourhoods with good accessibility, -->
-<!-- •	Finally, an intersectional approach to understand how our personal identities interact in our access to essential activities and caring services. -->
-<!-- City planning should respond to these issues to promote equity. On the other hand, an intersectional approach to understand how different personal identities interact in our daily day activities in the cities is necessary. -->
+<!-- D (Nothing much: Not caring & not complete) (C7) -->
+
+<!-- B- (Below average, but dep- heavy: Somewhat caring & not complete) (C4) -->
+<!-- B (Average: Caring & complete) (C5) -->
+<!-- B+ (Above average: Caring & very complete) (C6) -->
+
+<!-- A- (Excellent, but dep- heavy: Very caring & not complete (C3) -->
+<!-- A (Excellent: Very caring & very complete) (C2) -->
+<!-- A+ (Exceptional: very caring & very complete) (C1) -->
+
+To meaningfully visualise where the superclusters are located, we visualise the representative supercluster label in each DA in @fig-Fig8. This is done by grouping parcels by their DA, calculating the median supercluster label for each label, and selecting the label which is most dominate within that DA. For reference, the median number of parcels in each DA is `r df_DA$parcel_count |> median() |> round()`. Further, supercluster label membership within a DA is typically pure, with the median membership being `r df_DA$max_label_val |> median() |> scales::percent()` of a single cluster.  
+
+`r word_comment("What do you think about these grades as labels? Maybe there's another way we can frame it. A+ and A are excellent, B+ and B are average, D are bad. However A- and B- show promise: they have some caring access (child-centric) and can be improved! A- can be more easily improved than B-.", " ")`
+```{r plot-figure8, out.width=600, out.height=600}
+#| label: fig-Fig8
+#| fig-cap: "The maximum median parcel supercluster membership per DA. Escarpment is visualised as a grey dashed line."
+knitr::include_graphics(glue::glue(here::here(), "/figures/SClabel_plot.png"))
+```
+The resulting superclusters visualised in @fig-Fig8 are a combination of the cumulative opportunity and diversity of access measures trasnlated into meaningful typologies through the SOM methodology. It can be observed that the excellent and exceptional neighbourhoods, which are very caring and very complete 15-minute neighbourhoods, are located within the center of the city and most closer to the shoreline in the 'lower' city (below the escarpment). The average and below average neighbourhoods are often proximate to the excellent and exceptional neighbourhoods and are more prevalent in the 'mountain' part of the center of Hamilton. The escarpment is a physical barrier, with few pedestrian-accessible access points to traverse; hence the typologies describing neighbouring DAs separated by the escarpment are often different. 
+
+As accessibility is the measure of _potential_ interaction, e.g., how many care destinations one could reach within a 15-minute walk, these typologies are useful in identifying which areas of the city are providing regionally high levels of complete caring access, which areas are regionally average (oranges), and which areas are regionally below average. Furthermore, neighbourhoods which provide disbalanced access can be further investigated. For instance, neighbourhoods that provide A- provide otherwise high levels of 15-minute walking access to all types of destinations, but particularly to Community and recreational centres, daycares, parks, and schools. These A- neighbourhoods are suitable for all, but may be particularly desirable for households that have children, needed proximity to care destinations. Furthermore, B- neighbourhoods are like A- neighbourhoods as they provide high access to children-centric destinations like schools, parks, and daycares, however are low in all other destination types. These neighbourhoods can be understood as currently being conducive to completing children-centric care trips, and having the potential to become complete if additional destination types were located within their neighbourhoods.
+
+## Profiling of who resides in (in)completely (un)caring neighbourhoods
+
+To enhance the meaning of the superclusters beyond a descriptive and spatial conceptualisation of "caring" and "complete",  _who?_ resides in what neighbourhood currently can also be investigated. We run a decision tree and include the population-weighted socio-demographic characteristics of the parcels (retrieved from the 2021 Canadian Census) as input variables and the resulting output are 'socio-demographic superclusters' of the superclusters. The input variables included: median household income, % below the median household income, % LICO prevalence, average number of children per household, % population aged 0 to 14, % not in the labour force, % not employed, Gini index on adjusted household after-tax income, % visible minority, % single parent household, % who walk to work (relative to bike, care/truck/van, public transit and 'other'), % of owner household in core housing need (i.e., inadequate housing structure or paying higher than 30% income on housing), % of tenant households in subsidized housing, % of tenant households in core housing need, % no certification or with only a highschool diploma.
+
+Of all the included input variables, the one that proves most meaningful in partitioning the superclusters data into subsets was only one variable: median household income of the DA. @fig-Fig9 provides the splits that were significant in partitioning the data in the decision tree algorithim. While the algorithim is unable to homogenously use each supercluster, we still use it to report a narrative of who may reside in what caring/complete supercluster. Particularly, the decision tree demonstrates a more pure supercluster membership for only two of the three terminal decision tree nodes: supercluster A+ (exceptional completely caring access) and D (not caring and complete access). For reference, the city-wide mean household income is `r df_DA_nogeom$Income |> mean(na.rm=T)|> round() |> prettyNum(big.mark = ",") ` (SD: `r df_DA_nogeom$Income |> sd(na.rm=T)|> round() |> prettyNum(big.mark = ",")` and median: `r quantile(df_DA_nogeom$Income,0.5, na.rm=T) |> unname()  |> prettyNum(big.mark = ",")`).
+
+<!-- - % single parent household (median: `r df_DA$One_parent_families |> median(na.rm=T) |> scales::percent()` (`r df_DA$One_parent_families |> sd(na.rm=T) |> scales::percent()`) ), and  -->
+<!-- - % prevalence of LICO (median: `r df_DA$LICO |> median(na.rm=T) |> round() |> paste0("%")` (`r df_DA$LICO |> sd(na.rm=T) |> round() |> paste0("%")`) ) -->
+
+```{r plot-figure9, out.width=600, out.height=300}
+#| label: fig-Fig9
+#| fig-cap: "The decision tree demonstrating socio-ecnomic profiles of superclusters."
+knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles_justincome.png"))
+```
+Describing @fig-Fig9, the most valuable variable for splitting the data was the median household income in each DA. The terminal nodes represented as bar columns depict the percentage composition by supercluster. For the column on the right, the majority of the parcels are D superclusters with the second most supercluster membership being B- parcels, described by having greater than 91,500 CAD household income, above the city-wide mean.  The left column is dominated by A+ along with A and A- (in the largest quantities relative to other bars), though proportions of all other superclusters are also present. This column is defined by parcels present in DAs with lower incomes, e.g., 68,750 CAD. The middle columns's classification is mixed: with all types of superclusters present in DAs with about average households incomes (between 68,750 CAD and 91,500 CAD).
+
+Though median income was the most useful in partitioning the parcels by their supercluster labels, other variables are still important but were not as helpful in partitioning the data. Namely, the following variables were also important, in order of importance and correlation coefficient with the median household income variable in brackets: the % below the median household income (`r Income_inspect[c("Income_bottom"),] |> round(digits=2)`), % single parent household (`r Income_inspect[c("One_parent_families"),] |> round(digits=2)`), % no certification or with only a highschool diploma (`r Income_inspect[c("Low_or_no_deg"),] |> round(digits=2)`), the average number of children per household (`r Income_inspect[c("Avg_numb_of_kids"),] |> round(digits=2)`), % not in the labour force (`r Income_inspect[c("Not_in_labforce"),] |> round(digits=2)`), % LICO prevalence (`r Income_inspect[c("LICO"),] |> round(digits=2)`), and  % who walk to work (`r Income_inspect[c("walk_towork"),] |> round(digits=2)`). Of note, when median household income is removed from the decision tree, a similar structure is created, except with above average Single-Parent family and LICO prevalence splitting the data. It is notable that median household income is highly or moderately correlated with many of these important variables, and discussing these correlation is useful for interpretation alongside the tree diagram.
+
+For instance, single-parent families are most positively correlated with the proportion of households being in the bottom income distribution (`r Income_inspect[c("Income_bottom"),] |> round(digits=2)`) and low or new degree (`r One_parent_family_inspect[c("Low_or_no"),] |> round(digits=2)`), and most negatively with the median after-tax household income (`r One_parent_family_inspect[c("v_CA21_907: Median after-tax income of household in 2020 ($)"),] |> round(digits=2)`), reflecting nationwide trends [@governmentofcanadaDailyMainHighlights2024; @governmentofcanadaPrevalenceLowIncome2024]. LICO is also an indicator of low-income, and though not all single-family households are below the LICO (in fact, single-family households are not highly correlated with LICO at the DA level in Hamilton), DAs where higher concentrations of single-family and where high LICO prevalence persist tend to have A+ access. These findings are notable as currently, the highest grade (A+) serves a disadvantaged group that is also often disadvantaged along different intersecting socio-economic characteristics. Also interestingly, DAs with lower single-parent households (who also tend to have higher incomes) are in DAs with a higher concentration of F parcels. These considerations are important when considering the equity of caring 15-minute policy interventions.    
 
 
+<!-- Describing @fig-Fig9, the most valuable variable for splitting the data was the proportion of single family households and % of LICO prevalence in the DA. The the terminal nodes represented as bar columns depict the percentage composition by supercluster. For the bar on the right, the majority of the parcels are F superclusters. Following the tree diagram, these F superclusters are described by having less than 15.8% single parent families (this is below the median of `r df_DA$One_parent_families |> median(na.rm=T) |> scales::percent()`). The bar on the left is mostly composed of parcels that are labeled A+. These A+ parcels are located in DAs greater than 15.8% single parent families and % LICO prevalence of 6.5% and greater (this is above the median of `r df_DA$LICO |> median(na.rm=T) |> round() |> paste0("%")`). In sum: residences in parcels with exceptionally complete and caring access tend to be lower-income and single-parent families, while residences in parcels with not caring are not complete access tend to have a lower presence of single parent households. Households with a higher proportion of single-family households (15.8% and greater) where LICO is lower have a mixed label membership (bar column in @fig-Fig9).  -->
 
+# Discussion
 
-<!-- LUCIA'S: -->
-<!-- As in other case studies, essential opportunities and services tend to concentrate on Hamilton central. Therefore, it is more likely to carry out daily activities, including caring ones, in this area using sustainable modes such as walking or biking. -->
+The descriptive statistics associated with each supercluster, their spatial distribution, and the socio-economic profiles that characterise them, are revealing points of discussions and further examined. 
 
-<!-- However, this study highlights that there seems to be a spatial mismatch between dwelling availability, family profile and eventually (housing and mobility) affordability. At neighbourhood level the concentration of opportunities for all category types is in Hamilton Central, but households with children may not live there.  -->
+Hamilton is a city is not a caring 15-Minute City for all, but it is for some. There are evident spatial inequalities in areas that are, are not, and are somewhere between a caring and complete 15-minute neighbourhood (from labels A+ and A being excellent, B being about average, D being well below average, and A- and B- demonstrating potential in their grade group). The downtown core of the city has the most _caring 15-minute neighbourhoods_, but many pockets of the suburbs do as well. Though this contrasts what may be seen when considering employment opportunities [as in the work of @elgeneidyNonstopEquityAssessing2016, the paper's findings align with the neighbourhood unit planning literature reviewed. As many North American Suburbs, Hamilton followed certain characteristic design patterns that were initially designed to be proximate to amenities, coinciding with the conceptualisation of _caring 15-minute cities_ [@aliNeighbourhoodPlanningHamilton1991].
 
-<!-- Richer families may concentrate in either neighborhoods classified with poor accessibility: either “Somewhat caring and not complete” or “Not caring and not complete. However, these families are likely to have different mobility alternatives available. The literature shows that higher income households have a lower mobility share compared to lower income households. Furthermore, they are more likely to be assisted by different service arrangements (i.e. e-shopping, service deliveries, taxis and MaaS services, working from home arrangements,,…).   -->
+Who in currently resides in Hamilton's caring 15-Minute neighbhorhoods is also currently an optimistic story. Parcels that provide A+ completely caring access tend to be in DAs that are economically disadvantaged. Economic disadvantage tends to intersect with other identities such as gender [@lightmanMeasuringEconomicExclusion2018].  And as reviewed in this work, all women and especially those from lower income households tend to complete the most mobility of care trips [@ravensbergen2023exploratory]. Furthermore, lower-income households tend to also be single-parent households. Broadly, single-parent households are also more likely to be time-disadvantaged [@nieuwenhuisSingleparentFamiliesWork2018], and tasked with a higher proportion of care duties [@craigTimeCareComparison2004]. In this way, the most economically disadvantaged groups having A+ 15-minute care accessibility is an optimistic finding. However, Hamilton is experiencing gentrification [@ellisyoungWeReJust2018]; rents are rising along the future light rail transit corridor and throughout the city [@vandermerweSpilloverGentrificationMidsized2021; @mayersLightTransitDocumenting2023]. The larger and high-rent city of of Toronto is spilling gentrification into Hamilton's downtown core, (re)producing neighbourhoods based on Toronto's middle class [@mayersLightTransitDocumenting2023]. In this way, the lower income residents of Hamilton's A+ neighbourhoods are more likely to be displayed and forced to re-located; and if they want to stay in Hamilton, there are not many areas that provide the same exceptional level of access as those they are currently located in. This is a matter of wellbeing and justice.
 
-<!-- Our results show a different story for low-income households.  If they can afford it, these households will prefer to live in very caring and very complete neighbourhoods, which will ease their accessibility to daily activities and essential services and therefore, avoiding social exclusion. In this respect, one-parent families are more likely to be time poor. For them, living in low access/incomplete suburbs increases their chancesof  falling into social exclusion. Furthermore, school closures or any other type of relocation of essential services puts more pressure on their shoulders.  -->
+But what is the most equitable way forward in working to increase caring 15-Minute neighbourhoods? The work's findings indicate that parcels that provide very low 15-minute completely caring access (F) are households that tend to be higher income. These areas tend to be more rural, single-use zoned and car-dependent. Further, of the parcels that provide high child-centrics but low otherwise, A- parcels (better access) tend to be in DAs with lower-income households more so than B- parcels (lower acess than A-). From the perspective of ameliorating land-use to support the equitable distribution of 15-minute caring neighbourhoods which areas be targeted? Who should benefit, and how? If the initiative is targeted to specific neighbourhoods: sustainability linked to car dependency and equity are in-tension. This harkens to what role a planned neighbourhood, and bottom-up planning approaches that should be adopted to achieve equitable 15-minute cities. In this way, the methodology presented shows potential to support city planning, by demonstrating where neighbourhods that provide walkable access to opportunities that matter to all (care destinations) are located as city-wide relative typologies and who currently resides there, as a stepping stone for further investigation.
 
-<!-- Measuring caring neighbourhoods is of utmost importance to promote equity in city planning. Our results are of use for social housing programs for lower income households. Housing is a human right which may not be disentangle from mobility needs. Otherwise, lower income household risk of social exclusion, especially when accessibility to essential services is limited.  -->
+As all research work, the results should also be interpreted along with methodological assumptions, namely, spatial accessibility yields a measure of potential interaction with all reachable destinations from an origin. These destinations however may not be relevant to people at an origin, e.g., the may be underutilized (walkable access to 2 schools is unneeded, as a child only needs to attend 1 school), the trip physically undesirable (the walk may be along an arterial with high traffic speeds, making the trip unlikely to ever happen by foot), or the average walking speed assumed may not reflect the walking speeds of all populations [@willberg15minuteCityAll2023]. All-in-all, people who reside in these neighbourhoods may also disagree with the neighbourhood's label, the labels are region-relative (e.g., high accessibility in Hamilton may be subjectively insufficient for some) and they do not consider subjective perceptions that influence accessibility (e.g., though a neighbourhood has many opportunities, it may not feel safe to access them). Furthermore, accessibility is calculated from the point of residential parcels. Care trips are not necessarily completed from home, in-fact, they are often completed in complex trip-chains [@scheinerWomenComplexDaily2015]. In this way, the results flatten the dynamic patterns of care trips.
 
-<!-- Similarly, this tool has great potential to support city planning, by analyzing the population groups benefited or harmed by relocation, closure or opening of different types of essential services.  -->
+# Conclusion
 
-<!-- The process of gentrification and displacement are trends also occurring in Hamilton. On the horizon of rising rents, there is a risk of displacement among more vulnerable households, who may be replaced by individuals with higher incomes who can afford different transport modes, with more flexible schedules and are more likely to use ICT arrangements (including telework, e-shopping, and other online services). While, lower income households may be particularly vulnerable to locating in areas with worse accessibility to care alternatives, which could have negative consequences for these households and for the society as a whole.  -->
+This study makes three types of contributions: empirical, methodological and theoretical. At the empirical level, areas of the mid-sized City of Hamilton have been typified by their degree of '15-Minute Caring Neighbourhood' potential. Methodologically, we applied the longstanding accessibility measure of cumulative opportunities and entropy to classify spatial areas based on how many destinations could be reached in a 15-minute walk and the diversity of destination type. These values were then clustered using a novel machine learning approach, SOM, to generate meaningful typologies for discussion and further comparision with socio-economic characteristic of the area. We find A+ and A 15-minute caring neighbourhoods are located within the downtown core and in certain suburban pockets of the city, while the peripheral regions provide F level caring access. A- and B- areas are also identified as neighbourhoods that already support a high amount of children-centric destination access, and could be improved to provide better complete care access. Theoretically, our work puts forth an explicitly caring 15-Minute Neighbourhod conceptualisation, bridging the Mobility of Care and the "15-Minute City" concept. We discuss how measuring caring neighbourhoods is a way equity can be implicated considered within city planning. 
 
-<!-- Even if we are on the right direction to develop human-centred urban areas by facilitating caring activities, the chrono-urbanism needs to set the ground on aspects that specifically target caring activities, given the multiple impacts it has on everyday mobility, the unequal distribution of tasks among the population and its related socioeconomic consequences.  -->
-
-
-<!-- ANATASIA's -->
-<!-- - harkens back to what role a planned neighbourhood has. Is it about serivice provision (the what), social homogenity (the who), local power and democracy? [] -->
-
-<!-- # Conclusion -->
-
-<!-- This study makes three types of contributions: empirical, methodological and theoretical. At the empirical level, areas of the mid-sized City of Hamilton have been typified by their degree of '15-Minute Caring Neighbourhood' potential. Methodologically, we applied the longstanding accessibility measure of cumulative opportunities and entropy to classify spatial areas based on how many destinations could be reached in a 15-minute walk and the diversity of destination type. These values were then clustered using a novel machine learning approach, SOM, to generate meaningful typologies for discussion and further comparision with socio-economic characteristic of the area. We find... -->
-
-<!-- Theoretically, our work puts forth an explicitly caring 15-Minute Neighbourhod conceptualisation, bridging the Mobility of Care and the "15-Minute City" concept.  -->
-
-<!-- <!--  -->
-
-<!-- Instead of prescribing an urban form design principle, such as "all local amenities should be within a 15-minute walking distance", it instead examines an empirical example to determine which areas in the city have the _potential_ to be 15-minute neighbourhood based on the existing spatial accessibility offered by the urban environment and walking transport network. To this end, this data-driven methodology introduces a way to identify neighbourhoods that have potential, almost have potential, and are far from containing this potential to support future context-specific qualitative work.   -->
-
-<!-- --> -->
+Our work is of relevance to research and practitioners planning equitable and sustainable cities. Instead of prescribing an urban form design principle, such as "all local amenities should be within a 15-minute walking distance", it instead examines an empirical example to determine which areas in the city have the _potential_ to be 15-minute neighbourhood based on the existing spatial accessibility offered by the urban environment and walking transport network. To this end, this data-driven methodology introduces a way to identify neighbourhoods that have potential, almost have potential, and are far from containing this potential to support future context-specific qualitative work.
 
 # References
 
 ::: {#refs}
 :::
 
-<!-- `r word_comment("If you're interested in how the unweighted results look like for the same maps see the appendix. I've also calculated the cycling travel matrices as well as the 'no dependent' i.e., the same analysis but now only considering 3 care categories: health, errand, and grocery. For the time being though let's focus on this.", " ")` -->
 
-<!-- # Appendix -->
+<!-- As a tool to visualise the variables that describe the superclusters, a decision tree is fit with the DEPENDENT TOTALS, ERRAND TOTALS, GROCERY TOTALS, HEALTH TOTALS, and CATEGORY DIVERSITY scores. Aligning with the descriptive summaries of the superclusters provided, describing the tree-diagram from left to right (roughly from the most caring & complete, to the least), the first three terminal nodes (represented by bar columns that visualise the proportion of supercluster membership at that node) are mostly A+ and A superclusters, and are defined by their high dependent-centric access (about median and above), and high diversity score. A+ is differentiated from A by its exceptionally high health-centric totals while A most just has excellent scores. Columns four, six and seven are dominated by the presence of B+ and B parcels. On average the B+ parcels provide access to an average level of dependent-centric destinations, so the B+ parcels with greater than 6.5 dependent-centric destinations are found in the more left-most columns, and those below this split on the right-most. The far right-most column is dominated by the presence of F parcels, defined by lower DEPENDENT TOTALS and LOW DIVERSITY. It is interesting to note the 5th column, which is defined by D parcels but also the most amount of A- parcels than any other column. A- and D parcels are both high in dependent-centric destinations and low in diversity (though D is much lower than A-). These two parcels again, as shown in @fig-Fig7, can be thought of as parcels in neighbourhoods containing a high amount of some caring destinations, but lacking others, indicating high efficiency for improvement potential.  -->
 
-<!-- ```{r plot-figure10, out.width=600, out.height=600} -->
-<!-- #| label: fig-Fig10 -->
-<!-- #| fig-cap: "A bivariate map of the cumulative opportuninities map (aggregated per category at DA) and the diversity measure. Amenity diverse = diviersity index above the region median. Caring/Complete = accessibility value above the region median. The Basemap shapefiles are retrieved from the 2021 Canadian census [@governmentofcanadaCensusPopulation2023], the Open Data Hamilton Portal [@opendatahamiltonCityBoundary2023] and the USGS [@greatlakesUSGS2010]." -->
-<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/all_cats_bivariate_entropy_copp_plot.png")) -->
+<!-- ```{r plot-figure7, out.width=600, out.height=300} -->
+<!-- #| label: fig-Fig7 -->
+<!-- #| fig-cap: "The decision tree demonstrating variables that define the superclusters." -->
+<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles_usingSCVARS.png")) -->
 <!-- ``` -->

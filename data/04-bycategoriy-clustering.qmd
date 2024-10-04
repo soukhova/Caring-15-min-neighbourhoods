@@ -541,6 +541,7 @@ dev.off()
 # Very caring - complete (C5)
 # Very caring - very complete (C7)
 ```
+
 ```{r}
 #par(mfrow=c(3,2))
 plot(access.som_small, 
@@ -609,39 +610,70 @@ access_15_wide$scluster <- access.sc$cluster[access.som_small$clustering]
 ```
 
 ```{r}
-access_15_wide |> select(total_tot_copp_isc_groc,total_tot_copp_isc_dep,total_tot_copp_isc_health,total_tot_copp_isc_err,div_allcats) |> summary()
-access_15_wide |> group_by(scluster) |> summarise(total_tot_copp_isc_groc = median(total_tot_copp_isc_groc),
-                                                  total_tot_copp_isc_dep = median(total_tot_copp_isc_dep),
-                                                  total_tot_copp_isc_health = median(total_tot_copp_isc_health),
-                                                  total_tot_copp_isc_err = median(total_tot_copp_isc_err),
-                                                  div_allcats = median(div_allcats),
-                                                  pc = n()/143882)
+# norm_tot_copp_isc_norm_groc + norm_Convience + norm_Grocer + #div_allcats +
+#                                               norm_tot_copp_isc_norm_dep + norm_Rec + norm_Daycare + norm_LTC + norm_Park + norm_School + norm_Senior + #div_dep +
+#                                               norm_tot_copp_isc_norm_health + norm_Pharmacy + norm_Dentist + norm_Hos_clinc + #div_health +
+#                                               norm_tot_copp_isc_norm_err + norm_PostOff + norm_Library+ norm_Bank_ATM + div_allcats
+
+#total_tot_copp_isc_dep,total_tot_copp_isc_health,total_tot_copp_isc_err,div_allcats
+#'total_Community or Recreation Centre', "total_Daycare or EarlyON","total_Long_Term Care or Retirement Home","total_Park","total_School",'total_Senior Centre'
+
+access_15_wide |> 
+  select(c(
+    scluster,total_tot_copp_isc_groc,total_tot_copp_isc_dep,total_tot_copp_isc_health,total_tot_copp_isc_err,div_allcats
+    #scluster,norm_tot_copp_isc_norm_groc, norm_tot_copp_isc_norm_dep,norm_tot_copp_isc_norm_health,norm_tot_copp_isc_norm_err,div_allcats
+    )) |> 
+  mutate(tot = rowSums(across(c(total_tot_copp_isc_dep,total_tot_copp_isc_health,total_tot_copp_isc_err))))|>
+  group_by(scluster) |>
+  summarise_all(list(median))|>
+    mutate(lab = case_when(scluster == 1 ~ "A+",
+                               scluster == 2 ~ "A",
+                               scluster == 3 ~ "A-",
+                               scluster == 4 ~ "D",
+                               scluster == 5 ~ "B",
+                               scluster == 6 ~ "B+",
+                               scluster == 7 ~ "F")) |> arrange(tot)
+  
+  # total_tot_copp_isc_groc = mean(total_tot_copp_isc_groc),
+  #                                                 total_tot_copp_isc_dep = mean(total_tot_copp_isc_dep),
+  #                                                 total_tot_copp_isc_health = mean(total_tot_copp_isc_health),
+  #                                                 total_tot_copp_isc_err = mean(total_tot_copp_isc_err),
+  #                                                 div_allcats = mean(div_allcats),
+                                                  #pc = n()/143882) |>
+# access_15_wide |> 
+#   select(c(scluster,norm_tot_copp_isc_norm_groc, norm_tot_copp_isc_norm_dep,norm_tot_copp_isc_norm_health,norm_tot_copp_isc_norm_err,div_allcats)) |> summary()
 ```
 
 
 How many parcels are in each cluster? with their %
 
 The low diversities - low accessibility
-C7 - the WORST - below Q3 in everything
 
-Mixed diversities - Higher accessibility for some stuff
-C4 - above median dependent-centric - but low diversity and low everything else (THESE AREAS HAVE POTENTIAL! the need more GROC, HEALTH, and ERRs) 
-C5 - like medium - about median everything with slightly lower HIGH diversity
-C3 - exceptionally high dependent-centric, and high everything else but low diversity
 
-High diversities and high accessibility
-C6 - medium - about median everything with the highest diversity
-C2 - better than medium - slightly above median everything with high diversity
-C1 - the best - above Q3 everything
+Lower accessibility (under median) with mixed diversity
+F - C7 - the absolute worst, low in all but with some dep, making it very low diversity - "NOT GOOD - need to add it all"
+D - C4 - has nothing except dep, making it very low diversity - "NOT GOOD - need to add err, groc, health"
+
+B - C5 - LIKE C6 but slightly lower everything. Overall good balance so good diversity - "ALL AROUND GOOD" -- firmly average. 
+B+ - C6 - about median dep, above median groc and health and Q3 errand. Overall great balance so high diversity - "ALL AROUND GREAT" 
+
+High accessibilities (high caring) -- all at or above median
+A- - C3 - about median groc, health, errand and Q3 dep-centric, so lower diversity score - "ALL AROUND GREAT - with really high children-centric dests" 
+A - C2 - above Q3 everything and high diversity - however all is slightly lower than A - "ALL AROUND EXCELLENT"
+A+ - C1 - the best - above Q3 everything with high diversity- "ALL AROUND SUPER EXCELLENT"
+
 
 THE LABELS:
-Not caring - not complete (C7)
-Somewhat caring - not complete (C4)
-Somewhat caring - complete (C5)
-Caring - somewhat complete (C3)
-Caring - very complete (C6)
-Very caring - complete (C2)
-Very caring - very complete (C1)
+
+F (Nothing much: Not caring & not complete) (C7)
+D (Daycares, parks and schools, not much else: Somewhat caring & not complete) (C4)
+
+B (Average: Caring & complete) (C5)
+B+ (Above average: Caring & very complete) (C6)
+
+A- (Excellent, but dep- heavy: Very caring & not complete (C3)
+A (Excellent: Very caring & very complete) (C2)
+A+ (Exceptional: very caring & very complete) (C1)
 
 
 ## Profiling the super clusters
@@ -693,7 +725,12 @@ df <- df |>
   mutate(Total_copp_groc = Convience +Grocer,
          Total_copp_dep = Rec + Daycare + LTC + Park + School + Senior,
          Total_copp_health = Hos_clinc+Dentist,
-         Total_copp_err = PostOff +Library+Bank_ATM + Pharmacy)
+         Total_copp_err = PostOff +Library+Bank_ATM + Pharmacy) |>
+  rename("GROCERY TOTALS" = "total_tot_copp_isc_groc",
+             "DEPENDENT TOTALS"= total_tot_copp_isc_dep,
+             "HEALTH TOTALS"= total_tot_copp_isc_health,
+             "ERRAND TOTALS"= total_tot_copp_isc_err, 
+             "CATEGORY DIVERSITY"=div_allcats)
 ```
 
 Train a decision tree using the input SOM input variables:
@@ -703,11 +740,21 @@ Train a decision tree using the input SOM input variables:
 #                                               Rec + Daycare + LTC + Park + School + Senior + div_dep +
 #                                               Dentist + Hos_clinc + div_health +
 #                                               PostOff +Library+Bank_ATM + Pharmacy + div_err))
+
 classmod.som <- rpart(data = df,
-                      formula = scluster ~ (norm_tot_copp_isc_norm_groc + norm_Convience + norm_Grocer + #div_allcats +
-                                              norm_tot_copp_isc_norm_dep + norm_Rec + norm_Daycare + norm_LTC + norm_Park + norm_School + norm_Senior + #div_dep +
-                                              norm_tot_copp_isc_norm_health + norm_Pharmacy + norm_Dentist + norm_Hos_clinc + #div_health +
-                                              norm_tot_copp_isc_norm_err + norm_PostOff + norm_Library+ norm_Bank_ATM + div_allcats#+ div_err
+                      formula = scluster ~ (`GROCERY TOTALS` +
+                                            #norm_tot_copp_isc_norm_groc + 
+                                              #norm_Convience + norm_Grocer + #div_allcats +
+                                              `DEPENDENT TOTALS` +
+                                              #norm_tot_copp_isc_norm_dep + 
+                                              #norm_Rec + norm_Daycare + norm_LTC + norm_Park + norm_School + norm_Senior + #div_dep +
+                                              `HEALTH TOTALS` +
+                                              #norm_tot_copp_isc_norm_health + 
+                                              #norm_Pharmacy + norm_Dentist + norm_Hos_clinc + #div_health +
+                                              `ERRAND TOTALS` + 
+                                              #norm_tot_copp_isc_norm_err + 
+                                              #norm_PostOff + norm_Library+ norm_Bank_ATM + 
+                                              `CATEGORY DIVERSITY`#+ div_err
                                             ))
 
 # Predict the labels and add them to the dataset
@@ -722,63 +769,84 @@ df$SC6 <- predicted_labels$`6`
 df$SC7 <- predicted_labels$`7`
 # df$SC8 <- predicted_labels$`8`
 # df$SC9 <- predicted_labels$`9`
-
-
 ```
 
-Trying ggparty to visualise, but first convert the rpart object to a party object:
+Variable importance:
 ```{r}
-classmod.sompar <- as.party(classmod.som)
-
-#Autoplot as ggplot:
-autoplot(classmod.sompar)
-```
-
-
-Frequency of parcels in the super clusters:
-```{r}
-freq_sc <- ggplot(access_15_wide |> 
-         mutate(scluster = factor(scluster))) +
-  geom_bar(aes(x = "", 
-               group = scluster, 
-               fill = scluster)) +
-  scale_fill_discrete(name = "Supercluster") #+
-  #theme_void() +
-  #guides(fill = guide_legend(nrow = 1)) +
-  #theme(legend.position = "bottom")
-
-#with new names and colours
-freq_sc_renamed <- ggplot(access_15_wide |> 
-         mutate(scluster = factor(scluster))) +
-  geom_bar(aes(x = "", 
-               group = scluster, 
-               fill = scluster)) +
-  scale_fill_manual(name = "Neighbourhood typologies",
-                    values = c( "#1A9850","#91CF60", "#D9EF8B", "#FFFFBF","#FEE08B","#FC8D59","#D73027"),
-                    labels = c("Not caring - not complete (C2)",
-                               "Somewhat caring - not complete (C1)",
-                               "Somewhat caring - complete (C4)",
-                               "Caring - somewhat complete (C3)",
-                               "Caring - very complete (C6)",
-                               "Very caring - complete (C5)",
-                               "Very caring - very complete (C7)"))
+var_importance <- data.frame(imp = classmod.som$variable.importance)
+var_importance <- var_importance %>% 
+  tibble::rownames_to_column() %>% 
+  dplyr::rename("variable" = rowname) %>% 
+  dplyr::arrange(imp) %>%
+  dplyr::mutate(variable = forcats::fct_inorder(variable))
+ggplot2::ggplot(var_importance) +
+  geom_col(aes(x = variable, y = imp),
+           col = "black", show.legend = F) +
+  coord_flip() +
+  scale_fill_grey() +
+  theme_bw()
 
 ```
 
-Extract the legend:
-```{r}
-legd <- cowplot::get_legend(freq_sc)
 
-legd
-```
+<!-- Trying ggparty to visualise, but first convert the rpart object to a party object: -->
+<!-- ```{r} -->
+<!-- classmod.sompar <- as.party(classmod.som) -->
+
+<!-- #Autoplot as ggplot: -->
+<!-- autoplot(classmod.sompar) -->
+<!-- ``` -->
+
+
+<!-- Frequency of parcels in the super clusters: -->
+<!-- ```{r} -->
+<!-- freq_sc <- ggplot(access_15_wide |>  -->
+<!--          mutate(scluster = factor(scluster))) + -->
+<!--   geom_bar(aes(x = "",  -->
+<!--                group = scluster,  -->
+<!--                fill = scluster)) + -->
+<!--   scale_fill_discrete(name = "Supercluster") #+ -->
+<!--   #theme_void() + -->
+<!--   #guides(fill = guide_legend(nrow = 1)) + -->
+<!--   #theme(legend.position = "bottom") -->
+
+<!-- #with new names and colours -->
+<!-- freq_sc_renamed <- ggplot(access_15_wide |>  -->
+<!--          mutate(scluster = factor(scluster))) + -->
+<!--   geom_bar(aes(x = "",  -->
+<!--                group = scluster,  -->
+<!--                fill = scluster)) + -->
+<!--   scale_fill_manual(name = "Neighbourhood typologies", -->
+<!--                     values = c( "#1A9850","#91CF60", "#D9EF8B", "#FFFFBF","#FEE08B","#FC8D59","#D73027"), -->
+<!--                     labels = c("F (Nothing much: Not caring & not complete) (C7)", -->
+<!-- "D (Daycares, parks and schools, not much else: Somewhat caring & not complete) (C4)", -->
+<!-- "B (Average: Caring & complete) (C5)", -->
+<!-- "B+ (Above average: Caring & very complete) (C6)", -->
+<!-- "A- (Excellent, but dep- heavy: Very caring & not complete (C3)", -->
+<!-- "A (Excellent: Very caring & very complete) (C2)", -->
+<!-- "A+ (Exceptional: very caring & very complete) (C1)")) -->
+
+<!-- ``` -->
+
+
+<!-- Extract the legend: -->
+<!-- ```{r} -->
+<!-- legd <- cowplot::get_legend(freq_sc) -->
+
+<!-- legd -->
+<!-- ``` -->
+
+
 
 Make a prettier plot:
 ```{r}
+classmod.sompar <- as.party(classmod.som)
+
 party_plot <- ggparty(classmod.sompar) +
   geom_edge() +
-  geom_edge_label(size = 1.6) +
-  geom_node_label(aes(label = splitvar),
-                  id = "inner", 
+  geom_edge_label(size = 2.5) +
+  geom_node_label(aes(label = splitvar ),
+                  id = "inner",
                   size = 2, nudge_y = -0.022) +
   # pass list to gglist containing all ggplot components we want to plot for each
   # (default: terminal) node
@@ -786,16 +854,17 @@ party_plot <- ggparty(classmod.sompar) +
                                         position = position_fill()),
                                xlab(""),
                                ylab(""),
-                               theme_void()
-                               #theme(axis.text = element_blank())
-                               ))
+                               theme_void(),
+                               scale_fill_manual(values = c("#1A9850","#91CF60", "#D9EF8B", "#F46D43", "#FDAE61", "#FEE08B","#D73027")),
+                              theme(axis.text = element_blank())))
 party_plot
 ```
 
+
 Plot the tree:
 ```{r}
-png(file= file.path(here("figures/decision_tree_profiles_sc.png")),width= 2404, height= 1600, units="px",  res=300)
-plot_grid(party_plot, legd, nrow = 1, rel_widths = c(1, 0.2))
+png(file= file.path(here("figures/access_sc_profiles_usingSCVARS.png")),width= 3000, height= 1600, units="px",  res=300)
+plot_grid(party_plot, legd_renamed, nrow = 1, rel_widths = c(2, 1.5))
 dev.off()
 ```
 
@@ -803,13 +872,13 @@ dev.off()
 ## Maps
 OKAY! SO LET"S MAKE SOME VISUAL PLOTS:
 
-Not caring - not complete (C7)
-Somewhat caring - not complete (C4)
-Somewhat caring - complete (C5)
-Caring - somewhat complete (C3)
-Caring - very complete (C6)
-Very caring - complete (C2)
-Very caring - very complete (C1)
+"F (Nothing much: Not caring & not complete) (C7)",
+"D (Daycares, parks and schools, not much else: Somewhat caring & not complete) (C4)",
+"B (Average: Caring & complete) (C5)",
+"B+ (Above average: Caring & very complete) (C6)",
+"A- (Excellent, but dep- heavy: Very caring & not complete (C3)",
+"A (Excellent: Very caring & very complete) (C2)",
+"A+ (Exceptional: very caring & very complete) (C1)"
 
 
 ```{r}
@@ -830,21 +899,13 @@ df_DA <- df |> left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by =
     Total_copp_dep = median(Total_copp_dep),
     Total_copp_health = median(Total_copp_health),
     Total_copp_err = median(Total_copp_err)) |>
-  mutate(max_label = case_when(max_label_val == SC1 ~ "a. Very caring - very complete (SC1)",
-                               max_label_val == SC2 ~ "b. Very caring - mostly complete (SC2)",
-                               max_label_val == SC3 ~ "d. Somewhat caring - mostly complete (SC3)",
-                               max_label_val == SC4 ~ "c. Very caring - mostly complete (SC4)",
-                               max_label_val == SC5 ~ "j. Somewhat caring - somewhat complete (SC5)",
-                               max_label_val == SC6 ~ "e. Somewhat caring - not complete (SC6)",
-                               max_label_val == SC7 ~ "f. not caring - not complete (SC7)"))
-
-                    labels = c("Not caring - not complete (C2)",
-                               "Somewhat caring - not complete (C1)",
-                               "Somewhat caring - complete (C4)",
-                               "Caring - somewhat complete (C3)",
-                               "Caring - very complete (C6)",
-                               "Very caring - complete (C5)",
-                               "Very caring - very complete (C7)"))
+  mutate(max_label = case_when(max_label_val == SC1 ~ "a. (Exceptional: very caring & very complete) (C1)",
+                               max_label_val == SC2 ~ "b. (Excellent: Very caring & very complete) (C2)",
+                               max_label_val == SC3 ~ "c. (Excellent, but dep- heavy: Very caring & not complete (C3)",
+                               max_label_val == SC4 ~ "f. (Daycares, parks and schools, not much else: Somewhat caring & not complete) (C4)",
+                               max_label_val == SC5 ~ "e. (Average: Caring & complete) (C5)",
+                               max_label_val == SC6 ~ "d. (Above average: Caring & very complete) (C6)",
+                               max_label_val == SC7 ~ "g. (Nothing much: Not caring & not complete) (C7)"))
 
 
 df_DA <- df_DA |> left_join(HAM_census_21, by=c("GeoUID")) |>
@@ -865,6 +926,8 @@ df_DA <- df_DA |> left_join(HAM_census_21, by=c("GeoUID")) |>
 
 
 df_DA$parcel_count |> sum() #a check
+
+save(df_DA, file = "df_DA.RData")
 ```
 Loading boundaries for mapping:
 ```{r}
@@ -874,6 +937,9 @@ hydro_p_LakeOntario <- st_read("data-raw/boundaries/hydro_p_LakeOntario.shp") |>
 ham_bay <- st_read("data-raw/boundaries/Waterbodies.shp") |> st_transform(crs=4326) |> filter(FEATURE_TY == "Lake")
 ham_bay_cropped<-st_crop(ham_bay$geometry, Community_Boundaries$geometry)
 hydro_p_LakeOntario_cropped<-st_crop(hydro_p_LakeOntario$geometry, Community_Boundaries$geometry)
+
+Escpartment_Boundary <- st_read("data-raw/boundaries/Escarpment.shp", quiet = TRUE) |> st_transform(Escpartment_Boundary, crs = 4326) |> st_cast("LINESTRING")
+Escpartment_Boundary_HAM <- Escpartment_Boundary |> st_intersection(City_Boundary) 
 ```
 
 ```{r, eval=FALSE}
@@ -981,101 +1047,141 @@ tmap_save(all_cats_entropy_copp_plot, file= file.path(here("figures/all_cats_ent
 ```
 
 ```{r, eval=FALSE}
-total_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(df_DA) +
-  tm_polygons("Total_copp_groc",
-              border.alpha = 0.2,
-              #style = "quantile", n=4,
-              palette = "Purples",
-              title = "Total access to care destinations",) +
-  tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
-  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
-  tm_compass(position = c("left", "top"), size=1.0)+
-  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
-            bg.color = "grey",
-            legend.position = c("right","top"))
+# RColorBrewer::brewer.pal(n = 8, name = "RdYlGn")
+# "#D73027" "#F46D43" "#FDAE61" "#FEE08B" "#D9EF8B" "#A6D96A" "#66BD63" "#1A9850"
 
-total_copp_plot
-```
-
-```{r, eval=FALSE}
-SClabel_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+SClabel_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
   tm_shape(df_DA) +
   tm_polygons("max_label",
               border.alpha = 0.2,
-              # palette = c("#44ce1b","#bbdb44", "#f7e379", "#f2a134","#e51f1f"),
-              # labels = (c("Very caring - very complete",
-              #             "Caring - Complete",
-              # "Somewhat caring - complete",
-              # "Somewhat caring - somewhat complete", 
-              # "Somewhat caring - somewhat complete")),
+              palette = c("#1A9850","#91CF60", "#D9EF8B", "#FEE08B","#FDAE61","#F46D43","#D73027"),
+              labels = c("(A+) Exceptional: very caring & very complete", #C1
+                         "(A ) Excellent: very caring & very complete ", #(C2)
+                         "(A-) Dep- heavy, otherwise excellent: very caring & not complete", #(C3)
+                         "(B+) Above average: caring & very complete", # (C6)
+                         "(B ) Average: caring & complete", #(C5)
+                         "(B- ) Dep- heavy, otherwise below average: somewhat caring & not complete", # (C4)
+                         "(D ) Below average: not caring & not complete"), # (C7)
               title = "Neighbourhood typology") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
-  tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
-  tm_compass(position = c("left", "top"), size=1.0)+
+  tm_shape(Escpartment_Boundary) + tm_lines(col = "grey30", lty = "dashed", lwd=1.5, legend.show=TRUE)+
+  tm_scale_bar(position = c("left", "top"), breaks = c(0, 1, 5, 10)) +
+  tm_compass(position = c("right", "top"), size=1.0)+
   tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
             bg.color = "grey",
-            legend.position = c("right","top"))
-SClabel_copp_plot
+            legend.text.size=0.8,
+            legend.title.size = 1.2,
+            legend.width = 2,
+            legend.position = c("left","bottom"))
+SClabel_plot
 
-SCLab_and_total_copp_plot <- tmap_arrange(SClabel_copp_plot, total_copp_plot, nrow=2)
-```
-
-
-```{r, eval=FALSE}
-SCLab_and_total_copp_plot
-```
-
-
-```{r, eval=FALSE}
-tmap_save(SCLab_and_total_copp_plot, 
-          file= file.path(here("figures/SCLab_and_total_copp_plot.png")),
-          dpi=300)
-
-tmap_save(SClabel_copp_plot, 
-          file= file.path(here("figures/SClabel_copp_plot.png")),
+tmap_save(SClabel_plot, 
+          file= file.path(here("figures/SClabel_plot.png")),
           dpi=300)
 ```
 
+
+F (Nothing much: Not caring & not complete) (C7)
+D (Daycares, parks and schools, not much else: Somewhat caring & not complete) (C4)
+
+B (Average: Caring & complete) (C5)
+B+ (Above average: Caring & very complete) (C6)
+
+A- (Excellent, but dep- heavy: Very caring & not complete (C3)
+A (Excellent: Very caring & very complete) (C2)
+A+ (Exceptional: very caring & very complete) (C1)
 
 
 ## Demographic profile of clusters
 
 Select data for classification:
-```{r}      
 
-df <- access_15_wide |> left_join(access_15_aggregated, by = "from_id") |> 
+```{r}
+# #min-max normalization
+# rescale <- function(x, na.rm = TRUE) {
+#   # Remove NA values if na.rm is TRUE
+#   if (na.rm) {
+#     min_x <- min(x, na.rm = TRUE)
+#     max_x <- max(x, na.rm = TRUE)
+#   } else {
+#     min_x <- min(x)
+#     max_x <- max(x)
+#   }
+#   
+#   # Avoid division by zero (min == max) and ensure no Inf values
+#   if (min_x == max_x) {
+#     warning("All non-NA values are the same. Returning zeros.")
+#     return(rep(0, length(x)))
+#   }
+#   
+#   # Apply Min-Max normalization, keeping NAs where they were
+#   rescaled_x <- (x - min_x) / (max_x - min_x)
+#   
+#   # Replace potential Inf/-Inf values with NA, though this should not happen
+#   rescaled_x[is.infinite(rescaled_x)] <- NA
+#   
+#   return(rescaled_x)
+# }
+
+# RESCALING DOESN"T HAVE AN IMPACT!
+df <- access_15_wide |> 
+  left_join(access_15 |> dplyr::select(c("from_id","GeoUID")), by = "from_id") |>  
+  left_join(HAM_census_21, by=c("GeoUID")) |>
   transmute(scluster = factor(scluster),
-            Income_bottom = `v_CA21_1103: In bottom half of the distribution`/(`v_CA21_1103: In bottom half of the distribution` + `v_CA21_1121: In top half of the distribution`),
-            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)`,
+            Income_bottom_n = `v_CA21_1103: In bottom half of the distribution`,
+            Income_top_n = `v_CA21_1121: In top half of the distribution`,
+            Income_bottom = Income_bottom_n / (Income_bottom_n + Income_top_n),
+            Income = `v_CA21_907: Median after-tax income of household in 2020 ($)` ,
+            LICO = `v_CA21_1085: Prevalence of low income based on the Low-income cut-offs, after tax (LICO-AT) (%)` ,
             Avg_numb_of_kids = `v_CA21_498: Average number of children in census families with children`,
             Not_in_labforce = `v_CA21_6504: Not in the labour force`/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
-            Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income`,
+            Unemployed = (`v_CA21_6501: Unemployed`)/(`v_CA21_6498: Employed` + `v_CA21_6501: Unemployed` + `v_CA21_6504: Not in the labour force`),
+            Income_gini = `v_CA21_1142: Gini index on adjusted household after-tax income` ,
             Vis_minority = `v_CA21_4875: Total visible minority population`/ (`v_CA21_4914: Not a visible minority`+ `v_CA21_4875: Total visible minority population`),
-            Age_0to14 =(`v_CA21_11: 0 to 14 years`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`),
+            Age_0to14 = (`v_CA21_11: 0 to 14 years`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`) ,
+            Age_65above = (`v_CA21_251: 65 years and over`) / (`v_CA21_11: 0 to 14 years` + `v_CA21_68: 15 to 64 years` + `v_CA21_251: 65 years and over`) ,
             One_parent_families = `v_CA21_507: Total one-parent families` / (`v_CA21_507: Total one-parent families` + `v_CA21_500: Total couple families`),
-            walk_towork =  `v_CA21_7647: Walked` / (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
-            Owner_hld_CHN = `v_CA21_4308: % in core housing need (57)`,
-            Hld_ownership = `v_CA21_4306: % of owner households with a mortgage (58)`,
-            Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)`,
-            Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)`,
+            walk_towork =  `v_CA21_7647: Walked`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            bike_towork =  `v_CA21_7650: Bicycle` / (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            pt_towork = `v_CA21_7644: Public transit`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            car_towork =  `v_CA21_7635: Car, truck or van`/ (`v_CA21_7647: Walked` + `v_CA21_7635: Car, truck or van` + `v_CA21_7644: Public transit` + `v_CA21_7650: Bicycle` + `v_CA21_7653: Other method` ),
+            Owner_hld_CHN = `v_CA21_4308: % in core housing need (57)` ,
+            Hld_ownership = `v_CA21_4306: % of owner households with a mortgage (58)` ,
+            Hld_sheltercosts = `v_CA21_4307: % of owner households spending 30% or more of its income on shelter costs (55)` ,
+            Tenant_sheltercosts = `v_CA21_4315: % of tenant households spending 30% or more of its income on shelter costs (55)` ,
+            Tenant_subsi_hld = `v_CA21_4314: % of tenant households in subsidized housing (61)` ,
+            Tenant_hld_CHH =`v_CA21_4316: % in core housing need (57)` ,
             Population,
             Low_or_no_deg = (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate`) / (`v_CA21_5868: No certificate, diploma or degree` + `v_CA21_5871: High (secondary) school diploma or equivalency certificate` + `v_CA21_5874: Postsecondary certificate, diploma or degree`))
 
-          
-# examining correlations
-cor(df |> select(-c("scluster")), use = "complete.obs")
+#df |> summary()
 
-#Train a decision tree using the data (renamed!):
+# # examining correlations
+#df_cor <- cov.wt(df |> select(-c("scluster")) |> na.omit(), wt =  na.omit(df$Population), cor=TRUE) |> as.data.frame()
+```
+```{r}
+#Train a decision tree using the data:
 classdemo.som <- rpart(data = df,
-                      formula = scluster ~ (Income_bottom + Age_0to14 + One_parent_families + Vis_minority + Not_in_labforce+ Income_gini+walk_towork+Owner_hld_CHN+Hld_ownership+Tenant_subsi_hld+Tenant_hld_CHH+LICO),
+                      formula = scluster ~ (One_parent_families + Avg_numb_of_kids + # Age_0to14+
+                                              Not_in_labforce+Vis_minority+Unemployed +
+                                              Owner_hld_CHN+Tenant_subsi_hld+Tenant_hld_CHH+
+                                              Hld_sheltercosts+ Tenant_sheltercosts+
+                                              LICO+Low_or_no_deg+Income_gini+#Income+
+                                              Income_bottom+
+                                              walk_towork #+car_towork
+                                            ),
+                                            #+  +
+                                            #+bike_towork+pt_towork+Hld_ownership
+                                            #++  Income +Age_65above+++Income_bottom+)
                       weights = Population
                       )
 # # Visualize the decision tree:
 # rpart.plot(classdemo.som, cex = 0.5, type = 0, varlen = 8)
+
+#rpart.plot(classdemo.som, main = "")
 ```
+Low income, LICO, single parent, and no degree -- highly correlated. 
 
 ```{r}
 # convert the rpart object to a party object:
@@ -1096,23 +1202,64 @@ party_plot <- ggparty(classdemo.sompar) +
                                #xlab(""),
                                #ylab(""),
                                theme_void(),
-                               scale_fill_manual(values = c("#bbdb44","#44ce1b",  "#f2a134", "#f7e379","#e51f1f")),
-                               theme(axis.text = element_blank())))
+                               scale_fill_manual(values = c("#1A9850","#91CF60", "#D9EF8B", "#F46D43", "#FDAE61", "#FEE08B","#D73027")),
+                              theme(axis.text = element_blank())))
+
+```
+```{r}
+party_plot
+
+#creating a legend
+freq_sc_renamed <- ggplot(access_15_wide |> 
+         mutate(scluster = factor(scluster))) +
+  geom_bar(aes(x = "", 
+               group = scluster, 
+               fill = scluster)) +
+  scale_fill_manual(name = "Neighbourhood typologies",
+                    values = c("#1A9850","#91CF60", "#D9EF8B", "#FEE08B","#FDAE61","#F46D43","#D73027"),
+              labels = c("(A+) Exceptional: very caring & very complete", #C1
+                         "(A ) Excellent: very caring & very complete ", #(C2)
+                         "(A-) Dep- heavy, otherwise excellent: very caring & not complete", #(C3)
+                         "(B+) Above average: caring & very complete", # (C6)
+                         "(B ) Average: caring & complete", #(C5)
+                         "(B- ) Dep- heavy, otherwise below average: somewhat caring & not complete", # (C4)
+                         "(D ) Below average: not caring & not complete") # (C7)
+  ) 
+freq_sc_renamed
 
 legd_renamed <- cowplot::get_legend(freq_sc_renamed)
-party_plot
+                                    
+```
+Variable importance:
+```{r}
+var_importance <- data.frame(imp = classdemo.som$variable.importance)
+var_importance <- var_importance %>% 
+  tibble::rownames_to_column() %>% 
+  dplyr::rename("variable" = rowname) %>% 
+  dplyr::arrange(imp) %>%
+  dplyr::mutate(variable = forcats::fct_inorder(variable))
+ggplot2::ggplot(var_importance) +
+  geom_col(aes(x = variable, y = imp),
+           col = "black", show.legend = F) +
+  coord_flip() +
+  scale_fill_grey() +
+  theme_bw()
+
 ```
 
 ```{r, eval=FALSE}
 #plot and save
-# NOTE: edited this in paint.. be careful saving over
-png(file= file.path(here("figures/access_sc_profiles_renamed.png")),width= 2600, height= 1600, units="px",  res=300)
-plot_grid(party_plot, legd_renamed, nrow = 1, rel_widths = c(1, 0.3))
+# NOTE: combined and edited this in paint, becareful when saving over
+png(file= file.path(here("figures/access_sc_profiles_justincome.png")),width= 2600, height= 1600, units="px",  res=300)
+plot_grid(party_plot)
 dev.off()
 ```
 
-This is interesting! So for parcels with less than 45% of bottom-income people (richer) -- parcels with higher proportion of 1 parent households (13% and above) are more likely to have bad care/incomplete access (c3) than _really_ bad care/very incomplete access (c5). 
 
-For parcels with higher than 45% of bottom-income (poorer), those with high a high proportion of children (age 0 to 14) are likely to have bad care/incomplete acces (c3). But those with a lower proportion of children - especially 9.8% LICO and above are going to have _super high_ care/complete (c1) or under 9.8% LICO will have _high_ care/complete (c2)
-For less than 63%, it's a different story. If between 45% and 63%, they are described by cluster 1 (caring and complete). 
+```{r, eval=FALSE}
+png(file= file.path(here("figures/access_sc_profiles_legend.png")),width= 2600, height= 1600, units="px",  res=300)
+plot_grid(legd_renamed)
+dev.off()
+```
+
 
