@@ -1163,11 +1163,11 @@ df <- access_15_wide |>
 ```{r}
 #Train a decision tree using the data:
 classdemo.som <- rpart(data = df,
-                      formula = scluster ~ (One_parent_families + Avg_numb_of_kids + # Age_0to14+
+                      formula = scluster ~ (One_parent_families + Avg_numb_of_kids + Age_0to14+
                                               Not_in_labforce+Vis_minority+Unemployed +
                                               Owner_hld_CHN+Tenant_subsi_hld+Tenant_hld_CHH+
                                               Hld_sheltercosts+ Tenant_sheltercosts+
-                                              LICO+Low_or_no_deg+Income_gini+#Income+
+                                              LICO+Low_or_no_deg+Income_gini+ Income+
                                               Income_bottom+
                                               walk_towork #+car_towork
                                             ),
