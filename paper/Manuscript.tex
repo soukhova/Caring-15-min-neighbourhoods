@@ -43,14 +43,28 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{5}
 % Make \paragraph and \subparagraph free-standing
+\makeatletter
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
-  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
 \fi
 \ifx\subparagraph\undefined\else
   \let\oldsubparagraph\subparagraph
-  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
+\makeatother
 
 
 \providecommand{\tightlist}{%
@@ -139,6 +153,7 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -159,6 +174,7 @@ neighbourhood, Care Complete Neighbourhoods},
   citecolor={Blue},
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
+
 
 \setlength{\parindent}{6pt}
 \begin{document}
@@ -205,6 +221,7 @@ neighbourhood \sep
 \end{keyword}
 \end{frontmatter}
     
+
 \section{Abstract}\label{abstract}
 
 The ``15-Minute City'' concept has been embraced by global leaders to
@@ -258,24 +275,27 @@ individuals to reclaim time spent on car mobility, giving way to
 sustainable modes and prompting urban spaces that are responsive to
 human needs and environmental sensibilities \citep{Allam2022}.
 
-Though the term 15-Minute City is relatively new, neighbourhood planning
-practice aiming to foster community and local travel to amenities is
-not. As recent examples, planned neighbourhoods dominated post-WWII
+The term 15-Minute City is relatively new but the concept is not, as it
+is simply a normative cumulative-opportunities accessibility measure
+\citep{paez_measuring_2012}. Its newfound fame under the moniker of
+chronourbanism comes to complement long-standing efforts to foster
+community and local travel to amenities in neighbourhood planning
+practice. As recent examples, planned neighbourhoods dominated post-WWII
 built urban form: the Neighbourhood Unit Concept in the western world
 \citep{brodyNeighbourhoodUnitConcept2013} and a parallel concept of the
 ``mikrorayons'' neighbourhoods in the Soviet Union
 \citep{kissfazekasCircleParadigms15minute2022}. Along different
 dimensions, these planning forms have been extensively critiqued
 \citep{talenSocialSciencePlanned2017}. In this respect, neighbourhood
-planning approaches such as the 15-Minute City concept are being
-re-embraced by some, but from bottom-up perspective using co-creation
-tools and meaningful resident participation to achieve equitable and
-justice neighbourhood forms \citep{mahmoudCocreationPathwayUrban2021}.
-How to equitably prescribe urban form that `enables' contact with social
-opportunities (instead of `engendering it' from the top-down) is still
-under debate. Questions remain, including: what destinations really
-matter?, what mode and travel time threshold is most appropriate?, and
-who benefits? For instance, these dimensions are under discussion among
+planning approaches such as the 15-Minute City concept offer an
+opportunity for bottom-up approaches that leverage co-creation tools and
+meaningful resident participation to achieve equitable and just
+neighbourhood forms \citep{mahmoudCocreationPathwayUrban2021}. How to
+prescribe equitable urban forms that `enable' contact with social
+opportunities (instead of `engendering it' from the top-down) is still a
+matter for debate. Questions remain, including: what destinations really
+matter? What mode and travel time threshold is most appropriate? And who
+benefits? To be certain, these dimensions are under discussion among
 proximity-based planners who use accessibility-based tools
 \citep{silvaProximitycentredAccessibilityConceptual2023, silvaRegionalAccessibilityUndermining2022, guzmanProximityEnoughCritical2024}.
 
@@ -287,15 +307,19 @@ inhabitants
 \citep{vacchelli_towards_2018, urbandevelopmentviennaGenderMainstreamingUrban2013}.
 Researchers have demonstrated how mobility patterns differ according to
 gender
-\citep{lawWomenTransportNew1999, cresswell_gendered_2008, levy2013travel, little_gender_1994, tronto_toward_1990}.
-Gendered social norms and cultural factors play a role in how, where,
-with whom, what for, and how far we move. Women have higher activities
-related to care \citep{ilo_care_2018}, no matter at what life stage they
-are \citep{garciaromanGenderDifferencesTime2022}. For all these reasons
-the spatial organization of activities has a different impact according
-to gender, the 15-Minute City concept should not be gender blind.
+\citep{lawWomenTransportNew1999, cresswell_gendered_2008, levy2013travel, little_gender_1994, tronto_toward_1990, neto_gender_2015}.
+The causes for this are varied, and related to gendered social norms and
+cultural factors that play a role in how, where, with whom, what for,
+and how far we move. Of note is that women tend to travel more
+frequently and for shorter distance
+\citep{roorda_triap_2010, morency_distance_2011} and have more
+activities related to care \citep{ilo_care_2018} no matter at what life
+stage they are \citep{garciaromanGenderDifferencesTime2022}. Combined,
+these findings indicate that the spatial organization of activities has
+a different impact according to gender, and therefore the 15-Minute City
+concept should not be gender blind.
 
-This work builds a theoretical bridge between the 15-minute city and
+This work builds a theoretical bridge between the 15-Minute City and
 mobility of care concepts to answer questions about what destinations
 matter and who benefits from proximity planning. The Mobility of Care
 term was coined in
@@ -305,15 +329,15 @@ shopping, escorting children, travelling to health appointments, and
 running errands. While decades of research have examined types of
 household-serving trips (e.g., shopping trips, escorting to school),
 \citet{sanchezdemadariagaMobilityCareIntroducing2013} was the first to
-consider them all as one category. In doing so, Mobility of Care is
-shown to be a significant proportion of daily travel, characterizing the
-trip purpose of approximately 30\% of adults' trips
+consider them all as one category. In doing so, care-related mobility
+can be shown to comprise a significant proportion of daily travel,
+characterizing approximately 30\% of adults' daily trips
 \citep{sanchezdemadariagaMobilityCareIntroducing2013, sanchezdemadariagaMeasuringMobilitiesCare2019, ravensbergen2023exploratory}.
-We argue Mobility of Care is especially relevant to the 15-Minute City,
-as care trips are necessary for \emph{all} people and they most often
-occur at the local level. Moreover, care trips take on tremendous
-gendered and socio-economic importance, as women, and especially those
-from lower income households, complete the majority of care trips
+We argue that Mobility of Care is especially relevant to the 15-Minute
+City, as care trips are necessary for \emph{all} people and they most
+often occur at the local level. Moreover, care trips are of particular
+gendered and socio-economic import, as women, and especially those in
+lower income households, complete the majority of care trips
 \citep{ravensbergen2023exploratory}. Despite care travel's importance in
 advancing gender equality -and equity more broadly-, mobility of care
 and access to care destinations have been under-examined relative to
@@ -323,11 +347,12 @@ research that has largely focused on employment points of interest e.g.,
 
 The objectives of this research are two-fold. First, we aim to
 theoretically bridge Mobility of Care with the 15-Minute City concept to
-re-imagine what local amenities matter and to define an associated
-accessibility and diversity of accessibility measures. Second, we take a
-data-driven approach to classify areas into `caring 15-minute
-neighbourhoods' typologies and examine associated residential profiles
-in an empirical examination of the city of Hamilton, Canada.
+re-imagine what local amenities matter from the perspective of care and
+to define an associated accessibility and diversity of accessibility
+measures. And secondly, we take a data-driven approach to classify areas
+into `caring 15-minute neighbourhoods' typologies and examine associated
+residential profiles in an empirical examination of the city of
+Hamilton, Canada.
 
 \section{Review of neighbourhood planning
 literature}\label{review-of-neighbourhood-planning-literature}
@@ -336,46 +361,48 @@ literature}\label{review-of-neighbourhood-planning-literature}
 NUC}\label{from-the-15-minute-city-to-the-nuc}
 
 In the last decades, the need for more sustainable, healthier, and
-livable cities have received significant attention. Planners and
-decision-makers have proposed alternatives to mobility-based
-neighbourhood planning principles to ones that center proximity to urban
-functions \citep{pozoukidou15MinuteCityDecomposing2021}. In this
-context, the 15-Minute City is now in the public spotlight
+livable cities has become a prominent concern. Planners and
+decision-makers have proposed a shift to neighbourhood planning
+principles centered on proximity to urban functions
+\citep{pozoukidou15MinuteCityDecomposing2021}. In this context, the
+15-Minute City is now in the public spotlight
 \citep{logan_xminute_2022, moreno_introducing_2021}. The 15-Minute City
 was introduced in \citet{moreno_introducing_2021} along with four
 dimensions: density (in terms of people per km\(^2\)), diversity
 (including mixed-land use and diversity of people), the temporal and
-spatial proximity to essential services, and digitalisation. However,
-the framework presented has been criticized within academic and planning
-circles \citep{guzmanProximityEnoughCritical2024}. Critiques highlight
-how the concept falls short in addressing the pre-existing structural
-forces and individual characteristics that drive inequalities,
-influencing who benefits or could benefit the most from such a paradigm
+spatial proximity to essential services, and digitalisation
+\citep[q.v.][]{cerveroTravelDemand3Ds1997}. However, the framework
+presented has been criticized within academic and planning circles
+\citep[e.g.,][]{guzmanProximityEnoughCritical2024, mouratidisTimeChallenge15minute2024}
+among other things for shortfalls in terms of addressing pre-existing
+structural forces and individual characteristics that drive inequalities
+and influence who benefits or could benefit the most from such an
+approach
 \citep{dimarino15minuteCityConcept2023, willberg15minuteCityAll2023}. A
-15-Minute City for all people is an aspirational ideal, but how will
-existing mobility and accessibility inequalities be addressed. Without
-directed and context-specific solutions, this popular concept risks
-becoming an empty city branding exercise.
+15-Minute City for all people is an aspirational goal, but does not
+fully confront existing mobility and accessibility inequalities in need
+of redress. Without directed and context-specific solutions, this
+popular concept risks becoming an empty city branding exercise.
 \citep{pozoukidou15MinuteCityDecomposing2021, gowerPlanningInnovationCity2022}.
 
-Reflecting the flexible and aspirational presentation of the 15-Minute
-City; cities that have adopted the concept have done so using a diverse
+Reflective of the flexible and aspirational presentation of the
+15-Minute City, the concept has been adopted by cities using a diverse
 range of definitions and tools along with indistinct universal
-approaches. A trail blazer was Portland, US in the Portland Plan
-\citep{city_of_portland_20minute_2010} of April 2012. Adopted before the
-`15-Minute City' concept of today, it aims to foster an inclusive city
-development based on prosperity, education, health, and equity over a 30
-year horizon. The plan aims to promote neighbourhood self-sufficiency
-and connectivity to city centers and centres of employment. The progress
-report describes a high-level focus on equitable service delivery to all
-residents with equity concerning topics related to racial equity and
-people with disabilities \citep{portland_government_portland_2017},
-similarly taking on an ``all populations'' approach. Later, other cities
-adopted proximity-based goals using similar neutral approaches. For
-example, the 15-Minute City plan announced during the Paris mayor Anne
-Hidalgo's 2020 re-election campaign, which helped popularize the concept
-in today's public discourse, emphasized six key social functions that
-should be easily accessible from any location
+approaches. A trail blazer in this respect was Portland (US) in the
+Portland Plan \citep{city_of_portland_20minute_2010} of April 2012.
+Adopted before the `15-Minute City' concept of today, this plan aimed to
+foster inclusive city development based on prosperity, education,
+health, and equity over a 30 year horizon. Central to the plan was the
+promotion of neighbourhood self-sufficiency and connectivity to city
+centers and centres of employment. The progress report describes a
+high-level focus on equitable service delivery to all residents with
+equity concerning topics related to racial equity and people with
+disabilities \citep{portland_government_portland_2017}, similarly taking
+on an ``all populations'' approach. Subsequently, other cities adopted
+proximity-based goals using similarly neutral approaches. For example,
+the 15-Minute City plan announced during the re-election campaign of
+Paris mayor Anne Hidalgo in 2020 emphasized six key social functions
+that should be easily accessible from any location
 \citep{ville_de_paris_paris_2022}. These locations included: housing,
 work, health care, groceries, education and leisure. The 15-Minute City
 concept inspired language in the agendas of other cities in the Western
@@ -389,8 +416,8 @@ instruments present a significant knowledge and implementation gap. In
 other words: the 15-Minute City is aspirational but how do we get there
 and who will benefit?
 
-The past can shed light on cautionary tales. While the 15-Minute City
-concept is new, neighbourhood planning to improve society outcomes is
+The past can provide cautionary tales. While the 15-Minute City brand of
+planning is new, neighbourhood planning to improve society outcomes is
 not: in fact the literature has drawn parallels from the 15-Minute City
 to Clarence A. Perry's Neighbourhood Unit Concept (NUC) from the 1930s
 \citep{kissfazekasCircleParadigms15minute2022}. The NUC is a
@@ -405,23 +432,24 @@ supporting community facilities, shopping, parks and housing
 \citep{talenSocialSciencePlanned2017, brodyNeighbourhoodUnitConcept2013}.
 The NUC primarily prioritized local service provision, though Perry had
 confidence in good design's contribution to `neighbourhood spirit'
-\citep{hall2014cities}. From the NUC's conception until the end of the
-1960s, planners' aspirational attempts to prescribe social meaning to
-the neighbourhood's physical form had been criticized to near extinction
-\citep{talenSocialSciencePlanned2017}. By social scientists, the
-overestimation on the impact of built environment on social life was
-critiqued. By other planners, the inability to agree on the specificity
-of the neighbourhood (i.e., population size and the type, quality, and
-quantity of amenity) as well as how neighbourhood units are connected to
-other neighbourhoods and the rest of the region. In response to these
-criticisms, neighbourhood planning proponents redefined deterministic
-terminology; their prescriptive physical form will `enable' social
-contact with opportunities rather than `engendering' it.
+\citep{hall2014cities}. By the end of the 1960s, planners' aspirational
+attempts to prescribe social meaning to the neighbourhood's physical
+form had been criticized to near extinction
+\citep{talenSocialSciencePlanned2017}. A critique by social scientists
+was an overestimation of the impact of built environment on social life.
+Planners, on the other hand, could not reach consensus on the
+specificity of the neighbourhood (i.e., population size and the type,
+quality, and quantity of amenity) or how neighbourhood units connect
+between them and the rest of the region. In response to these
+criticisms, neighbourhood planning proponents redefined their
+deterministic terminology; their prescriptive physical form would
+`enable' social contact with opportunities rather than `engendering' it.
 
 The redefined bottom-up approach to community and neighbourhood planning
-has been adopted by New Urbanists, from which the 15-Minute City stems
-\citep{kissfazekasCircleParadigms15minute2022}; however, the
-effectiveness of these bottom-up processes remain to be seen due to the
+was adopted in the 1980s by American New Urbanists
+\citep{trudeau_new_2013}, from which the 15-Minute City eventually
+stemmed \citep{kissfazekasCircleParadigms15minute2022}. However, the
+bottom-up effectiveness of these ideas remains to be seen due to the
 contemporary nature of the concept. Though, related research can be
 examined. In recent years, the question of \emph{how can physical form
 be planned to enable an improved quality of life, for whom, and with
@@ -438,8 +466,8 @@ the proximity to destinations have also emerged
 As reviewed in the city plans that have adopted 15-Minute City
 approaches, the NUC's criticisms, and recent urban planning research,
 the question of \emph{how to enable improved quality of life through
-urban built environment} has shown to be highly context-sensitive, with
-the need for further investigation.
+urban built environment} is highly context-sensitive, prompting the need
+for further investigation.
 
 \subsection{Tools: accessibility methods, diversity measures and
 typology-classification}\label{tools-accessibility-methods-diversity-measures-and-typology-classification}
@@ -462,8 +490,9 @@ across different geographic scopes. For instance, in Naples, Italy
 \citep{vale2023accessibility}. The ``cumulative opportunity'' measure
 has been applied in many 15-Minute City examinations. This measure
 quantifies how many destinations can be reached from a point in space
-within a given travel time threshold, pairing well with examinations
-that have a normative travel time threshold, like the 15-Minute City.
+within a given travel time threshold , pairing well with normative
+examinations \citep[see][]{paez_measuring_2012} that use travel time
+thresholds like x-minute cities {[}\citet{logan_xminute_2022}.
 Furthermore, the cumulative opportunity measure is widely appreciated
 for its intuitive computation and popularity among practitioners
 \citep{handyAccessibilityIdeaWhose2020, handyMeasuringAccessibilityExploration1997, chengInvestigatingWalkingAccessibility2019}.
@@ -471,64 +500,59 @@ However, accessibility measures other than the cumulative opportunity
 have also been applied, reflecting the diversity of measures in the
 literature \citep{guzmanProximityEnoughCritical2024}.
 
-Another method that compliments the assessment of the 15-Minute City
+Another concept that complements the assessment of the 15-Minute City
 regarding the diversity of opportunity types is entropy. The entropy
 measure, based on the Shannon-Wiener index of species diversity,
 expresses relative evenness within a sequence
 \citep{whittaker1972evolution}. In urban studies and planning
-literature, the flexible concept of entropy has been used to
-characterize land-use mix diversity
-\citep{frankLinkingObjectivelyMeasured2005, ewingTravelBuiltEnvironment2010a},
-particularly in the context of non-work trips
-\citep{cerveroTravelDemand3Ds1997}, walking as a mode
+literature, the concept of entropy has been used to characterize
+land-use mix diversity
+\citep{frankLinkingObjectivelyMeasured2005, ewingTravelBuiltEnvironment2010a, moniruzzaman_accessibility_2012}
+including to understand mobility behaviour
+\citep{mcbride2020exploration, montero2023applying, montero2023role}, in
+the context of non-work trips \citep{cerveroTravelDemand3Ds1997},
+walking
 \citep{luUrbanDensityDiversity2017, mavoaIdentifyingAppropriateLanduse2018},
-and suburban sprawl \citep{randallGISBasedLand2015} as relevant to this
-work. It has also been used to understand mobility behaviour
-\citep{mcbride2020exploration, montero2023applying, montero2023role}.
-However, work incorporating entropy indices alongside accessibility
-analysis are not exceptionally common. There are examples of their use
-as parameters within accessibility scores for employment opportunities
+and suburban sprawl \citep{randallGISBasedLand2015}. However, entropy
+indices are rare in accessibility analysis. There are examples of their
+use as parameters within accessibility scores for employment
+opportunities
 \citep{chengMeasuringUrbanJob2013, daiIncorporatingJobDiversity2018}
 and, more recently, to describe the diversity in transit facilities
-\citep{yinIncorporatingFacilityDiversity2024}. Within the
-conceptualisation of the 15-Minute City, diversity of land-use is a key
-feature. In this way, the entropy measure theoretically complements the
-15-Minute City.
+\citep{yinIncorporatingFacilityDiversity2024}. Given how 15-Minute
+Cities aim to provide access to numerous amenities, diversity of
+land-use is a key feature. In this way, the entropy measure
+theoretically complements the 15-Minute City.
 
 Classification algorithms also show promise as a tool in the assessment
 of the 15-Minute City, as they have been useful in identifying mobility
 and spatial typologies within the transportation planning literature.
-Often, these algorithms take the form of machine learning approaches:
-for instance, \citet{burkeGeospatialAnalysisFramework2022} uses
-spatially constrained multivariate clustering, to develop urban form
-typologies related to the 15-Minute City. The k-means algorithm is
-another popular method: \citet{ganUnderstandingUrbanMobility2020}
-applies it to analyse travel behaviour and classify metro stations based
-on mobility patterns. Similarly,
-\citep{montero2023role, montero2023applying} cluster travel behavior
-profile typologies representing different population segments and place
-of residence in the Barcelona Metropolitan Area. Combing classification
-techniques is also common: for instance,
-\citet{delmelleDifferentiatingPathwaysNeighborhood2017} uses
-self-organizing maps (SOM) algorithm to group U.S. neighbourhoods by
-minimizing dissimilarity in attributes before applying k-means for
-further classification. Similarly, \citet{victorianoTimeSpaceMoney2020}
-uses SOM to classify individuals' travel patterns according to the
-dissimilarity in mobility attributes and uses the Decision Tree
-algorithm to partition the data into interpretable classifications.
+Often, these algorithms take the form of machine learning approaches: in
+transportation, the use of Self-Organizing Maps (SOM) was pioneered by
+Delmelle \citeyearpar{delmelle_spatial_2012} and has been used to group
+U.S. neighbourhoods by minimizing dissimilarity in attributes
+\citep{delmelleDifferentiatingPathwaysNeighborhood2017} and to classify
+individuals' travel patterns according to the dissimilarity in mobility
+attributes and uses the Decision Tree algorithm to partition the data
+into interpretable classifications \citep{victorianoTimeSpaceMoney2020}.
+Other approaches include the use of spatially constrained multivariate
+clustering, to develop urban form typologies related to the 15-Minute
+City \citep{burkeGeospatialAnalysisFramework2022} and the use of k-means
+to analyse travel behaviour and classify metro stations based on
+mobility patterns\citep{ganUnderstandingUrbanMobility2020}.
 
 \subsection{Mobility of Care and feminist 15-minute
 neighbourhoods}\label{mobility-of-care-and-feminist-15-minute-neighbourhoods}
 
-Rather than focusing on \emph{all} destinations, it may valuable to
-examine those related to caring activities. This re-framing offers a
-feminist perspective on which urban functions matter, connecting well
-with the 15-Minute City concept. Caring activities, which fulfill the
-physical, psychological, and emotional needs of others, are among the
-most essential and fundamental activities in society
-\citep{ilo_care_2018}. Yet, they are the most unequal, undervalued, and
-even devalued activities worldwide. Conventionally, caring activities
-have been borne on women's shoulders
+Rather than focusing on \emph{all} destinations, it is valuable to
+examine those related to caring activities. This framing offers a
+feminist perspective on urban functions that matter from a care
+perspective, and connects well with the 15-Minute City concept. Caring
+activities, which fulfill the physical, psychological, and emotional
+needs of others, are among the most essential and fundamental activities
+in society \citep{ilo_care_2018}. Yet, they are the most unequal,
+undervalued, and even devalued activities worldwide. Conventionally,
+caring activities have been borne on women's shoulders
 \citep{haydenGrandDomesticRevolution1982, hochschild_second_2012}.
 According to \citet{ilo_care_2018}, women and girls perform more than
 three-quarters of the total amount of unpaid care worldwide, a gender
@@ -578,16 +602,15 @@ examines walking to care destinations through the Mobility of Care
 framework. Though there is ample literature that examines walking to
 care destinations, such as schools (e.g., \citep{RN7, RN8, RN9}) and
 grocery stores (e.g., \citep{RN10, RN11}), they tend to consider
-singular care destinations in research focusing on walkability.
-
-In summary, we reviewed the neighborhood planning framework from which
-the 15-Minute City concept stems and is situated within. We then
-reviewed tools common and useful in investigating the 15-Minute City.
-Finally, we introduced the Mobility of Care concept, theoretically
-linking it to the 15-Minute City to highlight the importance of care
-destinations for all but especially along gendered and socio-economic
-lines. The objectives of this work are two-fold, achieved through an
-empirical examination of Hamilton, Canada, a mid-sized city:
+singular care destinations in research focusing on walkability. In
+summary, we reviewed the neighborhood planning framework from which the
+15-Minute City concept stems and is situated within. We then reviewed
+tools common and useful in investigating the 15-Minute City. Finally, we
+introduced the Mobility of Care concept, theoretically linking it to the
+15-Minute City to highlight the importance of care destinations for all
+but especially along gendered and socio-economic lines. The objectives
+of this work are two-fold, achieved through an empirical examination of
+Hamilton, Canada, a mid-sized city:
 
 \begin{itemize}
 \tightlist
@@ -1613,6 +1636,7 @@ qualitative work.
 
 \renewcommand{\bibsection}{}
 \bibliography{bibliography.bib}
+
 
 
 
