@@ -22,7 +22,11 @@ While much care labour takes place in the private and feminised sphere, completi
 
 <!-- These critiques were supported by case studies of planned neighbourhoods as... lead to social segregation of classes, destination functions, and automobile use. From it's onset, it was an efficient way to develop housing after the Second World War. The emphasis of proximity to some 'daily essentials' but disconnection from specialised activites (e.g., work) paved the way for car-based subrbia.  by capital of cities. Can the neighbourhood form might be seen as a vehicle for capitalist exploitation, gentrification and displacement??? The place of neighbourhood planning is actively being debated: can it's social crtiques be addressed in the new form as a "15-Minute City"? This study seeks to contribute to this decades old debate. -->
 
+As related to Mobility of Care, care trips and hence care destinations are of key focus. While using entropy to measure the diversity of care destinations within 15-minute neighborhoods has yet to be explored, it theoretically complements the 15-Minute City concept.
 
+The entropy measure has been widely used to characterise the diversity of land-use mix in early work by [@frankLinkingObjectivelyMeasured2005] based on the species diversity Shannon-Wiener index that expresses relative evenness throughout a sequence (see review in @whittaker1972evolution). It has also been used in social sciences to comprehend the occurrence of social events in a structured manner specially with regard to life trajectories [@ritschardSequenceAnalysisRelated2018]
+
+A variety of tools have been applied in the literature to examine the 15-Minute City. However, the question of _what destinations matter_  still demands further examination. The following sub-section bridges the concept of the 15-Minute City with another normative framework: Mobility of Care.
 
 Before discussing 'what outcome', we first ask 'what amenity' as the focus of this study. Often, accessibility analysis studies have focused on a single amenity type (X), often employment destinations and often focused on a scale beyond the neighbourhood. However, due to 15-Minute City's emphasis on proximate-level service provision, recent academic work on the topic has employed accessibility analysis to account for multiple 'local' amenities types, but seldom included employment. We argue that the inclusion of employment opportunities into the 15-Minute City conceptualisation is critical to it's definition. Why? We echo critics made by planners and social scientistics in decades past: neighbourhoods that did not mix work with service and culture within the neighbourhood, paved the way for car-based suburbia: cars allowed for the connection of neighbourhoods with their 'lower-order' amenities to areas with 'high-order' destinations like work (X). The lower- and higher- order framing of these destinations supported the continued segregation of urban life across many dimensions (X).
 
@@ -132,3 +136,35 @@ knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_plot_combo.
 ```
 
 <!-- Describing @fig-Fig9, the most valuable variable for splitting the data was the proportion of single family households and % of LICO prevalence in the DA. The the terminal nodes represented as bar columns depict the percentage composition by supercluster. For the bar on the right, the majority of the parcels are F superclusters. Following the tree diagram, these F superclusters are described by having less than 15.8% single parent families (this is below the median of `r df_DA$One_parent_families |> median(na.rm=T) |> scales::percent()`). The bar on the left is mostly composed of parcels that are labeled A+. These A+ parcels are located in DAs greater than 15.8% single parent families and % LICO prevalence of 6.5% and greater (this is above the median of `r df_DA$LICO |> median(na.rm=T) |> round() |> paste0("%")`). In sum: residences in parcels with exceptionally complete and caring access tend to be lower-income and single-parent families, while residences in parcels with not caring are not complete access tend to have a lower presence of single parent households. Households with a higher proportion of single-family households (15.8% and greater) where LICO is lower have a mixed label membership (bar column in @fig-Fig9).  -->
+
+
+<!-- As a tool to visualise the variables that describe the superclusters, a Decision Tree is fit with the DEPENDENT TOTALS, ERRAND TOTALS, GROCERY TOTALS, HEALTH TOTALS, and CATEGORY DIVERSITY scores. Aligning with the descriptive summaries of the superclusters provided, describing the tree-diagram from left to right (roughly from the most caring & complete, to the least), the first three terminal nodes (represented by bar columns that visualise the proportion of supercluster membership at that node) are mostly A+ and A superclusters, and are defined by their high dependent-centric access (about median and above), and high diversity score. A+ is differentiated from A by its exceptionally high health-centric totals while A most just has excellent scores. Columns four, six and seven are dominated by the presence of B+ and B parcels. On average the B+ parcels provide access to an average level of dependent-centric destinations, so the B+ parcels with greater than 6.5 dependent-centric destinations are found in the more left-most columns, and those below this split on the right-most. The far right-most column is dominated by the presence of F parcels, defined by lower DEPENDENT TOTALS and LOW DIVERSITY. It is interesting to note the 5th column, which is defined by D parcels but also the most amount of A- parcels than any other column. A- and D parcels are both high in dependent-centric destinations and low in diversity (though D is much lower than A-). These two parcels again, as shown in @fig-Fig7, can be thought of as parcels in neighbourhoods containing a high amount of some caring destinations, but lacking others, indicating high efficiency for improvement potential.  -->
+
+<!-- ```{r plot-figure7, out.width=600, out.height=300} -->
+<!-- #| label: fig-Fig7 -->
+<!-- #| fig-cap: "The Decision Tree demonstrating variables that define the superclusters." -->
+<!-- knitr::include_graphics(glue::glue(here::here(), "/figures/access_sc_profiles_usingSCVARS.png")) -->
+<!-- ``` -->
+
+
+<!-- D (Nothing much: Not caring & not complete) (C7) -->
+
+<!-- B- (Below average, but dep- heavy: Somewhat caring & not complete) (C4) -->
+<!-- B (Average: Caring & complete) (C5) -->
+<!-- B+ (Above average: Caring & very complete) (C6) -->
+
+<!-- A- (Excellent, but dep- heavy: Very caring & not complete (C3) -->
+<!-- A (Excellent: Very caring & very complete) (C2) -->
+<!-- A+ (Exceptional: very caring & very complete) (C1) -->
+
+OLD RANDOM HIGHLIGHTS:
+
+- The 15-Minut City have re-emerged as a popular concept in urban-planning city-planning; emphasizing the access to urban amenities by foot or bicycle. However, historically, neighbourhood planning processes have been top-down; FMC is linked to the Neighbourhood Unit Concept of the 1920s, largely critized for supporting segregated neighbourhoods, leaving a void in neighbourhood planning concepts that were filled by auto-centric suburban sprawl. Regardless, fundamental concepts within FMC remain popular: people identify with neighbourhoods, see cities through that lense. These ideas have in part re-emerged in the popularity of 15-minute neighbourhoods. 
+
+- But how do we uplift the positive, popular, aspects of FMN without opening it up to the critics of the NUC? In this work, we turn to feminist geographies and the Mobility of Care conceptualisation and apply it to FMC. We argue, conventional planning practice is masculinist. This can threaten the FMC concept by shaping how 'important' amenities are conceptualised thus favouring work- and leisure- centered amenities in cities that are increasingly capital-driven. Though FMN is fundamentally based in bottom-up collaborative planning processes, we exist in the context of planning pracice which is largely masculinist. 
+
+- FMN are for people - people do unpaid labour, those people are often women and intersectionally women-of-colour and low-income. However, this work should be for all people. Cities should be designed with this conceptualisation in mind. This is to combate the growing capitalisation of cities. 
+
+- Our paper offers this nuanced understanding of FNC -- calling for them to center Care Destinations as important amenity types with the explicit conceptualisation that their destination type matters especially for women (low-income and of colour) who interact with them most, but also for all people. Their explicit positioning also can indirectly combat finacialisation of cities and co-opting of the FMC concept to one that centers capital-generating destination types like work and prohibitive leisure. Not to say those destination types should or cannot co-exist with Care destinations -- they should -- but markets are already incentivizing them. The market does not speak for non-economically geberating destination types, so we must explicitly call for them and support them within the FNC framework. 
+- 
+- 
