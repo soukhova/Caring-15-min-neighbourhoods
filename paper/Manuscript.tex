@@ -43,28 +43,14 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{5}
 % Make \paragraph and \subparagraph free-standing
-\makeatletter
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
-  \renewcommand{\paragraph}{
-    \@ifstar
-      \xxxParagraphStar
-      \xxxParagraphNoStar
-  }
-  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
-  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
 \fi
 \ifx\subparagraph\undefined\else
   \let\oldsubparagraph\subparagraph
-  \renewcommand{\subparagraph}{
-    \@ifstar
-      \xxxSubParagraphStar
-      \xxxSubParagraphNoStar
-  }
-  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
-  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
-\makeatother
 
 
 \providecommand{\tightlist}{%
@@ -153,7 +139,6 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
-
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -164,7 +149,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Caring 15-minute neighbourhoods},
+  pdftitle={Towards completely caring 15-minute neighbourhoods},
   pdfauthor={Anastasia Soukhov; Léa Ravensbergen; Lucía Mejía Dorantes; Antonio Páez},
   pdfkeywords={Accessibility, Mobility of Care, Gender, 15-minute
 neighbourhood, Care Complete Neighbourhoods},
@@ -175,12 +160,11 @@ neighbourhood, Care Complete Neighbourhoods},
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-
 \setlength{\parindent}{6pt}
 \begin{document}
 
 \begin{frontmatter}
-\title{Caring 15-minute neighbourhoods}
+\title{Towards completely caring 15-minute neighbourhoods}
 \author[1]{Anastasia Soukhov%
 \corref{cor1}%
 }
@@ -221,7 +205,6 @@ neighbourhood \sep
 \end{keyword}
 \end{frontmatter}
     
-
 \section{Abstract}\label{abstract}
 
 The ``15-Minute City'' concept has been embraced by global leaders to
@@ -237,7 +220,7 @@ focused explicitly on care destinations. This gap is addressed in this
 paper by identifying which areas in the city of Hamilton, Canada are
 `caring 15-minute neighbourhoods'. To do so, a database of care
 destinations was compiled to estimate the number (using the cumulative
-opportunities accessibility measure) and diversity of mix (using the
+opportunity accessibility measure) and diversity of mix (using the
 entropy measure) of care destinations within a 15-minute walk from
 residential parcels. Using data-driven machine learning techniques
 (Self-Organizing Maps and Decision Trees), neighborhoods were classified
@@ -250,8 +233,9 @@ candidates for urban policy intervention are identified, and the
 implications of enhancing 15-minute walkable caring access are discussed
 in relation to gender mainstreaming in transportation planning.
 
-Keywords: Accessibility; 15-Minute Neighborhoods; Chrono-Urbanism;
-Cities of Proximity; Mobility of Care; Inequality; Gender Gap;
+Keywords: 15-Minute City; 15-Minute Neighbourhoods; Chrono-Urbanism;
+Accessibility; Mobility of Care; Cities of Proximity; Inequality; Gender
+Gap
 
 \section{Introduction}\label{introduction}
 
@@ -275,13 +259,12 @@ individuals to reclaim time spent on car mobility, giving way to
 sustainable modes and prompting urban spaces that are responsive to
 human needs and environmental sensibilities \citep{Allam2022}.
 
-The term 15-Minute City is relatively new but the concept is not, as it
-is simply a normative cumulative-opportunities accessibility measure
-\citep{paez_measuring_2012}. Its newfound fame under the moniker of
-chronourbanism comes to complement long-standing efforts to foster
-community and local travel to amenities in neighbourhood planning
-practice. As recent examples, planned neighbourhoods dominated post-WWII
-built urban form: the Neighbourhood Unit Concept in the western world
+The term 15-Minute City is relatively new, but the concept is not. Its
+newfound fame under the moniker of chrono-urbanism comes to complement
+long-standing efforts to foster community and local travel to amenities
+in neighbourhood planning practice. As recent examples, planned
+neighbourhoods dominated post-WWII built urban form: the Neighbourhood
+Unit Concept in the western world
 \citep{brodyNeighbourhoodUnitConcept2013} and a parallel concept of the
 ``mikrorayons'' neighbourhoods in the Soviet Union
 \citep{kissfazekasCircleParadigms15minute2022}. Along different
@@ -298,6 +281,9 @@ matter? What mode and travel time threshold is most appropriate? And who
 benefits? To be certain, these dimensions are under discussion among
 proximity-based planners who use accessibility-based tools
 \citep{silvaProximitycentredAccessibilityConceptual2023, silvaRegionalAccessibilityUndermining2022, guzmanProximityEnoughCritical2024}.
+In this way, the 15-Minute City could be understood to be a normative
+cumulative opportunity accessibility measure
+\citep{paez_measuring_2012}.
 
 From another perspective, feminist geographers, urban planners and other
 researchers agree that urban structure influences travel, but city
@@ -310,17 +296,16 @@ gender
 \citep{lawWomenTransportNew1999, cresswell_gendered_2008, levy2013travel, little_gender_1994, tronto_toward_1990, neto_gender_2015}.
 The causes for this are varied, and related to gendered social norms and
 cultural factors that play a role in how, where, with whom, what for,
-and how far we move. Of note is that women tend to travel more
-frequently and for shorter distance
-\citep{roorda_triap_2010, morency_distance_2011} and have more
-activities related to care \citep{ilo_care_2018} no matter at what life
-stage they are \citep{garciaromanGenderDifferencesTime2022}. Combined,
+and how far we move. Women tend to travel shorter distances and more
+frequently \citep{roorda_triap_2010, morency_distance_2011}, and conduct
+more activities related to care no matter their stage of life
+\citep{ilo_care_2018, garciaromanGenderDifferencesTime2022}. Combined,
 these findings indicate that the spatial organization of activities has
 a different impact according to gender, and therefore the 15-Minute City
 concept should not be gender blind.
 
 This work builds a theoretical bridge between the 15-Minute City and
-mobility of care concepts to answer questions about what destinations
+Mobility of Care concepts to answer questions about what destinations
 matter and who benefits from proximity planning. The Mobility of Care
 term was coined in
 \citet{sanchezdemadariagaMobilityCareIntroducing2013}; it refers to all
@@ -336,10 +321,10 @@ characterizing approximately 30\% of adults' daily trips
 We argue that Mobility of Care is especially relevant to the 15-Minute
 City, as care trips are necessary for \emph{all} people and they most
 often occur at the local level. Moreover, care trips are of particular
-gendered and socio-economic import, as women, and especially those in
-lower income households, complete the majority of care trips
+gendered and socio-economic importance, as women, and especially those
+within lower income households, complete the majority of care trips
 \citep{ravensbergen2023exploratory}. Despite care travel's importance in
-advancing gender equality -and equity more broadly-, mobility of care
+advancing gender equality -and equity more broadly-, Mobility of Care
 and access to care destinations have been under-examined relative to
 employment destinations. This is especially pertinent in accessibility
 research that has largely focused on employment points of interest e.g.,
@@ -371,8 +356,9 @@ was introduced in \citet{moreno_introducing_2021} along with four
 dimensions: density (in terms of people per km\(^2\)), diversity
 (including mixed-land use and diversity of people), the temporal and
 spatial proximity to essential services, and digitalisation
-\citep[q.v.][]{cerveroTravelDemand3Ds1997}. However, the framework
-presented has been criticized within academic and planning circles
+\citep[related concepts in][]{cerveroTravelDemand3Ds1997}. However, the
+framework presented has been criticized within academic and planning
+circles
 \citep[e.g.,][]{guzmanProximityEnoughCritical2024, mouratidisTimeChallenge15minute2024}
 among other things for shortfalls in terms of addressing pre-existing
 structural forces and individual characteristics that drive inequalities
@@ -388,7 +374,7 @@ popular concept risks becoming an empty city branding exercise.
 Reflective of the flexible and aspirational presentation of the
 15-Minute City, the concept has been adopted by cities using a diverse
 range of definitions and tools along with indistinct universal
-approaches. A trail blazer in this respect was Portland (US) in the
+approaches. A trail blazer in this respect was Portland (U.S.) in the
 Portland Plan \citep{city_of_portland_20minute_2010} of April 2012.
 Adopted before the `15-Minute City' concept of today, this plan aimed to
 foster inclusive city development based on prosperity, education,
@@ -490,11 +476,11 @@ across different geographic scopes. For instance, in Naples, Italy
 \citep{vale2023accessibility}. The ``cumulative opportunity'' measure
 has been applied in many 15-Minute City examinations. This measure
 quantifies how many destinations can be reached from a point in space
-within a given travel time threshold , pairing well with normative
+within a given travel time threshold, pairing well with normative
 examinations \citep[see][]{paez_measuring_2012} that use travel time
-thresholds like x-minute cities {[}\citet{logan_xminute_2022}.
-Furthermore, the cumulative opportunity measure is widely appreciated
-for its intuitive computation and popularity among practitioners
+thresholds like x-minute cities \citep{logan_xminute_2022}. Furthermore,
+the cumulative opportunity measure is widely appreciated for its
+intuitive computation and popularity among practitioners
 \citep{handyAccessibilityIdeaWhose2020, handyMeasuringAccessibilityExploration1997, chengInvestigatingWalkingAccessibility2019}.
 However, accessibility measures other than the cumulative opportunity
 have also been applied, reflecting the diversity of measures in the
@@ -529,17 +515,18 @@ of the 15-Minute City, as they have been useful in identifying mobility
 and spatial typologies within the transportation planning literature.
 Often, these algorithms take the form of machine learning approaches: in
 transportation, the use of Self-Organizing Maps (SOM) was pioneered by
-Delmelle \citeyearpar{delmelle_spatial_2012} and has been used to group
+Delmelle \citeyearpar{delmelle_spatial_2012}. It has been used to group
 U.S. neighbourhoods by minimizing dissimilarity in attributes
-\citep{delmelleDifferentiatingPathwaysNeighborhood2017} and to classify
-individuals' travel patterns according to the dissimilarity in mobility
-attributes and uses the Decision Tree algorithm to partition the data
-into interpretable classifications \citep{victorianoTimeSpaceMoney2020}.
-Other approaches include the use of spatially constrained multivariate
-clustering, to develop urban form typologies related to the 15-Minute
-City \citep{burkeGeospatialAnalysisFramework2022} and the use of k-means
-to analyse travel behaviour and classify metro stations based on
-mobility patterns\citep{ganUnderstandingUrbanMobility2020}.
+\citep{delmelleDifferentiatingPathwaysNeighborhood2017}. SOM has also
+been used to classify individuals' travel patterns according to the
+dissimilarity in mobility attributes along with the Decision Tree
+algorithm to partition the data into interpretable classifications
+\citep{victorianoTimeSpaceMoney2020}. Other approaches include the use
+of spatially constrained multivariate clustering, to develop urban form
+typologies related to the 15-Minute City
+\citep{burkeGeospatialAnalysisFramework2022} and the use of k-means to
+analyse travel behaviour and classify metro stations based on mobility
+patterns \citep{ganUnderstandingUrbanMobility2020}.
 
 \subsection{Mobility of Care and feminist 15-minute
 neighbourhoods}\label{mobility-of-care-and-feminist-15-minute-neighbourhoods}
@@ -570,23 +557,23 @@ travelling to health appointments, and running errands
 \citep{sanchezdemadariagaMobilityCareIntroducing2013}. While an
 undercurrent of research had examined these unique household-serving
 trips over the decades, her seminal work was the first to consider all
-these trips as one category and demonstrate how mobility of care is a
+these trips as one category and demonstrate how Mobility of Care is a
 significant proportion of daily travel.
 
 The Mobility of Care concept also explicitly integrates inter-sectional
 equity considerations, a common criticism leveled at the 15-Minute City
 \citep{guzmanProximityEnoughCritical2024}. Perhaps unsurprisingly given
 the gendered division of care work discussed, women have consistently
-been found to complete more mobility of care trips than men. In one
-study, mobility of care comprised 32\% of women's daily trips compared
+been found to complete more Mobility of Care trips than men. In one
+study, Mobility of Care comprised 32\% of women's daily trips compared
 to 28\% of men's. While this gap is significant, it was found to be far
 greater in lower income households where women complete 20\% more care
 trips than men \citep{ravensbergen2023exploratory}. Sánchez de Madariaga
-not only shows how important these mobility of care trips are, but also
-highlights the ways in which ``mobility of care is systematically
+not only shows how important these Mobility of Care trips are, but also
+highlights the ways in which ``Mobility of Care is systematically
 under-represented in any analysis of urban transport'' (p.~37). As a
 product of the masculinst bias in planning, transport surveys and tools
-often do not directly capture mobility of care, which re-enforces the
+often do not directly capture Mobility of Care, which re-enforces the
 idea that these trips are not a significant part of daily mobility. In
 this respect, the feminist perspective of the cities of proximity is
 still underestimated with only few examples on the topic
@@ -595,7 +582,7 @@ still underestimated with only few examples on the topic
 Pairing well with the focus on shorter trips and the potential use of
 sustainable modes within the 15-Minute City, Mobility of Care trips are
 more local, shorter-distance and trip-chained. Compared to the trip to
-work, mobility of care trips are more frequently completed by foot, and
+work, Mobility of Care trips are more frequently completed by foot, and
 less frequently by transit or bicycle
 \citep{ravensbergen2023exploratory}. However, little work to date
 examines walking to care destinations through the Mobility of Care
@@ -688,14 +675,14 @@ from the Open Data Hamilton Portal
 \subsection{Care destination dataset}\label{care-destination-dataset}
 
 A spatial dataset of care destinations for Hamilton was compiled as
-detailed in ( \emph{work removed for double-blind review} ). The dataset
-includes 14 types of care destinations that were classified into four
-categories: dependent-centric (e.g., the destinations for child- and
-elder-centric escorting trips), grocery-centric, health-centric, and
+detailed in the forthcoming work of \citet{soukhovforthcoming2024}. The
+dataset includes 14 types of care destinations that were classified into
+four categories: dependent-centric (e.g., the destinations for child-
+and elder-centric escorting trips), grocery-centric, health-centric, and
 errand-centric. Notably, these categories were generated following the
-travel purpose categories created in the mobility of care research by
+travel purpose categories created in the Mobility of Care research by
 \citet{sanchezdemadariagaMeasuringMobilitiesCare2019}. Care categories,
-sources of data, and preparation notes are detailed in
+sources of data, and descriptive notes are detailed in
 Table~\ref{tbl-Tbl1}. The spatial distribution of destination type are
 visualised in Figure~\ref{fig-Fig3} by their category.
 
@@ -1523,7 +1510,7 @@ are economically disadvantaged. Economic disadvantage tends to intersect
 with other identities such as gender
 \citep{lightmanMeasuringEconomicExclusion2018}. And as reviewed in this
 work, all women and especially those from lower income households tend
-to complete most mobility of care trips
+to complete most Mobility of Care trips
 \citep{ravensbergen2023exploratory}. Furthermore, lower-income
 households tend to also be single-parent households. Broadly,
 single-parent households are more likely to be time-disadvantaged
@@ -1636,7 +1623,6 @@ qualitative work.
 
 \renewcommand{\bibsection}{}
 \bibliography{bibliography.bib}
-
 
 
 
