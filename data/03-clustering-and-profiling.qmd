@@ -289,7 +289,9 @@ INCOME_B_DA_plot <-
               border.alpha = 0.2,
               palette = "Greens", style = "quantile", n=4,
               title = "% hld below AT median income",
-              legend.is.portrait = TRUE) +
+              legend.is.portrait = TRUE, 
+              colorNA = "white",
+              textNA= "Unavailable") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
@@ -303,7 +305,9 @@ AGE014_DA_plot <-
               border.alpha = 0.2,
               palette = "Oranges", style = "quantile", n=4,
               title = "% population aged 0 to 14",
-              legend.is.portrait = TRUE) +
+              legend.is.portrait = TRUE, 
+              colorNA = "white",
+              textNA= "Unavailable") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
@@ -317,7 +321,9 @@ ONE_PARENT_DA_plot <-
               border.alpha = 0.2,
               palette = "Reds", style = "quantile", n=4,
               title = "% one parent hlds",
-              legend.is.portrait = TRUE) +
+              legend.is.portrait = TRUE, 
+              colorNA = "white",
+              textNA= "Unavailable") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
@@ -331,7 +337,9 @@ LICOAT_DA_plot <-
               border.alpha = 0.2,
               palette = "Purples", style = "quantile", n=4,
               title = "Prevalance of household LICO-AT",
-              legend.is.portrait = TRUE) +
+              legend.is.portrait = TRUE, 
+              colorNA = "white",
+              textNA= "Unavailable") +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
@@ -379,63 +387,79 @@ tmap_save(all_cats_copp_plot, file= file.path(here("figures/all_cats_copp_plot.p
 ```
 
 ```{r, eval=FALSE}
-dep_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+dep_copp_plot <- 
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
+  tm_shape(access_15_DA |> mutate(med_dep_copp = ifelse(med_dep_copp == 0, NA, med_dep_copp))) +
   tm_polygons("med_dep_copp",
               border.alpha = 0.2,
               style = "quantile", n=4,
               palette = "Oranges",
-              title = "Dependent-centric",) +
+              title = "Dependent-centric",
+              colorNA = "white",
+              textNA = 0,
+              border.col = NULL) +
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
-  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4, scale=0.8,
             bg.color = "grey",
             legend.position = c("right","top"))
 
-health_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+health_copp_plot <- 
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
+  tm_shape(access_15_DA |> mutate(med_health_copp = ifelse(med_health_copp == 0, NA, med_health_copp))) +
   tm_polygons("med_health_copp",
               border.alpha = 0.2,
               style = "quantile", n=4,
               palette = "Purples",
-              title = "Health-centric",) +
+              title = "Health-centric",
+              colorNA = "white",
+              textNA = 0,
+              border.col = NULL) +
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
-  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4, scale=0.8,
             bg.color = "grey",
             legend.position = c("right","top"))
 
-groc_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+groc_copp_plot <-
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
+  tm_shape(access_15_DA |> mutate(med_groc_copp = ifelse(med_groc_copp == 0, NA, med_groc_copp))) +
   tm_polygons("med_groc_copp",
               border.alpha = 0.2,
               style = "quantile", n=4,
               palette = "Greens",
-              title = "Grocery-centric",) +
+              title = "Grocery-centric",
+              colorNA = "white",
+              textNA = 0,
+              border.col = NULL) +
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
-  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4, scale=0.8,
             bg.color = "grey",
             legend.position = c("right","top"))
 
-err_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+err_copp_plot <- 
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
+  tm_shape(access_15_DA |> mutate(med_err_copp = ifelse(med_err_copp == 0, NA, med_err_copp))) +
   tm_polygons("med_err_copp",
               border.alpha = 0.2,
               style = "quantile", n=4,
               palette = "Reds",
-              title = "Errand-centric",) +
+              title = "Errand-centric",
+              colorNA = "white",
+              textNA = 0,
+              border.col = NULL) +
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("left", "top"), size=1.0)+
-  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(legend.bg.color = "white", legend.bg.alpha = 0.4, scale=0.8,
             bg.color = "grey",
             legend.position = c("right","top"))
 
@@ -455,27 +479,31 @@ tmap_save(percats_copp_plot,
 ```
 
 ```{r, eval=FALSE}
-all_cats_entropy_copp_plot <- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+all_cats_entropy_copp_plot <- 
   tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(access_15_DA) +
+  tm_shape(access_15_DA |> mutate(med_div = ifelse(med_div == 0, NA, med_div))) +
   tm_polygons("med_div",
               border.alpha = 0.2,
-              style = "quantile", n=3, #are the quantiles, but are also similar to the clustered profiles
-              label = c("[0 to 0.49) Not complete", "[0.49 to 0.85) Complete", "[0.85 to 1] Very complete"),
+              style = "quantile", n=4, #are the quantiles, but are also similar to the clustered profiles
+              #label = c("[0 to 0.49) Not complete", "[0.49 to 0.85) Complete", "[0.85 to 1] Very complete"),
               palette = "Greys",
-              title = "Diversity of care destinations within a 15-minute walk for a median parcel",
-              legend.is.portrait = TRUE) +
+              title = "Diversity of care destinations within \na 15-minute walk for a median parcel",
+              legend.is.portrait = TRUE,
+              colorNA = "white",
+              textNA = 0,
+              border.col = NULL) +
   tm_shape(Community_Boundaries) + tm_polygons(alpha=0)+
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 15)) +
   tm_compass(position = c("right", "top"), size=1.0)+
   tm_layout(bg.color = "grey",
             panel.label.bg.color = "white",
             panel.label.color = "black",
-            legend.outside = TRUE,
-            legend.position = c("center", "bottom"),
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.2,
-            legend.width = 12)
+            #legend.outside = TRUE,
+            legend.position = c("right", "top"))
+            #legend.outside.position = "bottom",
+            #legend.outside.size = 0.2,
+            # legend.width = 12)
 
 tmap_save(all_cats_entropy_copp_plot, file= file.path(here("figures/all_cats_entropy_copp_plot.png")), dpi=300)
 ```

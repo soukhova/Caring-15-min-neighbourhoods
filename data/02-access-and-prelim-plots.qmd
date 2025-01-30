@@ -100,8 +100,8 @@ rm(ttm_care_walk_parcel1, ttm_care_walk_parcel2, ttm_care_walk_parcel3, ttm_care
 ```
 
 ```{r}
-load("data-raw/parcels/R_PARCELS_CENTS_2020.rda") #add the census id to the parcels, then the ttm
-
+load("data-raw/parcels/R_PARCELS_2020.rda") #add the census id to the parcels, then the ttm
+R_PARCELS_CENTS_2020 <- st_centroid(R_PARCELS_2020)
 #first join it to census. Transfer the GeoUID from the DAs that intersect with the residential land use parcel centroids to the R_PARCELS_CENTS_2020 sf object. (we use 'over' here instead of st_intersection because it is way faster)
 R_PARCELS_CENTS_GeoUIDs <- sp::over(as_Spatial(R_PARCELS_CENTS_2020),as_Spatial(HAM_census_21 |> dplyr::select(GeoUID)))
 
@@ -555,24 +555,26 @@ tmap_save(all_cats_bivariate_entropy_copp_plot,
 
 ```{r, eval=FALSE}
 care_categories_plot <- 
- tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+
-  tm_shape(Community_Boundaries, bbox=Community_Boundaries) + tm_polygons(col = "white", border.col = "black", lwd=1)+
-  tm_shape(care_dest) + tm_dots("Care_Category_Specific", palette = RColorBrewer::brewer.pal(n = 4, name = 'Dark2'), size=0.025, title = "")+
-  tm_facets("Care_Category", nrow = 2, free.scales= TRUE)+
+  tm_shape(Community_Boundaries, bbox=Community_Boundaries) + tm_polygons(col = "white", border.alpha=0)+
+  tm_shape(ham_bay, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0) +
+  tm_shape(hydro_p_LakeOntario, bbox=Community_Boundaries) + tm_polygons(col="skyblue", border.alpha = 0)+ 
+    tm_shape(Community_Boundaries, bbox=Community_Boundaries) + tm_polygons(col = NA, alpha=0, border.col = "black", lwd=1)+
+  tm_shape(care_dest) + tm_symbols(shape="Care_Category_Specific", size=0.03, border.lwd = 0, shapes = c(21,22,23,24,25,15), col = "#E6AB02", title.shape = "")+
+  # tm_shape(care_dest) + tm_dots("Care_Category_Specific", palette = RColorBrewer::brewer.pal(n = 4, name = 'Dark2'),
+  #                              size=0.025, title = "")+
+  tm_facets("Care_Category", nrow = 2, free.scales= TRUE)+ 
   tm_scale_bar(position = c("left", "bottom"), breaks = c(0, 1, 5, 10, 20)) +
   tm_compass(position = c("left", "top"), size=0.9) +
-  tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), legend.text.size = 1, legend.bg.color = "white", legend.bg.alpha = 0.4,
+  tm_layout(bg.color = "grey", panel.label.bg.color = "white", legend.position = c("right", "top"), scale = 1.1, legend.bg.color = "white", legend.bg.alpha = 0.65,
             panel.labels = c("1,265 Dependent-centric destinations", 
                              "158 Errand-centric destinations", 
                              "381 Grocery-centric destinations", 
                              "421 Health-centric destinations"),
             panel.label.size = 1.1) 
-
-tmap_save(care_categories_plot, 
+#care_categories_plot
+tmap_save(care_categories_plot,
           file= file.path(here("figures/care_categories_plot.png")),
-          dpi=300)
+          dpi=600)
 ```
 
 ```{r}

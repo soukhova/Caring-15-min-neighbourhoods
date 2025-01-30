@@ -98,6 +98,7 @@
 \doublespacing
 \usepackage{lineno}
 \linenumbers
+\floatplacement{figure}{H}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -151,8 +152,8 @@
 \hypersetup{
   pdftitle={Towards completely caring 15-minute neighbourhoods},
   pdfauthor={Anastasia Soukhov; Léa Ravensbergen; Lucía Mejía Dorantes; Antonio Páez},
-  pdfkeywords={Accessibility, Mobility of Care, Gender, 15-minute
-neighbourhood, Care Complete Neighbourhoods},
+  pdfkeywords={15-Minute City, Chrono-Urbanism, Accessibility, Mobility
+of Care, Inequality, Gender Gap},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -199,9 +200,9 @@ Germany},postcodesep={}}
 
 
 \begin{keyword}
-    Accessibility \sep Mobility of Care \sep Gender \sep 15-minute
-neighbourhood \sep 
-    Care Complete Neighbourhoods
+    15-Minute City \sep Chrono-Urbanism \sep Accessibility \sep Mobility
+of Care \sep Inequality \sep 
+    Gender Gap
 \end{keyword}
 \end{frontmatter}
     
@@ -229,13 +230,13 @@ across residential socio-economic profiles. Our results suggest that the
 majority of caring 15-minute neighbourhoods are in the urban core, where
 more lower-income households reside. In contrast, not caring 15-minute
 neighbourhoods in higher-income peripheral areas. Areas that make good
-candidates for urban policy intervention are identified, and the
+candidates for urban policy intervention are identified and the
 implications of enhancing 15-minute walkable caring access are discussed
-in relation to gender mainstreaming in transportation planning.
+in relation to gender mainstreaming in transportation planning and
+limitations of this work.
 
-Keywords: 15-Minute City; 15-Minute Neighbourhoods; Chrono-Urbanism;
-Accessibility; Mobility of Care; Cities of Proximity; Inequality; Gender
-Gap
+Keywords: 15-Minute City; Chrono-Urbanism; Accessibility; Mobility of
+Care; Inequality; Gender Gap
 
 \section{Introduction}\label{introduction}
 
@@ -285,7 +286,7 @@ In this way, the 15-Minute City could be understood to be a normative
 cumulative opportunity accessibility measure
 \citep{paez_measuring_2012}.
 
-From another perspective, feminist geographers, urban planners and other
+An increasing number of human geographers, planners and other
 researchers agree that urban structure influences travel, but city
 planning falls short in planning for a neutral identity. In contrast,
 cities ought to be planned according to the multiple identities of the
@@ -293,7 +294,7 @@ inhabitants
 \citep{vacchelli_towards_2018, urbandevelopmentviennaGenderMainstreamingUrban2013}.
 Researchers have demonstrated how mobility patterns differ according to
 gender
-\citep{lawWomenTransportNew1999, cresswell_gendered_2008, levy2013travel, little_gender_1994, tronto_toward_1990, neto_gender_2015}.
+\citep{lawWomenTransportNew1999, cresswell_gendered_2008, levy2013travel, little_gender_1994, tronto_toward_1990}.
 The causes for this are varied, and related to gendered social norms and
 cultural factors that play a role in how, where, with whom, what for,
 and how far we move. Women tend to travel shorter distances and more
@@ -324,10 +325,23 @@ often occur at the local level. Moreover, care trips are of particular
 gendered and socio-economic importance, as women, and especially those
 within lower income households, complete the majority of care trips
 \citep{ravensbergen2023exploratory}. Despite care travel's importance in
-advancing gender equality -and equity more broadly-, Mobility of Care
-and access to care destinations have been under-examined relative to
-employment destinations. This is especially pertinent in accessibility
-research that has largely focused on employment points of interest e.g.,
+advancing gender equality -and equity\footnote{The United Nations
+  defines ``gender equality'' as equal rights, responsibilities, and
+  opportunities for all genders, regardless of gender at birth
+  \citep{unwomenHandbookGenderMainstreaming2022}; they prefer ``gender
+  equality,'' as ``equity'' relates to the concept of fairness that are
+  usually based on traditions, customs, or cultural beliefs which can
+  perpetuate disadvantage. However, ``equity,'' in the broader context
+  of social justice, is widely accepted. As defined in the UNICEF
+  Glossary of DEI terms, equity is the ``process of being fair to all
+  individuals and groups, by addressing present and historical
+  inequality in order to work towards equality in outcomes'' and may
+  involve temporary special measures to address systemic discrimination
+  faced by marginalized groups \citep{unicefAnnexDIVERSITYEQUITY2024}.}
+more broadly-, Mobility of Care and access to care destinations have
+been under-examined relative to employment destinations. This is
+especially pertinent in accessibility research that has largely focused
+on employment points of interest e.g.,
 \citep{farberOntarioLineSocioeconomic2019, duarteInfluenceJobAccessibility2023, ryanAccessibilitySpaceTime2023}.
 
 The objectives of this research are two-fold. First, we aim to
@@ -612,7 +626,7 @@ Hamilton, Canada, a mid-sized city:
   profiles along socio-economic lines.
 \end{itemize}
 
-\section{Data}\label{data}
+\section{Case study and data}\label{case-study-and-data}
 
 \subsection{Case study context}\label{case-study-context}
 
@@ -623,10 +637,14 @@ surrounded by rural communities. The Niagara Escarpment runs through
 Hamilton, and results in a city with two key elevations: a more dense
 lower city that contains the downtown core and the elevated suburban
 development referred to as `the Mountain'. In this work, we analyse the
-residential parcel centroids, 143,882 locations. We aggregated the
-points at the level of Canadian Census Dissemination Area (DA) along
-with the population and population per parcel plots in
-Figure~\ref{fig-Fig1}.
+residential parcel centroids, 143,882 locations in the city
+\citep{Teranet_2021}. We aggregated the points at the level of Canadian
+Census Dissemination Area (DA) along with the population and population
+per parcel plots in Figure~\ref{fig-Fig1}. The DA is the most spatially
+granual level of publicly available Canadian census data. DAs are
+created by Statistics Canada for the purpose of the census and each
+represent between 400 to 700 people (Q1:442 and Q3:664 from
+Figure~\ref{fig-Fig1}).
 
 \begin{figure}
 
@@ -670,8 +688,6 @@ from the Open Data Hamilton Portal
 
 \end{figure}%
 
-\newpage
-
 \subsection{Care destination dataset}\label{care-destination-dataset}
 
 A spatial dataset of care destinations for Hamilton was compiled as
@@ -698,7 +714,7 @@ visualised in Figure~\ref{fig-Fig3} by their category.
 
 \providecommand{\ascline}[3]{\noalign{\global\arrayrulewidth #1}\arrayrulecolor[HTML]{#2}\cline{#3}}
 
-\begin{longtable}[c]{|p{0.67in}|p{3.94in}|p{2.09in}}
+\begin{longtable}[c]{|p{1.18in}|p{3.54in}|p{1.97in}}
 
 \caption{\label{tbl-Tbl1}Description of care destinations categories,
 notes on data preparation and associated data sources.}
@@ -707,37 +723,37 @@ notes on data preparation and associated data sources.}
 
 \ascline{1.5pt}{666666}{1-3}
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Care\ category}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Care\ destination\ types}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Sources}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Care\ category}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Care\ destination\ types}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Sources}}}} \\
 
 \ascline{1.5pt}{666666}{1-3}\endfirsthead 
 
 \ascline{1.5pt}{666666}{1-3}
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Care\ category}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Care\ destination\ types}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{Sources}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Care\ category}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Care\ destination\ types}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{Sources}}}} \\
 
 \ascline{1.5pt}{666666}{1-3}\endhead
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Depedent-centric}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Schools,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{daycares,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{and}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{community}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{centres,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{recreation}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{centres,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{parks,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{senior}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{centres,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{long-term}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{care}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{homes,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{and}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{retirement}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{homes:}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1,265}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{locations}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{are}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{included.}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(Hamilton}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2022a,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2022c,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2022d;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Ontario}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Ontario GeoHub}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Depedent-centric}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Schools,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{daycares,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{and}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{community}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{centres,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{recreation}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{centres,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{parks,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{senior}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{centres,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{long-term}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{care}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{homes,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{and}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{retirement}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{homes:}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1,265}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{locations}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{are}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{included.}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(Hamilton}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2022a,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2022c,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2022d;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Ontario}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Ontario GeoHub}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023)}}}} \\
 
 
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Grocery-centric}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Convenience}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{stores}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{and}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{grocery}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{stores}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(e.g.,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{large}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{retailers}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{as}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{well}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{as}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{speciality}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{food}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{grocers,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{health}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{food}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{grocers):}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{381}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{destinations}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{are}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{included.}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(Axle Data}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Grocery-centric}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Convenience}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{stores}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{and}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{grocery}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{stores}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(e.g.,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{large}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{retailers}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{as}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{well}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{as}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{speciality}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{food}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{grocers,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{health}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{food}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{grocers):}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{381}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{destinations}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{are}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{included.}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(Axle Data}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023)}}}} \\
 
 
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Health-centric}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Hospitals,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{pharmacies,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{clinics,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{and}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{dentist}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{offices:}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{421}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{destinations}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{are}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{identified.}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(Ontario GeoHub}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{HNHB Healthline}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Health-centric}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Hospitals,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{pharmacies,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{clinics,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{and}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{dentist}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{offices:}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{421}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{destinations}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{are}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{identified.}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(Ontario GeoHub}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{HNHB Healthline}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023)}}}} \\
 
 
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 0.67in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Errand-centric}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.94in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Libraries,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{post}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{offices,}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{and}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{banks:}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{158}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{destinations}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{are}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{identified.}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 2.09in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(Hamilton}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2022b;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Axle Data}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Canada Post}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{BMO}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{HSBC}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{National Bank}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{RBC}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Scotiabank}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023;}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{TD Bank}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2023)}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{.}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.18in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Errand-centric}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 3.54in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Libraries,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{post}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{offices,}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{and}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{banks:}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{158}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{destinations}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{are}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{identified.}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 1.97in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(Hamilton}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2022b;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Axle Data}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Canada Post}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{BMO}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{HSBC}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{National Bank}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{RBC}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Scotiabank}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023;}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{TD Bank}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2023)}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{.}}}} \\
 
 \ascline{1.5pt}{666666}{1-3}
 
@@ -768,8 +784,6 @@ sourced from the Open Data Hamilton Portal
 \citep{greatlakesUSGS2010}.}
 
 \end{figure}%
-
-\newpage
 
 \subsection{Travel time to care destinations
 estimations}\label{travel-time-to-care-destinations-estimations}
@@ -809,18 +823,18 @@ potential to provide 15-minute caring access, at what level of intensity
 and completeness, and the socio-economic characteristics of those who
 are most benefited or burdened.
 
-\subsection{Accessibility: the cumulative opportunity
-measure}\label{accessibility-the-cumulative-opportunity-measure}
+\subsection{The cumulative opportunity measure of
+accessibility}\label{the-cumulative-opportunity-measure-of-accessibility}
 
-To capture the quantity of access to each type of destinations, a
-cumulative opportunity accessibility score \(S^t_i\) is calculated.
+To capture the quantity of spatial access to each type of destinations,
+a cumulative opportunity accessibility score \(S^t_i\) is calculated.
 Scores for each of the 14 care destination types \(t\) is calculated for
-every parcel \(i\). The calculation takes the following mathematical
-form:
+every parcel \(i\). The calculation takes the mathematical form in
+Equation~\ref{eq-access-cumulative}:
 
-\[
+\begin{equation}\phantomsection\label{eq-access-cumulative}{
 S^t_i=\sum_{j}O_j^{t}\cdot f(c_{ij})
-\] \noindent Where:
+}\end{equation} \noindent Where:
 
 \begin{itemize}
 \tightlist
@@ -840,8 +854,8 @@ S^t_i=\sum_{j}O_j^{t}\cdot f(c_{ij})
   \citep{handyMeasuringAccessibilityExploration1997}.
 \item
   \(S_{i}^t\) is the cumulative opportunity accessibility score, the sum
-  of weighted opportunities reachable within \(f(\cdot)\), at each \(i\)
-  for each \(t\).
+  of opportunities reachable within \(f(\cdot)\), at each \(i\) for each
+  \(t\).
 \end{itemize}
 
 \subsection{Diversity in opportunity accessibility: the entropy
@@ -854,9 +868,9 @@ represents total evenness in the number of care opportunities in each
 category that can be reached. The mathematical formulation takes the
 following form:
 
-\[
+\begin{equation}\phantomsection\label{eq-entropy-measure}{
 D_{i} = \frac{-\sum_{t} [S_i^{t} / \sum_{t}S^{t}_{i} \times ln(S_i^{t} / \sum_{t}S^{t}_{i} )]}{ln(n_t)}
-\]
+}\end{equation}
 
 \noindent Where:
 
@@ -872,8 +886,7 @@ D_{i} = \frac{-\sum_{t} [S_i^{t} / \sum_{t}S^{t}_{i} \times ln(S_i^{t} / \sum_{t
   this value is 14.
 \item
   \(S_{i}^t\) is the cumulative opportunity accessibility score, the sum
-  of weighted opportunities reachable within a 15-minute walk from
-  \(i\).
+  of opportunities reachable within a 15-minute walk from \(i\).
 \item
   \(D_i\) is the diversity score.
 \end{itemize}
@@ -971,13 +984,13 @@ variables may be present in the tree
 \subsection{Overview of access to care
 destinations}\label{overview-of-access-to-care-destinations}
 
-How many care destinations can be reached within a 15-minute walk is
-summed for each of the four care categories defined in
-Table~\ref{tbl-Tbl1}. The median parcel value for each DA is visualised
+The number of care destinations that can be reached within a 15-minute
+walk is summarised for each of the four care categories (as defined in
+Table~\ref{tbl-Tbl1}). The median parcel value for each DA is visualised
 in Figure~\ref{fig-Fig4} and the median parcel diversity of care
 destinations accessible is presented in Figure~\ref{fig-Fig5}. Together,
 Figure~\ref{fig-Fig4} and Figure~\ref{fig-Fig5} represent summaries of
-15 variables that served as inputs into the SOM algorithm.
+15 variables were inputs into the SOM algorithm.
 
 \begin{figure}
 
@@ -989,11 +1002,11 @@ Figure~\ref{fig-Fig4} and Figure~\ref{fig-Fig5} represent summaries of
 
 \caption{\label{fig-Fig4}The number of care destinations that can be
 reached within a 15-min walk per care category for a median parcel in
-each DA. The values are a summary of the 14 acessibility scores that
-served as inputs into the SOM. Basemap shapefiles are retrieved from the
-2021 Canadian census \citep{governmentofcanadaCensusPopulation2023}, the
-Open Data Hamilton Portal \citep{opendatahamiltonCityBoundary2023} and
-the USGS \citep{greatlakesUSGS2010}.}
+each DA. The values are a summary of the 14 acessibility scores that are
+inputs into the SOM. Basemap shapefiles are retrieved from the 2021
+Canadian census \citep{governmentofcanadaCensusPopulation2023}, the Open
+Data Hamilton Portal \citep{opendatahamiltonCityBoundary2023} and the
+USGS \citep{greatlakesUSGS2010}. Scale is in quartiles.}
 
 \end{figure}%
 
@@ -1011,42 +1024,44 @@ summary of the 15th input into the SOM. Basemap shapefiles are retrieved
 from the 2021 Canadian census
 \citep{governmentofcanadaCensusPopulation2023}, the Open Data Hamilton
 Portal \citep{opendatahamiltonCityBoundary2023} and the USGS
-\citep{greatlakesUSGS2010}.}
+\citep{greatlakesUSGS2010}. Scale is in quartiles.}
 
 \end{figure}%
-
-\newpage
 
 \subsection{Identification of completely caring 15-minute neighbourhood
 typologies}\label{identification-of-completely-caring-15-minute-neighbourhood-typologies}
 
-In Figure~\ref{fig-Fig4}, the concentration of opportunities for all
-category types is centered in the downtown of Hamilton, with the highest
-concentration being in the lower city (near the lake shore) and pockets
-of the high concentration further from the shoreline. Grocery-centric
-destinations appear to be the most concentrated, followed by
-health-centric and dependent-centric caring destinations. Errand-centric
-destinations are the most sprawled. In many ways, Figure~\ref{fig-Fig4}
-mirrors the spatial distribution of care destinations
-(Figure~\ref{fig-Fig3}) as the range of 15-minutes of travel is small.
-In Figure~\ref{fig-Fig5}, areas that have high care accessibility tend
-to have high diversity as well, though there are exceptions in pockets
-of the city outside the downtown core that have higher diversity but low
-levels of accessibility for all care categories. Similarly, there are
-areas with low diversity within the downtown core that have only
-moderate or high accessibility to certain care destination types.
+In Figure~\ref{fig-Fig4}, for all care categories, access to
+opportunities is concentrated in downtown Hamilton (Hamilton Central),
+with the highest concentration (top quantiles) near the lake shore of
+Hamilton Central. Grocery-centric destinations follow this trend most
+prominently, followed by health-centric and dependent-centric caring
+destinations. Access to errand-centric destinations appears to most
+spatially homogeneous of the four care destination types, though the top
+quantiles are still concentrated in Hamilton Central. As the 15-minute
+walking accessibility to destinations is a spatially weighted summary
+measure of the count of destinations, Figure~\ref{fig-Fig4} mirrors the
+spatial distribution in Figure~\ref{fig-Fig3}. In Figure~\ref{fig-Fig5},
+areas that have high diversity are broadly located in downtown Hamilton
+as well, however, there are exceptions. Namely, there are pockets of
+high diversity outside the downtown core that that score low levels of
+accessibility for all care categories. Similarly, there are areas with
+low diversity within the downtown core that have only moderate or high
+accessibility to certain care destination types.
 
-Based on the SOM methodology discussed, 7 superclusters are identified
-from the 10 by 10 grid of SOM nodes. As diagnostics for the selection of
-the number of superclusters, the dissimilarity-index-based dendrogram
-with the proportion of parcels represented in each supercluster
-alongside the variance explained plot is visualised in
-Figure~\ref{fig-Fig6}. Labels representing grades A to D qualifying the
-7 superclusters are then assigned. These grades as also reflected in
-Figure~\ref{fig-Fig6} and represent the quantity of accessibility and
-diversity in accessibility per care category. Higher grades (A+ and A)
-corresponding to the highest accessibility and diversity, while lowest
-grades (D) representing lowest accessibility and diversity scores.
+Based on the SOM methodology discussed and using inputs summarised in
+Figure~\ref{fig-Fig4} and Figure~\ref{fig-Fig5}, seven superclusters are
+identified as shown in the dissimilarity-index-based dendrogram (left
+plot of Figure~\ref{fig-Fig6}). Seven superclusters are selected to
+represent the data, as they explain a high amount of the variance (over
+90\%; right plot in Figure~\ref{fig-Fig6}). Each supercluster can be
+intuitively labelled based on the quantity of accessibility and
+diversity in accessibility per care category offered by a parcel, as
+mapped onto the SOM input grid. Labels representing grades A through D
+are assigned to qualify the seven superclusters. Higher grades (A+ and
+A) corresponding to the highest accessibility and diversity, while
+lowest grades (D) represent the lowest accessibility and diversity
+scores.
 
 \begin{figure}
 
@@ -1056,54 +1071,76 @@ grades (D) representing lowest accessibility and diversity scores.
 
 }
 
-\caption{\label{fig-Fig6}The 7 resulting superclusters from the SOM the
-10 by 10 grid output represented in a dendrogram (left) and the
-proportion of variance unexplained by cluster (right).}
+\caption{\label{fig-Fig6}The seven resulting superclusters from the SOM
+output are represented in the dendrogram (left). As a diagnostic, the
+proportion of variance unexplained by the number superclusters is
+displayed on the right, with red lines indicating seven superclusters.}
 
 \end{figure}%
 
-\newpage
-
-The grade for each supercluster was carefully assigned by the authors by
-referring to descriptive statistics and their notable trends. These
-statistics are summarised in Table~\ref{tbl-Tbl2} and in the boxplots in
-Figure~\ref{fig-Fig7}.
+More specifically, each supercluster was labelled a grade by the authors
+by referring to the supercluster's descriptive statistics, as summarised
+in Table~\ref{tbl-Tbl2} and the boxplots in Figure~\ref{fig-Fig7}.
+Additionally, the grades for each supercluster are further explained in
+context of the proportion of urban, suburban and rural parcels as
+classified by the City of Hamilton within the parcel dataset
+\citep{Teranet_2021}. Notably, the majority of parcels in Hamilton are
+considered urban (93.4\%), while suburban and rural parcels constitute
+the remaining 2.3\% and 4.2\%, respectively:
 
 \begin{itemize}
 \tightlist
 \item
-  A+ and A have exceptionally high caring accessibility for all
-  destination types and high diversity scores in the top quantile or
-  above. Together, these grades represent 24\% of all parcels in the
-  city.
+  A+ and A represent superclusters with exceptionally high caring
+  accessibility for all destination types and high diversity scores in
+  the top quantile or above. Together, these grades represent 24\% of
+  all parcels in the city and 100\% are located in urban neighbourhoods.
+  Based on the spatial access and diversity of care destination access
+  offered by these neighbourhoods, they could be called ``very caring''
+  and ``very complete''.
 \item
-  A- has high caring accessibility, but low diversity. Interestingly, A-
-  is like A but with much higher dependent-centric destinations,
-  particularly parks, schools, and daycares, with only moderately high
-  scores for all other destination types. This disbalance lowers its
-  overall diversity score. However, it can be characterized as a
-  supercluster that demonstrates potential in being retrofitted to
-  provide A+ or A level of completely caring access. 4\% of all parcels
-  are represented by the A- grade.
+  A- has high caring accessibility, but low diversity. These
+  neighbourhoods could be classified as ``very caring'' but and ``not
+  complete''. Interestingly, A- is like A but with much higher
+  dependent-centric destinations, particularly parks, schools, and
+  daycares, with only moderately high scores for all other destination
+  types. This disbalance contributes to reducing its overall diversity
+  score. However, it could be characterized as a supercluster that
+  demonstrates potential in being retrofitted to provide A+ or A level
+  of completely caring access. 4\% of all parcels are represented by the
+  A- grade and, similar to parcels in A+ and A superclusters, 100\% are
+  located in urban neighbourhoods.
 \item
-  B+ and B superclusters present about average completely caring access.
-  These superclusters can serve as the benchmark for what `average'
-  completely caring access in Hamilton currently looks like. These
-  grades represent 15\% of all parcels.
+  B+ and B superclusters present about average ``completely caring''
+  access. These superclusters can serve as the benchmark for what
+  `average' completely caring access in Hamilton currently looks like.
+  These grades represent 15\% of all parcels and like parcels in A+, A
+  and A- superclusters, 100\% are located in urban neighbourhoods.
 \item
   B- provides above average dependent-centric destination access,
   particularly parks, daycares and schools, but below average access to
-  other destination types and hence has low diversity scores. B- is like
-  A- as it demonstrates complete caring 15-minute potential if
-  retrofitted. As these parcels demonstrate caring access to some
-  destinations, they may have the potential to be retrofitted to support
-  complete access to all caring destination types. This grade represents
-  19\% of all parcels.
+  other destination types and hence has low diversity scores. B-
+  neighbourhoods could be labelled ``somewhat caring'' but ``not
+  complete''. B- is like A- as it demonstrates complete caring 15-minute
+  potential if retrofitted. As these parcels demonstrate caring access
+  to some destinations, they may have the potential to be retrofitted to
+  support complete access to all caring destination types. This grade
+  represents 19\% of all parcels. While the majority of parcels are
+  still classified as urban neighbourhoods (99\%), this supercluster
+  represents 5.9\% of the suburban parcels and 0.9\% rural parcels in
+  the city. These suburban and rural parcels are in proximity to urban
+  parcels, as elaborated in the next subsection.
 \item
   D superclusters demonstrate the lowest scores all-around, representing
   room for land-use improvement that addresses complete and caring
-  15-minute access. This supercluster characterizes the largest number
-  of parcels, representing 38\% of parcels in the city.
+  15-minute access. D neighbourhoods could be classified as ``not
+  caring'' and ``not complete'' due to the low amount of access to all
+  care destinations offered and the care category diversity of this
+  access. Notably, this supercluster characterizes the largest number of
+  parcels, representing 38\% of parcels in the city. Only 83\% of these
+  parcels are `urban', and this supercluster represents the vast
+  majority of suburban and rural parcels in the city (94.1\% and
+  99.1\%).
 \end{itemize}
 
 \global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}
@@ -1129,7 +1166,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 \hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\ }}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A+}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A-}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B+}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B-}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{D}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{TOTAL}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{\ }}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A+}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A-}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B+}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B-}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{D}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{TOTAL}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1137,7 +1174,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 \hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1.5pt}-}
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\ }}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A+}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{A-}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B+}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{B-}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{D}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{TOTAL}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{\ }}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A+}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{A-}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B+}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{B-}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{D}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{8}\selectfont{\global\setmainfont{Arial}{TOTAL}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1145,7 +1182,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{GROCERY}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{TOTALS}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{12.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(5.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(5.1)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{GROCERY}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{TOTALS}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{12.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(5.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(5.1)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1153,7 +1190,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Convenience}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Store}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.9)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3.4)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Convenience}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Store}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.9)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3.4)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1161,63 +1198,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Grocer}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}-}
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{DEP.}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{TOTALS}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{17.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(5.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{11.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(4.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{13.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{6.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{5.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{9.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.1)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{8.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(6.2)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Comm.}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{or}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Rec.}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{centre}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Daycare}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{or}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{EarlyON}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.2)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{LTC}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{or}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{retirment}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{home}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Park}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{6.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{5.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.3)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.6)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{School}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.3)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Senior}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{centre}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Grocer}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1225,7 +1206,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{HEALTH}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{TOTALS}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{11.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(6.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{5.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.9)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(4.7)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{DEP.}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{TOTALS}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{17.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(5.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{11.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(4.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{13.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{6.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{5.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{9.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.1)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{8.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(6.2)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1233,7 +1214,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Dentist}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{4.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.2)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Comm.}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{or}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Rec.}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{centre}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1241,7 +1222,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Hospital}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{or}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{clinic}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Daycare}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{or}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{EarlyON}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.2)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1249,15 +1230,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Pharmacy}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{6.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(3.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2.7)}}} \\
-
-\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
-
-\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}-}
-
-
-
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{ERRAND}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{TOTALS}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{3.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.6)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.8)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{LTC}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{or}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{retirment}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{home}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1265,7 +1238,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Bank}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{or}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{ATM}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{2.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(1.2)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Park}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{6.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{5.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.3)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.6)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1273,7 +1246,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Library}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{School}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.3)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1281,7 +1254,7 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Post}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{office}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{1.2}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.7}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.5}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.8)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.5)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.1}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.4}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.7)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Senior}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{centre}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1289,7 +1262,71 @@ additional summary variables are indicated by ALL CAPITAL LETERS.}
 
 
 
-\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{Category}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{diversity}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.8}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.2)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.3)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.9}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.6}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.1)}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0)}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{0.3}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\ }}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{(0.4)}}} \\
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{HEALTH}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{TOTALS}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{11.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(6.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{5.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.9)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(4.7)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Dentist}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{4.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.2)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Hospital}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{or}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{clinic}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Pharmacy}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{6.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(3.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2.7)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}-}
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{ERRAND}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{TOTALS}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{3.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.6)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.8)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Bank}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{or}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{ATM}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{2.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(1.2)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Library}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Post}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{office}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{1.2}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.7}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.5}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.8)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.5)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.1}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.4}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.7)}}}} \\
+
+\noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=1pt}-}
+
+
+
+\multicolumn{1}{>{\raggedright}m{\dimexpr 1.2in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{Category}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{diversity}}}} & \multicolumn{1}{>{\cellcolor[HTML]{48B376}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{91CF60}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.8}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.2)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D9EF8B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.3)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FFFFBF}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.9}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FEE08B}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.6}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{FDAE61}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.1)}}}} & \multicolumn{1}{>{\cellcolor[HTML]{D75C56}\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0)}}}} & \multicolumn{1}{>{\raggedright}m{\dimexpr 0.6in+0\tabcolsep}}{\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{0.3}}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{\ }}}\textcolor[HTML]{000000}{\fontsize{8}{0}\selectfont{\global\setmainfont{Arial}{(0.4)}}}} \\
 
 \noalign{\global\arrayrulewidth 0pt}\arrayrulecolor[HTML]{000000}
 
@@ -1319,22 +1356,19 @@ category diversity that define the superclusters.}
 
 \end{figure}%
 
-\newpage
-
 To spatially demonstrate where the superclusters are located,
-representative supercluster labels for each DA are visualised in
+representative supercluster grades for each DA are visualised in
 Figure~\ref{fig-Fig8}. This visualisation is created by grouping parcels
-by their DA, calculating the median supercluster label for each label,
-and selecting the label that is most dominant within that DA. For
-reference, the median number of parcels in each DA is 150 and
-supercluster label membership within a DA is typically pure, with the
+by their DA and selecting the grade that is most dominant within that
+DA. For reference, the median number of parcels in each DA is 150 and
+supercluster grade membership within a DA is typically pure, with the
 median membership being 80\% of a single cluster.
 
 \begin{figure}
 
 \centering{
 
-\includegraphics[width=4.6875in,height=4.6875in]{../figures/SClabel_plot.png}
+\includegraphics[width=8.33333in,height=4.6875in]{../figures/SClabel_plot.png}
 
 }
 
@@ -1347,40 +1381,42 @@ Portal \citep{opendatahamiltonCityBoundary2023} and the USGS
 
 \end{figure}%
 
-The resulting superclusters visualised in Figure~\ref{fig-Fig8} are a
-combination of the cumulative opportunity and diversity of access
-measures translated into meaningful typologies through the SOM
-methodology. To reiterate, accessibility is the measure of
-\emph{potential} interaction, e.g., how many care destinations one could
-reach within a 15-minute walk, these typologies are useful in
-identifying which areas of the city are providing regionally high levels
-of complete caring access, which areas are regionally average, and which
-areas are regionally below average. Furthermore, neighbourhoods which
-provide disbalanced access can be further investigated.
+Recall, the superclusters in Figure~\ref{fig-Fig8} are a combination of
+the cumulative opportunity and diversity of access measures translated
+into meaningful typologies through the SOM methodology. To reiterate,
+accessibility is the measure of \emph{potential} interaction, e.g., how
+many care destinations one could reach within a 15-minute walk, these
+typologies are useful in identifying which areas of the city are
+providing city-wide high levels of complete caring access, which areas
+are city-wide average, and which areas are city-wide below average.
 
 In Figure~\ref{fig-Fig8}, it can be observed that the excellent and
 exceptional neighbourhoods (A, A+), which are very caring and very
 complete 15-minute neighbourhoods, are located within the center of the
 city and closest to the shoreline in the downtown core of Hamilton. The
-above and below average neighbourhoods (B+ B) are often proximate to the
-excellent and exceptional neighbourhoods and are more prevalent in south
-of the escarpment within the center Hamilton. The escarpment is a
+above and below average neighbourhoods (B+, B) are often proximate to
+the excellent and exceptional neighbourhoods and are more prevalent in
+south of the escarpment within the center Hamilton. The escarpment is a
 physical barrier, with few pedestrian-accessible access points to
 traverse; hence the typologies describing neighbouring DAs separated by
 the escarpment are often different. Below average (D) neighbourhoods are
 located in peripheral areas outside the center of Hamilton, in areas
 where urban form is characterised by lower density residential housing
-and auto-dependent mobility.
+and auto-dependent mobility (majority rural and suburban). D
+neighbourhoods also tend to have the lowest diversity scores, with
+either no access or access to only one type of care destination
+category.
 
 Furthermore in Figure~\ref{fig-Fig8}, A- and B- grades stand out as
 offering high access for children-centric destinations for their
 grade-group but below grade-group average access in other destination
-types. These neighbourhoods may be more suitable for populations who
-prioritize walkable access to destinations like schools, parks and
-daycares, and find access to other types of caring destinations less
-important. These neighbourhoods also stand out as demonstrating
-potential to be retrofitted to provide more complete access if
-additional destination types were located within their neighbourhoods.
+types (e.g., low or lowest diversity scores). These neighbourhoods may
+be more suitable for populations who prioritize walkable access to
+children-centric destinations like schools, parks and daycares, and find
+access to other types of caring destinations less important. These
+neighbourhoods also stand out as demonstrating potential to be
+retrofitted to provide more complete access if additional destination
+types were located within their neighbourhoods.
 
 \subsection{Profiles of who does and does not reside in caring 15-minute
 neighbourhoods}\label{profiles-of-who-does-and-does-not-reside-in-caring-15-minute-neighbourhoods}
@@ -1415,8 +1451,8 @@ three terminal Decision Tree nodes: supercluster A+ (exceptional
 completely caring access) and D (not caring and complete access). For
 reference, the city-wide mean household income is 81,316 (SD: 25,239 and
 median: 80,000). The notable splits for income are \textgreater\$91,500,
-\textgreater\$68,750, or between \$68,750 and \$91,500; roughly split by
-lower income, middle income, and higher income median household
+\textless\$68,750, or between \$68,750 and \$91,500; roughly split by
+higher income, lower income, and middle income median household
 brackets.
 
 \begin{figure}
@@ -1434,32 +1470,34 @@ branch.}
 \end{figure}%
 
 Describing Figure~\ref{fig-Fig9}, the bar column on the right represents
-DAs with higher household income. In these DAs, the majority of parcels
-are labeled as D superclusters, i.e not caring or complete 15-minute
-neighbourhoods. Within this higher-income-representing bar column, the
-second highest proportion of supercluster membership are B- parcels. B-
-parcels are low in most amenity types except a few child-centric
-destinations and show promise in being more easily improved than the D
-parcels. The higher income column represents 39\% of the population, the
-largest proportion of any of the three columns. The left column in
-Figure~\ref{fig-Fig9} corresponds to the lowest income, i.e., below
-68,750 CAD median household income, and accounts for 32\% the
-population. It is dominated by A+ parcels along with A and A- parcels,
-in the largest quantities relative to other bar columns, however,
-proportions of all other superclusters are also present. The middle
-column is defined by parcels with a mix of supercluster classifications
-and represents DAs with middle households incomes, between 68,750 CAD
-and 91,500 CAD representing 28\% of the population.
+DAs with higher household income (\textgreater\$91,500 median household
+income). In these DAs, the majority of parcels are labeled as D
+superclusters, i.e not caring or complete 15-minute neighbourhoods.
+Within this higher-income-representing bar column, the second highest
+proportion of supercluster membership are B- parcels. B- parcels are low
+in most amenity types except a few child-centric destinations and show
+promise in being more easily improved than the D parcels. This higher
+income column represents 39\% of the population, the largest proportion
+of any of the three columns. The left column in Figure~\ref{fig-Fig9}
+corresponds to the lowest income (\textless\$68,750 median household
+income), and accounts for 32\% the population. It is dominated by A+
+parcels along with A and A- parcels, in the largest quantities relative
+to other bar columns. However, proportions of all other superclusters
+are also present. The middle column is defined by parcels with a mix of
+supercluster classifications and represents DAs with middle households
+incomes (between \$68,750 and 91,500) representing 28\% of the
+population.
 
 Though median income was the most useful in partitioning the parcels by
-their supercluster labels in Figure~\ref{fig-Fig9}, other variables are
-still important. Namely, the following variables in order of importance
-and correlation coefficient with the median household income variable in
-brackets, are listed: the \% below the median household income (-0.89),
-\% single parent household (-0.57), \% no certification or with only a
-highschool diploma (-0.49), the average number of children per household
-(0.38), \% not in the labour force (-0.41), \% LICO prevalence (-0.67),
-and \% who walk to work (-0.37).
+their supercluster labels in Figure~\ref{fig-Fig9}, other variables
+could also be important in partitioning the data. Namely, the following
+variables in order of importance and their correlation coefficient with
+the median household income variable in brackets, are listed: the \%
+below the median household income (-0.89), \% single parent household
+(-0.57), \% no certification or with only a highschool diploma (-0.49),
+the average number of children per household (0.38), \% not in the
+labour force (-0.41), \% LICO prevalence (-0.67), and \% who walk to
+work (-0.37).
 
 It is notable that median household income is highly or moderately
 correlated with many of these important variables, and discussing these
@@ -1473,32 +1511,33 @@ nationwide trends
 Though not all single-family households are below the LICO (i.e.,
 single-family households are not highly correlated with LICO at the
 DA-level in Hamilton), DAs with higher concentrations of single-family
-households and LICO prevalence tend to have A+ access. Conversely, DAs
-with lower single-parent households are in DAs with a higher
-concentration of parcels with D access. These findings are notable from
-an equity perspective since economic disadvantaged often intersects with
-other socio-demographic characteristics.
+households and LICO prevalence tend to have A+ very completely caring
+access. Conversely, DAs with lower single-parent households are in DAs
+with a higher concentration of parcels with D not complete or caring
+access. These findings are notable from an equity perspective since
+economic disadvantaged often intersects with other socio-demographic
+characteristics
+\citep{ravensbergen_exploratory_2023, lightmanMeasuringEconomicExclusion2018}.
 
 \section{Discussion}\label{discussion}
 
-Geographically, Hamilton is city that offers very caring - and
-completely caring - 15-Minute neighbourhoods for some, but not all.
-There are evident spatial inequalities, with areas ranging from
-excellent (A+ and A), average (B+ and B), to well below average (D).
-Some areas, like those labelled A- and B-, show potential for
-improvement within their grade groups. While the downtown core has the
-highest concentration of \emph{caring 15-minute neighborhoods}, certain
-areas outside the core do as well. This finding somewhat contrasts
-employment accessibility studies, such as
-\citet{elgeneidyNonstopEquityAssessing2016}'s assessment of public
-transit access to employment in the Greater Toronto Area (including
-Hamilton), where access is heavily concentrated in the downtown core,
-more so than appears to be present in this work. Though our paper uses a
-different methodology, both studies highlight distinct patterns: indeed,
-A+, A or A- care access is concentrated in the downtown core but it is
-also present in certain pockets outside of the center of Hamilton,
-leading to interesting conjectures. For instance, some of the A-grade
-neighborhoods in Hamilton likely follow land-use principles that
+Spatially, Hamilton is a city that offers some completely caring
+15-Minute neighbourhoods for some, but not all. There are evident
+spatial inequalities, with areas ranging from excellent (A+ and A),
+average (B+ and B), to well below average (D). Some areas, like those
+labelled A- and B-, show potential for improvement within their grade
+groups. While the downtown core has the highest concentration of
+\emph{caring 15-minute neighborhoods}, certain areas outside the core do
+as well. This finding somewhat contrasts employment accessibility
+studies, such as \citet{elgeneidyNonstopEquityAssessing2016}'s
+assessment of public transit access to employment in the Greater Toronto
+Area (including Hamilton), where access is heavily concentrated in the
+downtown core, more so than appears to be present in this work. Though
+our paper uses a different methodology, both studies highlight distinct
+patterns: indeed, A+, A or A- care access is concentrated in the
+downtown core but it is also present in certain pockets outside of the
+center of Hamilton, leading to interesting conjectures. For instance,
+some of the A- neighborhoods likely follow land-use principles that
 emphasized residential proximity to amenities, similar to the NUC
 reviewed. The potential overlap of the NUC with caring 15-minute
 neighborhoods warrants further investigation.
@@ -1531,62 +1570,72 @@ displaced, which is matter of wellbeing and justice. There are now few
 low-rent choices that provide the same exceptional level of access as
 the downtown core, hence lower household income residents that currently
 reside in A+ neighhourhoods will likely displaced in the coming years if
-current trends continue.
+current trends continue. These questions of gentrification, displacement
+and changing 15-Minute neighbourhoods in Hamilton are topical subjects
+that warrant further investigation.
 
 In discussing policy interventions that equitably increase completely
-caring 15-Minute neighbourhoods in Hamilton, this work's presents a
+caring 15-Minute neighbourhoods in Hamilton, this work presents a
 methodology to create city-wide relative typologies and investigate who
 currently resides in what neighbourhood, as a stepping stone for further
 investigation. Neighbourhoods with the lowest grades (D) and with the
-highest potential in being improved (i.e., high accessibiltiy for
+highest potential in being improved (i.e., high accessibility for
 certain types of destinations but not all) are neighbourhoods with B-
-and A- grades. However, the work's findings demonstrate a mismatch in
-household income and completely caring access: higher income areas are
-often the ones targeted for improvement. This raises important questions
-from the land-use policy perspective that need to be further analysed.
-For instance, is it equitable to focus policy on ameliorating
-neighbourhoods that are already higher-rent though they tend to be more
-rural, single-use zoned and car-dependent (parcels with D grades)?
-Further, of the parcels that provide high child-centrics but low
-otherwise, A- parcels (better access) tend to be in DAs with
-lower-income households more so than B- parcels (lower access than A-).
-From the perspective of ameliorating land-use to support the equitable
-distribution of 15-minute caring neighbourhoods which areas be targeted?
-Who should benefit, and how? If the policy initiative is targeted to
-specific neighbourhoods: sustainability linked to car dependency and
-equity are in tension. This harkens to what role a planned
-neighbourhood, and bottom-up planning approaches that include the
-evaluation of travel behaviour by socio-economic and demographic profile
-should be adopted to achieve equitable 15-minute cities.
+and A- grades. However, our work demonstrates that higher income
+households tend to reside in these neighbourhoods. This raises important
+questions for land-use policy that needs further analysis. For instance,
+is it equitable to focus policy on ameliorating neighbourhoods that are
+already higher-rent though they tend to be more rural, single-use zoned
+and car-dependent (parcels with D grades)? Further, of the parcels that
+provide high child-centrics but low otherwise, A- parcels (better
+access) tend to be in DAs with lower-income households more so than B-
+parcels (lower access than A-). From the perspective of ameliorating
+land-use to support the equitable distribution of 15-minute caring
+neighbourhoods, which areas should be targeted? Who should potentially
+benefit, and how? If the policy initiative is targeted to specific
+neighbourhoods: sustainability linked to car dependency and equity are
+in tension. This harkens to what role a planned neighbourhood, and
+bottom-up planning approaches that include the evaluation of travel
+behaviour by socio-economic and demographic profiles along with
+qualitative perspectives, should play in planning for \emph{equitable}
+15-minute cities.
 
 As is the case for all research, the results should also be interpreted
 along with methodological assumptions. This work measures spatial
 accessibility which is a measure of potential interaction with all
 reachable destinations from an origin. These destinations, however, may
 not be relevant to people at an origin, e.g., they may be underutilized
-(walkable access to 2 schools may be underused, as children often only
-attend 1 school), the trip physically undesirable (the walk may be along
-an arterial with high traffic speeds, making the trip unlikely to ever
-happen by foot), or the average walking speed assumed may not reflect
-the walking speeds of all populations
-\citep{willberg15minuteCityAll2023}. Further, people who reside in these
-neighbourhoods may also disagree with the neighbourhood's label. The
-grade labels are region-relative (e.g., high accessibility in Hamilton
-may be subjectively insufficient for some) and they do not consider
-subjective perceptions that influence accessibility (e.g., though a
-neighbourhood has many opportunities, it may not feel safe to access
-them). Furthermore, accessibility is calculated from the point of
-residential parcels. Care trips are not necessarily completed from home,
-in-fact, they are often completed in complex trip-chains
-\citep{scheinerWomenComplexDaily2015}. In this way, the results flatten
-the dynamic patterns of care trips. These methodological assumptions
-should all be taken together when interpreting the results. In this way,
-the methodologyand findings presented identifies spatial and
-socio-economic trends that should be further investigated.
+such as a parcel with a single-child household having 15-minute walkable
+access to two schools, as a child only needs to attend one school not
+two. As other examples: the trip may be physically undesirable e.g., the
+walk may be along an arterial with high traffic speeds, making the trip
+unlikely to ever happen by foot, or the average walking speed assumed
+may not reflect the walking speeds of all populations
+\citep{willberg15minuteCityAll2023}. Furthermore, the SOM methodology
+only incorporates aspects of spatial accessibility, and people who
+reside in these neighbourhoods may disagree with the neighbourhood's
+completely caring access grade. The grade labels are region-relative
+(e.g., high accessibility in Hamilton may be subjectively insufficient
+for some) and they do not consider subjective perceptions that influence
+accessibility (e.g., though a neighbourhood has many opportunities,
+residences may not feel safe to access them). Furthermore, accessibility
+is calculated from the point of residential parcels. Care trips are not
+necessarily completed from home, in fact, they are often completed in
+complex trip-chains \citep{scheinerWomenComplexDaily2015}. Also
+different care destination types can be more or else important to
+different people, indicating an aspect of competition and destination
+quality could be considered within the accessibility measure itself. In
+this way, the results flatten the dynamic patterns of care trips. These
+methodological assumptions should all be taken together when
+interpreting the results. In this way, the methodology and findings
+presented identifies spatial and socio-economic variations that should
+be further investigated. They can be examined through additional
+quantitative investigation but also through qualitative and mixed
+methods that can capture trends at the individual and personal level.
 
 \section{Conclusion}\label{conclusion}
 
-This study makes three types of contributions to the transportation and
+This work makes three types of contributions to the transportation and
 city planning literature: empirical, methodological and theoretical. At
 the empirical level, areas of the mid-sized City of Hamilton have been
 typified by their degree of `15-Minute Caring Neighbourhood' potential.
@@ -1596,28 +1645,34 @@ how many destinations could be reached in a 15-minute walk and the
 diversity of destination type. These values were then clustered using a
 novel machine learning approach, SOM, to generate meaningful typologies
 for discussion and further comparison with socio-economic composition of
-the area. We find A+ and A 15-minute caring neighbourhoods are located
-within the downtown core and in certain suburban pockets of the city,
-while the peripheral regions provide D level caring access. A- and B-
-areas are also identified as neighbourhoods that already support a high
-amount of children-centric destination access, and could be improved to
-provide better complete care access. Theoretically, our work puts forth
-an explicitly caring 15-Minute Neighbourhod conceptualisation, bridging
-the Mobility of Care and the 15-Minute City concepts. We discuss how
-measuring caring neighbourhoods can be explicitly considered within city
-planning.
+the area. We find A+ and A (very completely caring 15-minute
+neighbourhoods) are located within the downtown core and in certain
+suburban pockets of the city, while the peripheral regions provide D
+level caring access. A- and B- areas are also identified as
+neighbourhoods that already support a high amount of children-centric
+destination access, and could be improved to provide better complete
+care access. Our work also demonstrates that residents of lower care
+access neighbourhoods tend to be wealthier than higher care access
+neighbourhoods highlighting the potential tensions in implementing
+sustainable land-use policy. We also detail limitations associated with
+our data and methodology and hence our results throughout the
+manuscript. Theoretically, our work puts forth an explicitly caring
+15-Minute Neighbourhod conceptualisation, bridging the Mobility of Care
+and the 15-Minute City concepts. We discuss how measuring caring
+neighbourhoods can be explicitly considered within city planning, along
+with trends that warrant further investigation in future studies.
 
-Our work is of relevance to researchers and practitioners planning
+This work is of relevance to researchers and practitioners planning
 equitable and sustainable cities. Instead of prescribing an urban form
 design principle, such as ``all local amenities should be within a
-15-minute walking distance'', it instead examines an empirical example
-to determine which areas in the city have the \emph{potential} to be
-15-minute neighbourhood based on the existing spatial accessibility
-offered by the urban environment and walking transport network. To this
-end, this data-driven methodology introduces a way to identify
-neighbourhoods that have potential, almost have potential, and are far
-from containing this potential to support future context-specific
-qualitative work.
+15-minute walking distance'', this work instead examines an empirical
+example to determine which areas in the city have the \emph{potential}
+to be 15-minute neighbourhood based on the existing spatial
+accessibility offered by the urban environment and walking transport
+network. To this end, this data-driven methodology introduces a way to
+identify neighbourhoods that have potential, almost have potential, and
+are far from containing this potential to support future
+context-specific qualitative work.
 
 \section{References}\label{references}
 
